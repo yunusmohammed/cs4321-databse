@@ -6,9 +6,11 @@ package com.cs4321.app;
 import java.nio.file.Files;
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 
 /**
+ * The Database Catalog gives information related to specific tables such as their file location and schema.
  * @author Yohanes
  *
  */
@@ -17,6 +19,7 @@ public class DatabaseCatalog {
 	private static String inputdir;
 	private static String sep = File.separator;
 	private static DatabaseCatalog instance;
+	private static HashMap<String, String[]> schemaMap;
 	
 	/** 
 	 * Private constructor to follow the singleton pattern.
@@ -36,7 +39,7 @@ public class DatabaseCatalog {
 	 * @return the database catalog singleton
 	 */
 	public static DatabaseCatalog getInstance() {
-		if(instance == null) instance = new DatabaseCatalog();
+		if(DatabaseCatalog.instance == null) instance = new DatabaseCatalog();
 		return instance;
 	}
 	
@@ -52,19 +55,22 @@ public class DatabaseCatalog {
 	/**
 	 * Returns a string array containing the schema for a given table.
 	 * @param table - a string with the name of the table for which we are returning the schema
-	 * @return a string array containing the name of the table followed by the columns- throws an error if the table does not exist
+	 * @return a string array containing the name of the table followed by the columns- returns an empty array if the table does not exist
 	 */
 	public String[] tableSchema(String table) {
-		try {
-			List<String> tableSchemas = Files.readAllLines(Paths.get(inputdir + sep + "db" + sep + "schema.txt"));
-			for(String tableSchema : tableSchemas) {
-				String[] columns = tableSchema.split(" ");
-				if(columns[0].equals(table)) return columns;
+		if(schemaMap == null) {
+			schemaMap = new HashMap<String, String[]>();
+			try {
+				List<String> tableSchemas = Files.readAllLines(Paths.get(inputdir + sep + "db" + sep + "schema.txt"));
+				for(String tableSchema : tableSchemas) {
+					String[] columns = tableSchema.split(" ");
+					schemaMap.put(columns[0], columns);
+				}
+			}
+			catch (Exception e) {
+				System.out.println("Unable to read schema file");
 			}
 		}
-		catch (Exception e) {
-			System.out.println("Unable to read from table" + table);
-		}
-		throw new Error("Table not found");
+		return schemaMap.getOrDefault(table, new String[0]);
 	}
 }

@@ -4,7 +4,7 @@ package com.cs4321.app;
  * Hello world!
  *
  */
-public class App 
+public class Interpreter 
 {
     public static void main( String[] args )
     {

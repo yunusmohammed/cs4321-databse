@@ -23,11 +23,11 @@
 hs_err_pid*
 
 # Eclipse settings
-.settings
+.settings/
 
 # Desktop Services Store
 *.DS_Store
 
 # Target
-./target/
+target/
 

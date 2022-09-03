@@ -18,7 +18,7 @@ class DatabaseCatalogTest {
 	
 	DatabaseCatalog dbc = DatabaseCatalog.getInstance();
 	static String sep = File.separator;
-	static String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "java" + sep + "input";
+	static String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input";
 	
 	@BeforeAll
 	static void setup() {

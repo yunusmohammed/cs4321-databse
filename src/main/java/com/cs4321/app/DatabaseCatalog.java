@@ -39,7 +39,7 @@ public class DatabaseCatalog {
 	 * @return the database catalog singleton
 	 */
 	public static DatabaseCatalog getInstance() {
-		if(DatabaseCatalog.instance == null) instance = new DatabaseCatalog();
+		if(DatabaseCatalog.instance == null) DatabaseCatalog.instance = new DatabaseCatalog();
 		return instance;
 	}
 	

@@ -25,4 +25,7 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
 	<classpathentry kind="output" path="target/classes"/>
+	<classpathentry kind="lib" path="src/main/resources/com/cs4321/jsqlparser.jar"/>
 </classpath>
+
+

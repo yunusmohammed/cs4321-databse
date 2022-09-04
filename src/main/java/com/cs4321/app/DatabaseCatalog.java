@@ -22,18 +22,22 @@ public class DatabaseCatalog {
 	private static String sep = File.separator;
 	private static DatabaseCatalog instance;
 	private static HashMap<String, String[]> schemaMap;
+	private static HashMap<String, List<Tuple>> tableMap;
 	
 	/** 
 	 * Private constructor to follow the singleton pattern.
 	 */
-	private DatabaseCatalog() {}
+	private DatabaseCatalog() {
+		DatabaseCatalog.schemaMap = new HashMap<String, String[]>();
+		DatabaseCatalog.tableMap = new HashMap<String, List<Tuple>>();
+	}
 	
 	/**
 	 * Sets the absolute path to the input directory. The input directory must be set before the database catalog is accessed.
 	 * @param inputdirectory - The absolute path to the directory containing the queries, schema, and data.
 	 */
 	public static void setInputDir(String inputdirectory) {
-		inputdir = inputdirectory;
+		DatabaseCatalog.inputdir = inputdirectory;
 	}
 	
 	/**
@@ -42,7 +46,7 @@ public class DatabaseCatalog {
 	 */
 	public static DatabaseCatalog getInstance() {
 		if(DatabaseCatalog.instance == null) DatabaseCatalog.instance = new DatabaseCatalog();
-		return instance;
+		return DatabaseCatalog.instance;
 	}
 	
 	/**
@@ -51,7 +55,7 @@ public class DatabaseCatalog {
 	 * @return A string of the absolute path to the table.
 	 */
 	public String tablePath(String table) {
-		return inputdir + sep + "db" + sep + "data" + sep + table;
+		return DatabaseCatalog.inputdir + sep + "db" + sep + "data" + sep + table;
 	}
 	
 	/**
@@ -75,11 +79,13 @@ public class DatabaseCatalog {
 	 * @return- A list of tuples containing the data from the table.
 	 */
 	public List<Tuple> getTable(String table) {
+		if(DatabaseCatalog.tableMap.containsKey(table)) return DatabaseCatalog.tableMap.get(table);
 		List<String> tableContents = readFile(tablePath(table));
 		List<Tuple> rows = new ArrayList<>();
 		for(String row : tableContents) {
 			rows.add(new Tuple(row));
 		}
+		DatabaseCatalog.tableMap.put(table, rows);
 		return rows;
 	}
 	
@@ -89,14 +95,12 @@ public class DatabaseCatalog {
 	 * @return A string array containing the name of the table followed by the columns- returns an empty array if the table does not exist.
 	 */
 	public String[] tableSchema(String table) {
-		if(schemaMap == null) {
-			schemaMap = new HashMap<String, String[]>();
-			List<String> tableSchemas = readFile(inputdir + sep + "db" + sep + "schema.txt");
-			for(String tableSchema : tableSchemas) {
-				String[] columns = tableSchema.split(" ");
-				schemaMap.put(columns[0], columns);
-			}
+		if(DatabaseCatalog.schemaMap.containsKey(table)) return DatabaseCatalog.schemaMap.get(table);
+		List<String> tableSchemas = readFile(DatabaseCatalog.inputdir + sep + "db" + sep + "schema.txt");
+		for(String tableSchema : tableSchemas) {
+			String[] columns = tableSchema.split(" ");
+			DatabaseCatalog.schemaMap.put(columns[0], columns);
 		}
-		return schemaMap.getOrDefault(table, new String[0]);
+		return DatabaseCatalog.schemaMap.getOrDefault(table, new String[0]);
 	}
 }

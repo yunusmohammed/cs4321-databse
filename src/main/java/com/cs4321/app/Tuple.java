@@ -48,7 +48,7 @@ public class Tuple {
 	@Override
 	public boolean equals(Object o) {
 		if(this == o) return true;
-		if(o == null || o.getClass() != this.getClass()) return false;
+		if(o == null || !(o instanceof Tuple)) return false;
 		Tuple t = (Tuple) o;
 		if(this.size() != t.size()) return false;
 		for(int i=0; i<t.size(); i++) {

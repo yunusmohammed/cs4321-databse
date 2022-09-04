@@ -16,12 +16,26 @@
     <maven.compiler.release>11</maven.compiler.release>
   </properties>
 
+  <repositories>
+    <repository>
+      <id>in-project</id>
+      <name>In Project Repo</name>
+      <url>file://${project.basedir}/libs</url>
+    </repository>
+  </repositories>
+
   <dependencies>
     <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-engine</artifactId>
         <version>5.4.0</version>
         <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.cs4321.app</groupId>
+      <artifactId>jsqlparser</artifactId>
+      <version>1.0</version>
     </dependency>
   </dependencies>
 

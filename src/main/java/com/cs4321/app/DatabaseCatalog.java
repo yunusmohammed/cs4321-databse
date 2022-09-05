@@ -98,7 +98,7 @@ public class DatabaseCatalog {
 			DatabaseCatalog.schemaMap.put(columns[0], new SimpleEntry<>(columns, columnIndex));
 		}
 		if(DatabaseCatalog.schemaMap.containsKey(table)) return DatabaseCatalog.schemaMap.get(table).getKey();
-		System.out.println("Table " + table + "does not exist.");
+		System.out.println("Table " + table + " does not exist.");
 		return new String[0];
 	}
 }

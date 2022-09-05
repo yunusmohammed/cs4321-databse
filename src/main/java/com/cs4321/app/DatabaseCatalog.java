@@ -30,7 +30,7 @@ public class DatabaseCatalog {
 	 *  from column names in the schema to their index.
 	 */
 	private static HashMap<String, Map.Entry<String[], HashMap<String, Integer>>> schemaMap;
-
+	
 	/**
 	 * Private constructor to follow the singleton pattern.
 	 */

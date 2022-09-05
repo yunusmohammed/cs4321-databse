@@ -7,7 +7,7 @@ package com.cs4321.app;
  */
 public class Tuple {
 	
-	private int[] row;
+	private int[] row; 
 	
 	/**
 	 * Converts a row from a table into a tuple.
@@ -40,6 +40,21 @@ public class Tuple {
 	 */
 	public int get(int index) {
 		return row[index];
+	}
+	
+	/**
+	 * Returns a string representation of a tuple. 
+	 */
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append('(');
+		for(int i=0; i<this.size(); i++) {
+			sb.append(row[i] + "");
+			if(i < this.size()-1) sb.append(", ");
+		}
+		sb.append(')');
+		return sb.toString();
 	}
 	
 	/**

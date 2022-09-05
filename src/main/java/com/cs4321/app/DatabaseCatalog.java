@@ -22,14 +22,12 @@ public class DatabaseCatalog {
 	private static String sep = File.separator;
 	private static DatabaseCatalog instance;
 	private static HashMap<String, String[]> schemaMap;
-	private static HashMap<String, List<Tuple>> tableMap;
 	
 	/** 
 	 * Private constructor to follow the singleton pattern.
 	 */
 	private DatabaseCatalog() {
 		DatabaseCatalog.schemaMap = new HashMap<String, String[]>();
-		DatabaseCatalog.tableMap = new HashMap<String, List<Tuple>>();
 	}
 	
 	/**
@@ -71,22 +69,6 @@ public class DatabaseCatalog {
 			System.out.println("Unable to read file at " + path);
 		}
 		return new ArrayList<String>();
-	}
-	
-	/**
-	 * Returns a list of tuples containing the data from a given table.
-	 * @param table- The name of the table we want to read data from.
-	 * @return- A list of tuples containing the data from the table.
-	 */
-	public List<Tuple> getTable(String table) {
-		if(DatabaseCatalog.tableMap.containsKey(table)) return DatabaseCatalog.tableMap.get(table);
-		List<String> tableContents = readFile(tablePath(table));
-		List<Tuple> rows = new ArrayList<>();
-		for(String row : tableContents) {
-			rows.add(new Tuple(row));
-		}
-		DatabaseCatalog.tableMap.put(table, rows);
-		return rows;
 	}
 	
 	/**

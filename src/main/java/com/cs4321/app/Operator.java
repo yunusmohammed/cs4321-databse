@@ -2,11 +2,15 @@ package com.cs4321.app;
 
 /**
  * Abstract class which all operators extend.
+ *
+ * @author Jessica Tweneboah
  */
 public interface Operator {
     /**
      * Gets the next tuple of the operator’s output. If the operator still has some available
      * output, it will return the next tuple, otherwise it would return null.
+     *
+     * @return The next tuple of the operator’s output
      */
     Tuple getNextTuple();
 

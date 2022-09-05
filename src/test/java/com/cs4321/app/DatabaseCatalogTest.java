@@ -6,7 +6,7 @@ package com.cs4321.app;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
-import java.util.List;
+import java.util.HashMap;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -37,30 +37,6 @@ class DatabaseCatalogTest {
 	}
 
 	@Test
-	void getTableTest() {
-
-		List<Tuple> boats = dbc.getTable("Boats");
-		List<Tuple> reserves = dbc.getTable("Reserves");
-		List<Tuple> empty = dbc.getTable("Empty");
-
-		// boats table rows
-		assertEquals(new Tuple("101,2,3"), boats.get(0));
-		assertEquals(new Tuple("102,3,4"), boats.get(1));
-		assertEquals(new Tuple("104,104,2"), boats.get(2));
-		assertEquals(new Tuple("107,2,8"), boats.get(4));
-
-		// reserves table rows
-		assertEquals(new Tuple("1,101"), reserves.get(0));
-		assertEquals(new Tuple("4,104"), reserves.get(5));
-
-		// empty table
-		for(int i=0; i<3; i++) {
-			assertEquals(new Tuple(""), empty.get(i));
-		}
-
-	}
-
-	@Test
 	void tableSchemaTest() {
 		// sailors schema
 		assertArrayEquals(new String[]{"Sailors", "A", "B", "C"}, dbc.tableSchema("Sailors"));
@@ -68,6 +44,22 @@ class DatabaseCatalogTest {
 		assertArrayEquals(new String[]{"Boats", "D", "E", "F"}, dbc.tableSchema("Boats"));
 		// reserves schema
 		assertArrayEquals(new String[]{"Reserves", "G", "H"}, dbc.tableSchema("Reserves"));
+	}
+
+	@Test
+	void columnMapTest() {
+		HashMap<String, Integer> sailorMap = dbc.columnMap("Sailors");
+		HashMap<String, Integer> ReservesMap = dbc.columnMap("Reserves");
+		HashMap<String, Integer> emptyMap = dbc.columnMap("empty");
+
+		assertEquals(0, sailorMap.get("A"));
+		assertEquals(1, sailorMap.get("B"));
+		assertEquals(2, sailorMap.get("C"));
+
+		assertEquals(0, ReservesMap.get("G"));
+		assertEquals(1, ReservesMap.get("H"));
+		assertEquals(0, emptyMap.keySet().size());
+
 	}
 
 }

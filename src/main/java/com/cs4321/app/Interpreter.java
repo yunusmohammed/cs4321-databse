@@ -13,14 +13,16 @@ import java.util.List;
 
 
 /**
+ * The SQL interpreter reads from the db directory and from the queries.sql file,
+ * and writes output to a suitable output directory.
+ *
  * @author Jessica Tweneboah
  */
 public class Interpreter {
     private static String inputdir;
     private static String outputdir;
-
-    DatabaseCatalog dbc = DatabaseCatalog.getInstance();
     private static final String sep = File.separator;
+    DatabaseCatalog dbc = DatabaseCatalog.getInstance();
 
     public static void main(String[] args) {
         if (args.length < 2) {
@@ -108,6 +110,9 @@ public class Interpreter {
         Interpreter.inputdir = inputdir;
     }
 
+    /**
+     * @return
+     */
     public static String queriesPath() {
         return inputdir + sep + "queries.sql";
     }

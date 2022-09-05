@@ -3,9 +3,9 @@ package com.cs4321.app;
 public class ProjectOperator implements Operator {
 
     @Override
-    public void getNextTuple() {
+    public Tuple getNextTuple() {
         // TODO Auto-generated method stub
-
+        return new Tuple("");
     }
 
     @Override

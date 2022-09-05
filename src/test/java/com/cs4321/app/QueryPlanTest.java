@@ -10,8 +10,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class QueryPlanTest {
 
     private Operator operator;
+    private Operator childOperator;
     private final QueryPlan queryPlan = new QueryPlan(operator);
-    private final ScanOperator scanOperator = new ScanOperator("Sailors");
     private static final String sep = File.separator;
     private static final String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input";
 
@@ -27,19 +27,19 @@ class QueryPlanTest {
 
     @Test
     void setRoot() {
-        queryPlan.setRoot(scanOperator);
-        assertEquals(scanOperator, queryPlan.getRoot());
+        queryPlan.setRoot(childOperator);
+        assertEquals(childOperator, queryPlan.getRoot());
     }
 
     @Test
     void leftChild() {
-        queryPlan.setLeftChild(scanOperator);
-        assertEquals(scanOperator, queryPlan.getLeftChild().getRoot());
+        queryPlan.setLeftChild(childOperator);
+        assertEquals(childOperator, queryPlan.getLeftChild().getRoot());
     }
 
     @Test
     void rightChild() {
-        queryPlan.setRightChild(scanOperator);
-        assertEquals(scanOperator, queryPlan.getRightChild().getRoot());
+        queryPlan.setRightChild(childOperator);
+        assertEquals(childOperator, queryPlan.getRightChild().getRoot());
     }
 }

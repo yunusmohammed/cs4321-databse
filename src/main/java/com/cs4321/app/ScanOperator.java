@@ -162,7 +162,9 @@ public class ScanOperator implements Operator {
         List<String> tableContents = DatabaseCatalog.readFile(DatabaseCatalog.tablePath(table));
         List<Tuple> rows = new ArrayList<>();
         for (String row : tableContents) {
-            rows.add(new Tuple(row));
+            if (!row.isEmpty()){
+                rows.add(new Tuple(row));
+            }
         }
         return rows;
     }

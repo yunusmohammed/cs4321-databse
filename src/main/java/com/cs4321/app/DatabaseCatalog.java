@@ -34,9 +34,7 @@ public class DatabaseCatalog {
 	/** 
 	 * Private constructor to follow the singleton pattern.
 	 */
-	private DatabaseCatalog() {
-		DatabaseCatalog.schemaMap = new HashMap<>();
-	}
+	private DatabaseCatalog() {}
 	
 	/**
 	 * Sets the absolute path to the input directory. The input directory must be set before the database catalog is accessed.
@@ -80,25 +78,46 @@ public class DatabaseCatalog {
 	}
 	
 	/**
-	 * Returns a string array containing the schema for a given table. If not previously initialized, the function will
-	 * add a record for every table listed in schema.txt. Additionally, a map from column names to their index in the tuple is stored
-	 * with the schema for a table.
+	 * Initializes schemaMap if not previously done before.
+	 */
+	private void initSchemaMap() {
+		if(schemaMap == null) {
+			schemaMap = new HashMap<>();
+			List<String> tableSchemas = readFile(DatabaseCatalog.inputdir + sep + "db" + sep + "schema.txt");
+			for(String tableSchema : tableSchemas) {
+				String[] columns = tableSchema.split(" ");
+				HashMap<String, Integer> columnIndex = new HashMap<>();
+				for(int i=1; i<columns.length; i++) {
+					columnIndex.put(columns[i], i-1);
+				}
+				DatabaseCatalog.schemaMap.put(columns[0], new SimpleEntry<>(columns, columnIndex));
+			}
+		}
+	}
+	
+	/**
+	 * Returns a string array containing the schema for a given table. The function will initialize schemaMap if not done
+	 * previously.
 	 * @param table - A string with the name of the table for which we are returning the schema.
-	 * @return A string array containing the name of the table followed by the columns- returns an empty array if the table does not exist.
+	 * @return A string array containing the name of the table followed by the columns- returns an empty array if the table doesn't exist.
 	 */
 	public String[] tableSchema(String table) {
-		if(DatabaseCatalog.schemaMap.containsKey(table)) return DatabaseCatalog.schemaMap.get(table).getKey();
-		List<String> tableSchemas = readFile(DatabaseCatalog.inputdir + sep + "db" + sep + "schema.txt");
-		for(String tableSchema : tableSchemas) {
-			String[] columns = tableSchema.split(" ");
-			HashMap<String, Integer> columnIndex = new HashMap<>();
-			for(int i=1; i<columns.length; i++) {
-				columnIndex.put(columns[i], i-1);
-			}
-			DatabaseCatalog.schemaMap.put(columns[0], new SimpleEntry<>(columns, columnIndex));
-		}
+		initSchemaMap();
 		if(DatabaseCatalog.schemaMap.containsKey(table)) return DatabaseCatalog.schemaMap.get(table).getKey();
 		System.out.println("Table " + table + " does not exist.");
 		return new String[0];
+	}
+	
+	/**
+	 * Returns a map which maps the columns of the given table to their index in a tuple. The function will initialize schemaMap if not done
+	 * previously.
+	 * @param table- A string with the name of the table for which we are returning the map.
+	 * @return- A HashMap which maps the name of columns in the table to their corresponding index- returns an empty map if the table doesn't exist.
+	 */
+	public HashMap<String, Integer> columnMap(String table) {
+		initSchemaMap();
+		if(DatabaseCatalog.schemaMap.containsKey(table)) return DatabaseCatalog.schemaMap.get(table).getValue();
+		System.out.println("Table " + table + " does not exist.");
+		return new HashMap<>();
 	}
 }

@@ -6,6 +6,7 @@ package com.cs4321.app;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
+import java.util.HashMap;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -43,6 +44,22 @@ class DatabaseCatalogTest {
 		assertArrayEquals(new String[]{"Boats", "D", "E", "F"}, dbc.tableSchema("Boats"));
 		// reserves schema
 		assertArrayEquals(new String[]{"Reserves", "G", "H"}, dbc.tableSchema("Reserves"));
+	}
+	
+	@Test
+	void columnMapTest() {
+		HashMap<String, Integer> sailorMap = dbc.columnMap("Sailors");
+		HashMap<String, Integer> ReservesMap = dbc.columnMap("Reserves");
+		HashMap<String, Integer> emptyMap = dbc.columnMap("empty");
+		
+		assertEquals(0, sailorMap.get("A"));
+		assertEquals(1, sailorMap.get("B"));
+		assertEquals(2, sailorMap.get("C"));
+		
+		assertEquals(0, ReservesMap.get("G"));
+		assertEquals(1, ReservesMap.get("H"));
+		assertEquals(0, emptyMap.keySet().size());
+		
 	}
 
 }

@@ -13,7 +13,7 @@ public class ScanQueryPlan extends QueryPlan {
      *
      * @param root The root scan operator of the ScanQueryPlan
      */
-    public ScanQueryPlan(Operator root) {
+    public ScanQueryPlan(ScanOperator root) {
         super(root);
     }
 

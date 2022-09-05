@@ -24,6 +24,13 @@ public class Interpreter {
     private static final String sep = File.separator;
     DatabaseCatalog dbc = DatabaseCatalog.getInstance();
 
+    /**
+     * Main function that is executed to run the project
+     *
+     * @param args The command-line arguments that are passed to the interpreter to run sql queries <br>
+     *             args[0]: Specifies an absolute path to the input directory. <br>
+     *             args[1]: Specifies an absolute path to the output directory.
+     */
     public static void main(String[] args) {
         if (args.length < 2) {
             System.out.println("Incorrect input format");
@@ -35,6 +42,9 @@ public class Interpreter {
         parseQueries();
     }
 
+    /**
+     * Parses the SQL Queries from the input queries.sql file
+     */
     public static void parseQueries() {
         CCJSqlParser parser = null;
         try {
@@ -43,7 +53,7 @@ public class Interpreter {
             e.printStackTrace();
         }
         Statement statement = null;
-        int queryNumber = 0;
+        int queryNumber = 1;
         while (true) {
             try {
                 if ((statement = parser.Statement()) == null) break;
@@ -55,6 +65,12 @@ public class Interpreter {
         }
     }
 
+    /**
+     * Evaluates SQL query statements
+     *
+     * @param statement   The SQL statement being evaluated
+     * @param queryNumber Specifies the index of the query being processed (starting at 1)
+     */
     public static void evaluateQueries(Statement statement, int queryNumber) {
         Operator operator;
         String queryOutputName = getOutputdir() + sep + "query" + queryNumber;
@@ -70,11 +86,9 @@ public class Interpreter {
         Expression whereExpression = selectBody.getWhere();
         Distinct distinct = selectBody.getDistinct();
 
-        if ("*".equals(firstSelectItem.toString())
-                && otherFromItemsArrayList == null && whereExpression == null
-                && distinct == null && orderByElementsList == null) {
+        if ("*".equals(firstSelectItem.toString()) && otherFromItemsArrayList == null && whereExpression == null && distinct == null && orderByElementsList == null) {
             operator = new ScanOperator(fromItem.toString(), queryOutputName);
-            QueryPlan queryPlan = new ScanQueryPlan(operator);
+            QueryPlan queryPlan = new ScanQueryPlan((ScanOperator) operator);
             queryPlan.evaluate();
         } else {
             //TODO: Add conditions for other operators @Lenhard, @Yohannes, @Yunus
@@ -83,35 +97,49 @@ public class Interpreter {
     }
 
     /**
-     * @return
+     * Returns the query output directory
+     *
+     * @return The empty Output Directory that contains the results of the queries
      */
     public static String getOutputdir() {
         return outputdir;
     }
 
     /**
-     * @param outputdir
+     * Sets the query output directory
+     *
+     * @param outputdir The empty Output Directory that contains the results of the queries
      */
     public static void setOutputdir(String outputdir) {
         Interpreter.outputdir = outputdir;
     }
 
     /**
-     * @return
+     * Sets the query input directory
+     *
+     * @return The input directory, which contains a queries.sql file containing the sql queries.
+     * a db subdirectory, which contains a schema.txt file specifying the schema for your
+     * database as well as a data subdirectory, where the data itself is stored.
      */
     public static String getInputdir() {
         return inputdir;
     }
 
     /**
-     * @param inputdir
+     * Returns the query input directory
+     *
+     * @param inputdir The input directory, which contains a queries.sql file containing the sql queries.
+     *                 a db subdirectory, which contains a schema.txt file specifying the schema for your
+     *                 database as well as a data subdirectory, where the data itself is stored.
      */
     public static void setInputdir(String inputdir) {
         Interpreter.inputdir = inputdir;
     }
 
     /**
-     * @return
+     * Returns the absolute path to the sql queries
+     *
+     * @return The absolute path to the sql queries
      */
     public static String queriesPath() {
         return inputdir + sep + "queries.sql";

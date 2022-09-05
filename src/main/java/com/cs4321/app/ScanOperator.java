@@ -65,23 +65,26 @@ public class ScanOperator implements Operator {
      */
     @Override
     public void dump() {
-        FileWriter fileWriter = null;
-        try {
-            fileWriter = new FileWriter(getQueryOutputFileName());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        PrintWriter printWriter = new PrintWriter(fileWriter);
         int tableLength = getBaseTable().size();
-        while (getNextIndex() < tableLength) {
-            if (getQueryOutputFileName() == null) {
+        if (getQueryOutputFileName() == null) {
+            while (getNextIndex() < tableLength) {
                 System.out.println(getNextTuple());
-            } else {
-                printWriter.println(getNextTuple().toString());
+                setNextIndex(getNextIndex() + 1);
             }
-            setNextIndex(getNextIndex() + 1);
+        } else {
+            FileWriter fileWriter = null;
+            try {
+                fileWriter = new FileWriter(getQueryOutputFileName());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            PrintWriter printWriter = new PrintWriter(fileWriter);
+            while (getNextIndex() < tableLength) {
+                printWriter.println(getNextTuple().toString());
+                setNextIndex(getNextIndex() + 1);
+            }
+            printWriter.close();
         }
-        printWriter.close();
     }
 
     /**
@@ -151,13 +154,14 @@ public class ScanOperator implements Operator {
 
     /**
      * Returns a list of tuples containing the data from a given table.
+     *
      * @param table- The name of the table we want to read data from.
      * @return- A list of tuples containing the data from the table.
      */
     public List<Tuple> getTable(String table) {
         List<String> tableContents = DatabaseCatalog.readFile(DatabaseCatalog.tablePath(table));
         List<Tuple> rows = new ArrayList<>();
-        for(String row : tableContents) {
+        for (String row : tableContents) {
             rows.add(new Tuple(row));
         }
         return rows;

@@ -48,12 +48,10 @@ public class Tuple {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append('(');
 		for(int i=0; i<this.size(); i++) {
 			sb.append(row[i] + "");
-			if(i < this.size()-1) sb.append(", ");
+			if(i < this.size()-1) sb.append(",");
 		}
-		sb.append(')');
 		return sb.toString();
 	}
 	

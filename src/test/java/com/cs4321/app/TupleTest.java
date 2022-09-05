@@ -56,11 +56,11 @@ class TupleTest {
 	@Test
 	void toStringTest() {
 		// empty tuple string
-		assertEquals("()", empty.toString());
+		assertEquals("", empty.toString());
 		// single tuple string
-		assertEquals("(5)", single.toString());
+		assertEquals("5", single.toString());
 		// quadruple tuple string
-		assertEquals("(9, -18, 100, 0)", quadruple.toString());
+		assertEquals("9,-18,100,0", quadruple.toString());
 	}
 
 }

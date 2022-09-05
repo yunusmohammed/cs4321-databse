@@ -4,12 +4,15 @@
 package com.cs4321.app;
 
 import java.nio.file.Files;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The Database Catalog gives information related to specific tables such as their file location and schema.
@@ -21,13 +24,18 @@ public class DatabaseCatalog {
 	private static String inputdir;
 	private static String sep = File.separator;
 	private static DatabaseCatalog instance;
-	private static HashMap<String, String[]> schemaMap;
+	
+	/**
+	 *  schemaMap maps table names to a pair where the key contains the table schema and the value is a map
+	 *  from column names in the schema to their index.
+	 */
+	private static HashMap<String, Map.Entry<String[], HashMap<String, Integer>>> schemaMap;
 	
 	/** 
 	 * Private constructor to follow the singleton pattern.
 	 */
 	private DatabaseCatalog() {
-		DatabaseCatalog.schemaMap = new HashMap<String, String[]>();
+		DatabaseCatalog.schemaMap = new HashMap<>();
 	}
 	
 	/**
@@ -72,17 +80,25 @@ public class DatabaseCatalog {
 	}
 	
 	/**
-	 * Returns a string array containing the schema for a given table.
+	 * Returns a string array containing the schema for a given table. If not previously initialized, the function will
+	 * add a record for every table listed in schema.txt. Additionally, a map from column names to their index in the tuple is stored
+	 * with the schema for a table.
 	 * @param table - A string with the name of the table for which we are returning the schema.
 	 * @return A string array containing the name of the table followed by the columns- returns an empty array if the table does not exist.
 	 */
 	public String[] tableSchema(String table) {
-		if(DatabaseCatalog.schemaMap.containsKey(table)) return DatabaseCatalog.schemaMap.get(table);
+		if(DatabaseCatalog.schemaMap.containsKey(table)) return DatabaseCatalog.schemaMap.get(table).getKey();
 		List<String> tableSchemas = readFile(DatabaseCatalog.inputdir + sep + "db" + sep + "schema.txt");
 		for(String tableSchema : tableSchemas) {
 			String[] columns = tableSchema.split(" ");
-			DatabaseCatalog.schemaMap.put(columns[0], columns);
+			HashMap<String, Integer> columnIndex = new HashMap<>();
+			for(int i=1; i<columns.length; i++) {
+				columnIndex.put(columns[i], i-1);
+			}
+			DatabaseCatalog.schemaMap.put(columns[0], new SimpleEntry<>(columns, columnIndex));
 		}
-		return DatabaseCatalog.schemaMap.getOrDefault(table, new String[0]);
+		if(DatabaseCatalog.schemaMap.containsKey(table)) return DatabaseCatalog.schemaMap.get(table).getKey();
+		System.out.println("Table " + table + "does not exist.");
+		return new String[0];
 	}
 }

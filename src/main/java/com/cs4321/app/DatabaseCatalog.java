@@ -1,5 +1,5 @@
 /**
- *
+ * 
  */
 package com.cs4321.app;
 
@@ -20,22 +20,22 @@ import java.util.Map;
  *
  */
 public class DatabaseCatalog {
-
+	
 	private static String inputdir;
 	private static String sep = File.separator;
 	private static DatabaseCatalog instance;
-
+	
 	/**
 	 *  schemaMap maps table names to a pair where the key contains the table schema and the value is a map
 	 *  from column names in the schema to their index.
 	 */
 	private static HashMap<String, Map.Entry<String[], HashMap<String, Integer>>> schemaMap;
 	
-	/**
+	/** 
 	 * Private constructor to follow the singleton pattern.
 	 */
 	private DatabaseCatalog() {}
-
+	
 	/**
 	 * Sets the absolute path to the input directory. The input directory must be set before the database catalog is accessed.
 	 * @param inputdirectory - The absolute path to the directory containing the queries, schema, and data.
@@ -43,7 +43,7 @@ public class DatabaseCatalog {
 	public static void setInputDir(String inputdirectory) {
 		DatabaseCatalog.inputdir = inputdirectory;
 	}
-
+	
 	/**
 	 * Initializes and returns the database catalog singleton.
 	 * @return- The database catalog singleton.
@@ -52,22 +52,22 @@ public class DatabaseCatalog {
 		if(DatabaseCatalog.instance == null) DatabaseCatalog.instance = new DatabaseCatalog();
 		return DatabaseCatalog.instance;
 	}
-
+	
 	/**
 	 * Returns the absolute path to the specified table. Does not verify if the given table exists.
 	 * @param table - A string of the specified table.
 	 * @return A string of the absolute path to the table.
 	 */
-	public static String tablePath(String table) {
+	public String tablePath(String table) {
 		return DatabaseCatalog.inputdir + sep + "db" + sep + "data" + sep + table;
 	}
-
+	
 	/**
 	 * Returns a list of Strings of each row in a given file.
 	 * @param path- The absolute path to the file to be read from. Requires: the file exists in the given path.
 	 * @return- A list of Strings containing the content in a given file. If the file does not exist, an empty list will be returned.
 	 */
-	public static List<String> readFile(String path) {
+	private List<String> readFile(String path) {
 		try {
 			return Files.readAllLines(Paths.get(path));
 		}
@@ -76,7 +76,7 @@ public class DatabaseCatalog {
 		}
 		return new ArrayList<String>();
 	}
-
+	
 	/**
 	 * Initializes schemaMap if not previously done before.
 	 */
@@ -94,7 +94,7 @@ public class DatabaseCatalog {
 			}
 		}
 	}
-
+	
 	/**
 	 * Returns a string array containing the schema for a given table. The function will initialize schemaMap if not done
 	 * previously.
@@ -107,7 +107,7 @@ public class DatabaseCatalog {
 		System.out.println("Table " + table + " does not exist.");
 		return new String[0];
 	}
-
+	
 	/**
 	 * Returns a map which maps the columns of the given table to their index in a tuple. The function will initialize schemaMap if not done
 	 * previously.

@@ -56,11 +56,23 @@ public class Interpreter {
         int queryNumber = 1;
         while (true) {
             try {
+                assert parser != null;
                 if ((statement = parser.Statement()) == null) break;
             } catch (ParseException e) {
-                e.printStackTrace();
+                System.err.println(e.getLocalizedMessage());
+                try {
+                    parser.getNextToken();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             }
-            evaluateQueries(statement, queryNumber);
+            try {
+                if (statement != null) {
+                    evaluateQueries(statement, queryNumber);
+                }
+            } catch (Exception e) {
+                System.err.println(e.getLocalizedMessage());
+            }
             queryNumber++;
         }
     }
@@ -88,7 +100,7 @@ public class Interpreter {
 
         if ("*".equals(firstSelectItem.toString()) && otherFromItemsArrayList == null && whereExpression == null && distinct == null && orderByElementsList == null) {
             operator = new ScanOperator(fromItem.toString(), queryOutputName);
-            QueryPlan queryPlan = new ScanQueryPlan((ScanOperator) operator);
+            QueryPlan queryPlan = new QueryPlan(operator);
             queryPlan.evaluate();
         } else {
             //TODO: Add conditions for other operators @Lenhard, @Yohannes, @Yunus

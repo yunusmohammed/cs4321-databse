@@ -51,6 +51,8 @@ public class QueryPlan {
      * Evaluates the result of the QueryPlan
      */
     public void evaluate() {
+        root.dump();
+        //TODO: Add ?? for other operators @Lenhard, @Yohannes, @Yunus
     }
 
     /**

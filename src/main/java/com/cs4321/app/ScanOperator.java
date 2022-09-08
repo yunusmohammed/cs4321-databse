@@ -1,24 +1,19 @@
 package com.cs4321.app;
 
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The ScanOperator support queries that are full table scans,
  * e.g. SELECT * FROM SomeTable
  */
 public class ScanOperator implements Operator {
-    private List<Tuple> baseTable;
     private final DatabaseCatalog dbc = DatabaseCatalog.getInstance();
     private int nextIndex = 0;
     private String queryOutputFileName;
+    private String baseTablePath;
 
     /**
      * Constructor that initialises a ScanOperator
@@ -26,7 +21,7 @@ public class ScanOperator implements Operator {
      * @param baseTable The table in the database the ScanOperator is scanning
      */
     public ScanOperator(String baseTable) {
-        setBaseTable(baseTable);
+        setBaseTablePath(baseTable);
     }
 
     /**
@@ -47,7 +42,23 @@ public class ScanOperator implements Operator {
      */
     @Override
     public Tuple getNextTuple() {
-        return baseTable.get(getNextIndex());
+        Tuple tuple = null;
+        BufferedReader reader;
+        try {
+            reader = new BufferedReader(new FileReader(getBaseTablePath()));
+            for (int i = 0; i < getNextIndex(); i++) {
+                reader.readLine();
+            }
+            String line = reader.readLine();
+            if (line != null) {
+                tuple = new Tuple(line);
+                setNextIndex(getNextIndex() + 1);
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return tuple;
     }
 
     /**
@@ -65,11 +76,12 @@ public class ScanOperator implements Operator {
      */
     @Override
     public void dump() {
-        int tableLength = getBaseTable().size();
+        // If no output file is specified, print to console
         if (getQueryOutputFileName() == null) {
-            while (getNextIndex() < tableLength) {
-                System.out.println(getNextTuple());
-                setNextIndex(getNextIndex() + 1);
+            Tuple nextTuple = getNextTuple();
+            while (nextTuple != null) {
+                System.out.println(nextTuple);
+                nextTuple = getNextTuple();
             }
         } else {
             FileWriter fileWriter = null;
@@ -79,30 +91,31 @@ public class ScanOperator implements Operator {
                 e.printStackTrace();
             }
             PrintWriter printWriter = new PrintWriter(fileWriter);
-            while (getNextIndex() < tableLength) {
-                printWriter.println(getNextTuple().toString());
-                setNextIndex(getNextIndex() + 1);
+            Tuple nextTuple = getNextTuple();
+            while (nextTuple != null) {
+                printWriter.println(nextTuple);
+                nextTuple = getNextTuple();
             }
             printWriter.close();
         }
     }
 
     /**
-     * Returns the baseTable
+     * Returns the baseTablePath
      *
-     * @return The table in the database the ScanOperator is scanning
+     * @return The path to table in the database the ScanOperator is scanning
      */
-    public List<Tuple> getBaseTable() {
-        return baseTable;
+    public String getBaseTablePath() {
+        return baseTablePath;
     }
 
     /**
-     * Populates the baseTable field
+     * Populates the baseTablePath field
      *
      * @param baseTable The table in the database the ScanOperator is scanning
      */
-    public void setBaseTable(String baseTable) {
-        this.baseTable = getTable(baseTable);
+    public void setBaseTablePath(String baseTable) {
+        this.baseTablePath = dbc.tablePath(baseTable);
     }
 
     /**
@@ -150,23 +163,6 @@ public class ScanOperator implements Operator {
      */
     public String getQueryOutputFileName() {
         return queryOutputFileName;
-    }
-
-    /**
-     * Returns a list of tuples containing the data from a given table.
-     *
-     * @param table- The name of the table we want to read data from.
-     * @return- A list of tuples containing the data from the table.
-     */
-    public List<Tuple> getTable(String table) {
-        List<String> tableContents = DatabaseCatalog.readFile(DatabaseCatalog.tablePath(table));
-        List<Tuple> rows = new ArrayList<>();
-        for (String row : tableContents) {
-            if (!row.isEmpty()){
-                rows.add(new Tuple(row));
-            }
-        }
-        return rows;
     }
 
 }

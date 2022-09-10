@@ -43,9 +43,15 @@ class ScanOperatorTest {
 
     @Test
     void reset() {
-        scanOperator.setNextIndex(3);
+        scanOperator.setNextIndex(2);
+        Tuple tuple3 = new Tuple("3,100,105");
+        assertEquals(tuple3, scanOperator.getNextTuple());
+
         scanOperator.reset();
+
         assertEquals(0, scanOperator.getNextIndex());
+        Tuple tuple1 = new Tuple("1,200,50");
+        assertEquals(tuple1, scanOperator.getNextTuple());
     }
 
 

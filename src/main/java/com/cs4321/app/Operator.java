@@ -1,7 +1,5 @@
 package com.cs4321.app;
 
-import java.io.PrintStream;
-
 /**
  * Abstract class which all operators extend.
  *
@@ -27,15 +25,5 @@ public abstract class Operator {
      * Calls getNextTuple() until the next tuple is null (no more output) and writes each tuple to
      * a suitable PrintStream.
      */
-    void dump(PrintStream output) {
-        Tuple nextTuple = getNextTuple();
-        while (nextTuple != null) {
-            output.print(nextTuple);
-            nextTuple = getNextTuple();
-        }
-        output.close();
-    }
-
-
-    public abstract void dump();
+    abstract void dump();
 }

@@ -1,5 +1,12 @@
 package com.cs4321.app;
 
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.select.*;
+
+import java.io.File;
+import java.util.List;
+
 /**
  * The QueryPlan is a tree of operators.  A QueryPlan is constructed for each Statement
  * and returned to the interpreter, so it can read the results of the QueryPlan
@@ -7,52 +14,66 @@ package com.cs4321.app;
  * @author Jessica Tweneboah
  */
 public class QueryPlan {
-    private QueryPlan leftChild;
-    private QueryPlan rightChild;
     private Operator root;
+    private static final String sep = File.separator;
 
 
     /**
-     * Constructor that initialises a QueryPlan
+     * Evaluates SQL query statements
      *
-     * @param root The root operator of the QueryPlan
+     * @param statement   The SQL statement being evaluated
+     * @param queryNumber Specifies the index of the query being processed (starting at 1)
      */
-    public QueryPlan(Operator root) {
-        setRoot(root);
+    private void evaluateQueries(Statement statement, int queryNumber) {
+        if (statement != null) {
+            Select select = (Select) statement;
+            PlainSelect selectBody = (PlainSelect) select.getSelectBody();
+
+            List<SelectItem> selectItemsList = selectBody.getSelectItems();
+            SelectItem firstSelectItem = selectItemsList.get(0);
+            FromItem fromItem = selectBody.getFromItem();
+            List<Join> otherFromItemsArrayList = selectBody.getJoins();
+            List<OrderByElement> orderByElementsList = selectBody.getOrderByElements();
+            Expression whereExpression = selectBody.getWhere();
+            Distinct distinct = selectBody.getDistinct();
+
+            if ("*".equals(firstSelectItem.toString()) && otherFromItemsArrayList == null && whereExpression == null && distinct == null && orderByElementsList == null) {
+                String queryOutputName = Interpreter.getOutputdir() + sep + "query" + queryNumber;
+                generateScan(fromItem, queryOutputName);
+            } else {
+                //TODO: Add conditions for other operators @Lenhard, @Yohannes, @Yunus
+                return;
+            }
+        }
+    }
+
+    /**
+     * Generate a new scan operator and makes it the root
+     *
+     * @param fromItem The expression in the from section of a SQL statement
+     * @param queryOutputName The name of the file that will contain the query results
+     */
+    private void generateScan(FromItem fromItem, String queryOutputName) {
+        ScanOperator scanOperator = new ScanOperator(fromItem.toString(), queryOutputName);
+        setRoot(scanOperator);
     }
 
     /**
      * Constructor that initialises a QueryPlan
      *
-     * @param root      The root operator of the QueryPlan
-     * @param leftChild The left Child of root.
-     *                  Operators with just one child, eg. Selector, Project, have the leftChild field populated
+     * @param statement   The SQL statement being evaluated
+     * @param queryNumber Specifies the index of the query being processed (starting at 1)
      */
-    public QueryPlan(Operator root, Operator leftChild) {
-        this(root);
-        setLeftChild(leftChild);
+    public QueryPlan(Statement statement, int queryNumber) {
+        evaluateQueries(statement, queryNumber);
     }
 
-    /**
-     * Constructor that initialises a QueryPlan
-     *
-     * @param root       The root operator of the QueryPlan
-     * @param leftChild  The left Child of root.
-     *                   Operators with just one child, eg. Selector, Project, have the leftChild field populated
-     * @param rightChild The right Child of root.
-     *                   Operators with just two children, eg. Join, have the rightChild field populated
-     */
-    public QueryPlan(Operator root, Operator leftChild, Operator rightChild) {
-        this(root, leftChild);
-        setRightChild(rightChild);
-    }
 
     /**
      * Evaluates the result of the QueryPlan
      */
     public void evaluate() {
         root.dump();
-        //TODO: Add ?? for other operators @Lenhard, @Yohannes, @Yunus
     }
 
     /**
@@ -73,39 +94,5 @@ public class QueryPlan {
         this.root = root;
     }
 
-    /**
-     * Returns the left child of this QueryPlan
-     *
-     * @return The left Child of the root of the QueryPlan
-     */
-    public QueryPlan getLeftChild() {
-        return leftChild;
-    }
 
-    /**
-     * Populates the leftChild field of this QueryPlan
-     *
-     * @param leftChild The left Child of the root of the QueryPlan
-     */
-    public void setLeftChild(Operator leftChild) {
-        this.leftChild = new QueryPlan(leftChild);
-    }
-
-    /**
-     * Returns the right child of this QueryPlan
-     *
-     * @return The right Child of the root of the QueryPlan
-     */
-    public QueryPlan getRightChild() {
-        return rightChild;
-    }
-
-    /**
-     * Populates the rightChild field of this QueryPlan
-     *
-     * @param rightChild The right Child of the root of the QueryPlan
-     */
-    public void setRightChild(Operator rightChild) {
-        this.rightChild = new QueryPlan(rightChild);
-    }
 }

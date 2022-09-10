@@ -65,9 +65,4 @@ class ScanOperatorTest {
     }
 
 
-    @Test
-    void getBaseTablePath() {
-        assertEquals(inputdir + sep + "db" + sep + "data" + sep + "Sailors", scanOperator.getBaseTablePath());
-    }
-
 }

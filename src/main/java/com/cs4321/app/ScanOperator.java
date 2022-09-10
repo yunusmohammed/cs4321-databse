@@ -14,6 +14,7 @@ public class ScanOperator extends Operator {
     private int nextIndex = 0;
     private String queryOutputFileName;
     private String baseTablePath;
+    private BufferedReader reader;
 
     /**
      * Constructor that initialises a ScanOperator
@@ -22,6 +23,11 @@ public class ScanOperator extends Operator {
      */
     public ScanOperator(String baseTable) {
         setBaseTablePath(baseTable);
+        try {
+            reader = new BufferedReader(new FileReader(getBaseTablePath()));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -43,18 +49,12 @@ public class ScanOperator extends Operator {
     @Override
     public Tuple getNextTuple() {
         Tuple tuple = null;
-        BufferedReader reader;
         try {
-            reader = new BufferedReader(new FileReader(getBaseTablePath()));
-            for (int i = 0; i < getNextIndex(); i++) {
-                reader.readLine();
-            }
             String line = reader.readLine();
             if (line != null) {
                 tuple = new Tuple(line);
                 setNextIndex(getNextIndex() + 1);
             }
-            reader.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -98,6 +98,11 @@ public class ScanOperator extends Operator {
             }
             printWriter.close();
         }
+        try {
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -105,7 +110,7 @@ public class ScanOperator extends Operator {
      *
      * @return The path to table in the database the ScanOperator is scanning
      */
-    public String getBaseTablePath() {
+    private String getBaseTablePath() {
         return baseTablePath;
     }
 
@@ -114,7 +119,7 @@ public class ScanOperator extends Operator {
      *
      * @param baseTable The table in the database the ScanOperator is scanning
      */
-    public void setBaseTablePath(String baseTable) {
+    private void setBaseTablePath(String baseTable) {
         this.baseTablePath = dbc.tablePath(baseTable);
     }
 
@@ -164,7 +169,6 @@ public class ScanOperator extends Operator {
     public String getQueryOutputFileName() {
         return queryOutputFileName;
     }
-
 }
 
 

@@ -1,15 +1,12 @@
 package com.cs4321.app;
 
-import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.parser.ParseException;
 import net.sf.jsqlparser.statement.Statement;
-import net.sf.jsqlparser.statement.select.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.List;
 
 
 /**
@@ -68,7 +65,8 @@ public class Interpreter {
             }
             try {
                 if (statement != null) {
-                    evaluateQueries(statement, queryNumber);
+                    QueryPlan queryPlan = new QueryPlan(statement, queryNumber);
+                    queryPlan.evaluate();
                 }
             } catch (Exception e) {
                 System.err.println(e.getLocalizedMessage());
@@ -77,36 +75,6 @@ public class Interpreter {
         }
     }
 
-    /**
-     * Evaluates SQL query statements
-     *
-     * @param statement   The SQL statement being evaluated
-     * @param queryNumber Specifies the index of the query being processed (starting at 1)
-     */
-    public static void evaluateQueries(Statement statement, int queryNumber) {
-        Operator operator;
-        String queryOutputName = getOutputdir() + sep + "query" + queryNumber;
-
-        Select select = (Select) statement;
-        PlainSelect selectBody = (PlainSelect) select.getSelectBody();
-
-        List<SelectItem> selectItemsList = selectBody.getSelectItems();
-        SelectItem firstSelectItem = selectItemsList.get(0);
-        FromItem fromItem = selectBody.getFromItem();
-        List<Join> otherFromItemsArrayList = selectBody.getJoins();
-        List<OrderByElement> orderByElementsList = selectBody.getOrderByElements();
-        Expression whereExpression = selectBody.getWhere();
-        Distinct distinct = selectBody.getDistinct();
-
-        if ("*".equals(firstSelectItem.toString()) && otherFromItemsArrayList == null && whereExpression == null && distinct == null && orderByElementsList == null) {
-            operator = new ScanOperator(fromItem.toString(), queryOutputName);
-            QueryPlan queryPlan = new QueryPlan(operator);
-            queryPlan.evaluate();
-        } else {
-            //TODO: Add conditions for other operators @Lenhard, @Yohannes, @Yunus
-            return;
-        }
-    }
 
     /**
      * Returns the query output directory

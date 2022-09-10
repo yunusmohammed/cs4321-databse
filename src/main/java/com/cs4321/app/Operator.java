@@ -1,30 +1,41 @@
 package com.cs4321.app;
 
+import java.io.PrintStream;
+
 /**
  * Abstract class which all operators extend.
  *
- * @author Jessica Tweneboah
+ * @author Jessica and Lenhard
  */
-public interface Operator {
+public abstract class Operator {
+
     /**
      * Gets the next tuple of the operator’s output. If the operator still has some available
      * output, it will return the next tuple, otherwise it would return null.
      *
      * @return The next tuple of the operator’s output
      */
-    Tuple getNextTuple();
+    abstract Tuple getNextTuple();
 
     /**
      * Tells the operator to reset its state and start returning its output again from the
      * beginning;
      */
-    void reset();
+    abstract void reset();
 
     /**
      * Calls getNextTuple() until the next tuple is null (no more output) and writes each tuple to
      * a suitable PrintStream.
      */
-    void dump();
+    void dump(PrintStream output) {
+        Tuple nextTuple = getNextTuple();
+        while (nextTuple != null) {
+            output.print(nextTuple);
+            nextTuple = getNextTuple();
+        }
+        output.close();
+    }
 
 
+    public abstract void dump();
 }

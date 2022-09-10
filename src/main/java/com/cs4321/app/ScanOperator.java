@@ -9,7 +9,7 @@ import java.nio.file.Paths;
  * The ScanOperator support queries that are full table scans,
  * e.g. SELECT * FROM SomeTable
  */
-public class ScanOperator implements Operator {
+public class ScanOperator extends Operator {
     private final DatabaseCatalog dbc = DatabaseCatalog.getInstance();
     private int nextIndex = 0;
     private String queryOutputFileName;

@@ -1,11 +1,11 @@
 package com.cs4321.app;
 
-public class ProjectOperator implements Operator {
+public class ProjectOperator extends Operator {
 
     @Override
     public Tuple getNextTuple() {
         // TODO Auto-generated method stub
-        return new Tuple("");
+        return null;
     }
 
     @Override
@@ -16,7 +16,6 @@ public class ProjectOperator implements Operator {
 
     @Override
     public void dump() {
-        // TODO Auto-generated method stub
 
     }
 

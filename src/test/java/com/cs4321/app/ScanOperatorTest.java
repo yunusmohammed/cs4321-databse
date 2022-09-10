@@ -51,7 +51,7 @@ class ScanOperatorTest {
 
     @Test
     void dump() {
-        assertDoesNotThrow(scanOperator::dump);
+        assertDoesNotThrow(() -> scanOperator.dump());
     }
 
 

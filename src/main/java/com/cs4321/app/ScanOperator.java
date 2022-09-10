@@ -11,7 +11,6 @@ import java.nio.file.Paths;
  */
 public class ScanOperator extends Operator {
     private final DatabaseCatalog dbc = DatabaseCatalog.getInstance();
-    private int nextIndex = 0;
     private String queryOutputFileName;
     private String baseTablePath;
     private BufferedReader reader;
@@ -50,16 +49,10 @@ public class ScanOperator extends Operator {
     public Tuple getNextTuple() {
         Tuple tuple = null;
         try {
-            reader = new BufferedReader(new FileReader(getBaseTablePath()));
-            for (int i = 0; i < getNextIndex(); i++) {
-                reader.readLine();
-            }
             String line = reader.readLine();
             if (line != null) {
                 tuple = new Tuple(line);
-                setNextIndex(getNextIndex() + 1);
             }
-            reader.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -72,7 +65,16 @@ public class ScanOperator extends Operator {
      */
     @Override
     public void reset() {
-        setNextIndex(0);
+        try {
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            reader = new BufferedReader(new FileReader(getBaseTablePath()));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -103,6 +105,11 @@ public class ScanOperator extends Operator {
             }
             printWriter.close();
         }
+        try {
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -121,24 +128,6 @@ public class ScanOperator extends Operator {
      */
     private void setBaseTablePath(String baseTable) {
         this.baseTablePath = dbc.tablePath(baseTable);
-    }
-
-    /**
-     * Populates the nextIndex field
-     *
-     * @return Table Index of the next tuple of the ScanOperator’s output
-     */
-    public int getNextIndex() {
-        return nextIndex;
-    }
-
-    /**
-     * Sets the Table Index of the next tuple of the ScanOperator’s output
-     *
-     * @param nextIndex Table Index of the next tuple of the ScanOperator’s output
-     */
-    public void setNextIndex(int nextIndex) {
-        this.nextIndex = nextIndex;
     }
 
 

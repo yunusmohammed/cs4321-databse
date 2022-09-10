@@ -50,11 +50,16 @@ public class ScanOperator extends Operator {
     public Tuple getNextTuple() {
         Tuple tuple = null;
         try {
+            reader = new BufferedReader(new FileReader(getBaseTablePath()));
+            for (int i = 0; i < getNextIndex(); i++) {
+                reader.readLine();
+            }
             String line = reader.readLine();
             if (line != null) {
                 tuple = new Tuple(line);
                 setNextIndex(getNextIndex() + 1);
             }
+            reader.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -97,11 +102,6 @@ public class ScanOperator extends Operator {
                 nextTuple = getNextTuple();
             }
             printWriter.close();
-        }
-        try {
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 

@@ -19,4 +19,9 @@ public class ProjectOperator extends Operator {
 
     }
 
+    @Override
+    public void finalize() {
+
+    }
+
 }

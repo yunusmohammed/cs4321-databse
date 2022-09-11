@@ -26,4 +26,6 @@ public abstract class Operator {
      * a suitable PrintStream.
      */
     abstract void dump();
+
+    public abstract void finalize();
 }

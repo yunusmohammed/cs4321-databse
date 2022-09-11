@@ -105,11 +105,6 @@ public class ScanOperator extends Operator {
             }
             printWriter.close();
         }
-        try {
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -158,6 +153,14 @@ public class ScanOperator extends Operator {
     public String getQueryOutputFileName() {
         return queryOutputFileName;
     }
+
+
+    @Override
+    public void finalize() {
+        try {
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
-
-

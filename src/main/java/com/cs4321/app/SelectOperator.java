@@ -19,4 +19,9 @@ public class SelectOperator extends Operator {
 
     }
 
+    @Override
+    public void finalize() {
+
+    }
+
 }

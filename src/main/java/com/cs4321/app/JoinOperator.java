@@ -19,4 +19,9 @@ public class JoinOperator extends Operator {
 
     }
 
+    @Override
+    public void finalize() {
+
+    }
+
 }

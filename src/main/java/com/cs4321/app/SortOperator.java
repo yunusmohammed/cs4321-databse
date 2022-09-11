@@ -19,4 +19,9 @@ public class SortOperator extends Operator {
 
     }
 
+    @Override
+    public void finalize() {
+
+    }
+
 }

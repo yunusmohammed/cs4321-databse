@@ -14,4 +14,14 @@ public class ProjectOperator extends Operator {
 
     }
 
+    @Override
+    public void dump() {
+
+    }
+
+    @Override
+    public void finalize() {
+
+    }
+
 }

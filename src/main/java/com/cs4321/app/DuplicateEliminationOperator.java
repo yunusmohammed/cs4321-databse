@@ -14,7 +14,6 @@ public class DuplicateEliminationOperator extends Operator {
 
     }
 
-
     @Override
     public void finalize() {
 

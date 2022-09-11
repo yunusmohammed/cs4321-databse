@@ -1,9 +1,10 @@
 package com.cs4321.app;
 
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 
 /**
  * The ScanOperator support queries that are full table scans,
@@ -65,35 +66,6 @@ public class ScanOperator extends Operator {
         }
     }
 
-//    /**
-//     * Calls getNextTuple() until all tuples have been accessed and writes each tuple to
-//     * the queryOutputFile if the field has been set. Otherwise, writes each tuple to the console
-//     */
-//    @Override
-//    public void dump() {
-//        // If no output file is specified, print to console
-//        if (getQueryOutputFileName() == null) {
-//            Tuple nextTuple = getNextTuple();
-//            while (nextTuple != null) {
-//                System.out.println(nextTuple);
-//                nextTuple = getNextTuple();
-//            }
-//        } else {
-//            FileWriter fileWriter = null;
-//            try {
-//                fileWriter = new FileWriter(getQueryOutputFileName());
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//            PrintWriter printWriter = new PrintWriter(fileWriter);
-//            Tuple nextTuple = getNextTuple();
-//            while (nextTuple != null) {
-//                printWriter.println(nextTuple);
-//                nextTuple = getNextTuple();
-//            }
-//            printWriter.close();
-//        }
-//    }
 
     /**
      * Returns the baseTablePath

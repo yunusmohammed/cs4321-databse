@@ -19,7 +19,6 @@ public class Interpreter {
     private static String inputdir;
     private static String outputdir;
     private static final String sep = File.separator;
-    DatabaseCatalog dbc = DatabaseCatalog.getInstance();
 
     /**
      * Main function that is executed to run the project

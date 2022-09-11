@@ -42,20 +42,4 @@ class ScanOperatorTest {
     }
 
 
-    @Test
-    void dump() {
-        assertDoesNotThrow(() -> scanOperator.dump());
-    }
-
-
-    @Test
-    void queryOutputFileName() {
-        scanOperator.setQueryOutputFileName("ABC");
-        assertEquals("ABC", scanOperator.getQueryOutputFileName());
-        File queryOutputFile = new File(scanOperator.getQueryOutputFileName());
-        assert queryOutputFile.isFile();
-        queryOutputFile.delete();
-    }
-
-
 }

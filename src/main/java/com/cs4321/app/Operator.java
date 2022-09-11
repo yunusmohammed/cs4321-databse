@@ -27,5 +27,8 @@ public abstract class Operator {
      */
     abstract void dump();
 
+    /**
+     * Cleanups any resources that need to be cleaned up such as BufferedReader, etc.
+     */
     public abstract void finalize();
 }

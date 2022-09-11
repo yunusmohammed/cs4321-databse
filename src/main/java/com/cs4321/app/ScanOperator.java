@@ -154,7 +154,9 @@ public class ScanOperator extends Operator {
         return queryOutputFileName;
     }
 
-
+    /**
+     * Closes the initialised BufferedReader
+     */
     @Override
     public void finalize() {
         try {

@@ -1,21 +1,6 @@
 package com.cs4321.app;
 
-import net.sf.jsqlparser.expression.AllComparisonExpression;
-import net.sf.jsqlparser.expression.AnyComparisonExpression;
-import net.sf.jsqlparser.expression.CaseExpression;
-import net.sf.jsqlparser.expression.DateValue;
-import net.sf.jsqlparser.expression.DoubleValue;
-import net.sf.jsqlparser.expression.ExpressionVisitor;
-import net.sf.jsqlparser.expression.Function;
-import net.sf.jsqlparser.expression.InverseExpression;
-import net.sf.jsqlparser.expression.JdbcParameter;
-import net.sf.jsqlparser.expression.LongValue;
-import net.sf.jsqlparser.expression.NullValue;
-import net.sf.jsqlparser.expression.Parenthesis;
-import net.sf.jsqlparser.expression.StringValue;
-import net.sf.jsqlparser.expression.TimeValue;
-import net.sf.jsqlparser.expression.TimestampValue;
-import net.sf.jsqlparser.expression.WhenClause;
+import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
 import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseAnd;
 import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseOr;
@@ -41,7 +26,130 @@ import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SubSelect;
 
+import java.util.HashMap;
+
+/**
+ * ExpressionVisitor for the Join Operator
+ *
+ * @author Yunus (ymm26@cornell.edu)
+ */
 public class JoinExpressionVisitor implements ExpressionVisitor {
+
+  final private DatabaseCatalog dbCatalog;
+  final private HashMap<String, Integer> tableOffset;
+  final private String rightTableName;
+  private double doubleLastValue;
+  private boolean boolLastValue;
+  private Tuple leftRow;
+  private Tuple rightRow;
+
+  /**
+   * Initializes the JoinExpressionVisitor
+   * @param dbCatalog The database catalog
+   * @param tableOffset A map of offsets to correctly reference tuples for table columns
+   * @param rightTable The name of the table referenced by the right child of the Join Operator
+   */
+  public JoinExpressionVisitor(DatabaseCatalog dbCatalog, HashMap tableOffset, String rightTable) {
+    this.dbCatalog = dbCatalog;
+    this.tableOffset = tableOffset;
+    this.rightTableName = rightTable;
+  }
+
+  /**
+   * Evaluates the expression exp
+   * @param exp The expression to be evaluated, a boolean expression
+   * @param leftRow The row corresponding to the left expression of exp
+   * @param rightRow The row corresponding to the right expression of exp
+   * @return The result of evaluating exp
+   */
+  public boolean evalExpression(Expression exp, Tuple leftRow, Tuple rightRow) {
+    this.leftRow = leftRow;
+    this.rightRow = rightRow;
+    exp.accept(this);
+    return boolLastValue;
+  }
+
+  /**
+   * Evaluates the expression exp
+   * @param exp The expression to be evaluated, a boolean expression
+   * @return The result of evaluating exp
+   */
+  private boolean computeBool(Expression exp) {
+    exp.accept(this);
+    return boolLastValue;
+  }
+
+  /**
+   * Evaluates the expression exp
+   * @param exp The expression to be evaluated, a double expression
+   * @return The result of evaluating exp
+   */
+  private double computeDouble(Expression exp) {
+    exp.accept(this);
+    return doubleLastValue;
+  }
+
+  @Override
+  public void visit(AndExpression exp) {
+    boolean left = computeBool(exp.getLeftExpression());
+    boolean right = computeBool(exp.getRightExpression());
+    boolLastValue = left && right;
+  }
+
+  @Override
+  public void visit(Column exp) {
+    String tableName = exp.getTable().getName();
+    Tuple row = (tableName.equals(rightTableName)) ? this.rightRow : this.leftRow;
+    int index = tableOffset.get(tableName) + dbCatalog.columnMap(tableName).get(exp.getColumnName());
+    this.doubleLastValue = row.get(index);
+  }
+
+  @Override
+  public void visit(LongValue exp) {
+    this.doubleLastValue = exp.getValue();
+  }
+
+  @Override
+  public void visit(EqualsTo exp) {
+    double left = computeDouble(exp);
+    double right = computeDouble(exp);
+    this.boolLastValue = left == right;
+  }
+
+  @Override
+  public void visit(NotEqualsTo exp) {
+    double left = computeDouble(exp);
+    double right = computeDouble(exp);
+    this.boolLastValue = left != right;
+  }
+
+  @Override
+  public void visit(GreaterThan exp) {
+    double left = computeDouble(exp);
+    double right = computeDouble(exp);
+    this.boolLastValue = left > right;
+  }
+
+  @Override
+  public void visit(GreaterThanEquals exp) {
+    double left = computeDouble(exp);
+    double right = computeDouble(exp);
+    this.boolLastValue = left >= right;
+  }
+
+  @Override
+  public void visit(MinorThan exp) {
+    double left = computeDouble(exp);
+    double right = computeDouble(exp);
+    this.boolLastValue = left < right;
+  }
+
+  @Override
+  public void visit(MinorThanEquals exp) {
+    double left = computeDouble(exp);
+    double right = computeDouble(exp);
+    this.boolLastValue = left <= right;
+  }
 
   @Override
   public void visit(NullValue arg0) {
@@ -69,12 +177,6 @@ public class JoinExpressionVisitor implements ExpressionVisitor {
 
   @Override
   public void visit(DoubleValue arg0) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void visit(LongValue arg0) {
     // TODO Auto-generated method stub
 
   }
@@ -134,12 +236,6 @@ public class JoinExpressionVisitor implements ExpressionVisitor {
   }
 
   @Override
-  public void visit(AndExpression arg0) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
   public void visit(OrExpression arg0) {
     // TODO Auto-generated method stub
 
@@ -147,24 +243,6 @@ public class JoinExpressionVisitor implements ExpressionVisitor {
 
   @Override
   public void visit(Between arg0) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void visit(EqualsTo arg0) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void visit(GreaterThan arg0) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void visit(GreaterThanEquals arg0) {
     // TODO Auto-generated method stub
 
   }
@@ -183,30 +261,6 @@ public class JoinExpressionVisitor implements ExpressionVisitor {
 
   @Override
   public void visit(LikeExpression arg0) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void visit(MinorThan arg0) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void visit(MinorThanEquals arg0) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void visit(NotEqualsTo arg0) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void visit(Column arg0) {
     // TODO Auto-generated method stub
 
   }

@@ -63,4 +63,21 @@ class TupleTest {
 		assertEquals("9,-18,100,0", quadruple.toString());
 	}
 
+	@Test
+	void concatTest() {
+		// empty concat empty
+		assertEquals("", empty.concat(empty).toString());
+		// concat empty should return equal tuple
+		assertEquals(quadruple, quadruple.concat(empty));
+		// empty concat tuple should equal tuple
+		assertEquals(quadruple, empty.concat(quadruple));
+		// concat quadruple with single
+		assertEquals("9,-18,100,0,5", quadruple.concat(single).toString());
+		// concat single with quadruple
+		assertEquals("5,9,-18,100,0", single.concat(quadruple).toString());
+		// concat quadruple with itself
+		assertEquals("9,-18,100,0,9,-18,100,0", quadruple.concat(quadruple).toString());
+
+	}
+
 }

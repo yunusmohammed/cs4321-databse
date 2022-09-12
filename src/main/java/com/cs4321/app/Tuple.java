@@ -7,13 +7,15 @@ package com.cs4321.app;
  */
 public class Tuple {
 	
-	private int[] row; 
+	private int[] row;
+	private String data;
 	
 	/**
 	 * Converts a row from a table into a tuple.
 	 * @param data- A line from a table which we want to represent as a tuple. Requires: data contains integers separated by commas.
 	 */
 	public Tuple(String data) {
+		this.data = data;
 		if(data.length() == 0) {
 			row = new int[0];
 			return;
@@ -68,5 +70,18 @@ public class Tuple {
 			if(t.get(i) != this.get(i)) return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Creates a new tuple of size [this.size() + t.size()]. The tuple has the contents of t appended
+	 * to the contents of this.
+	 * @param t - the tuple to combine this tuple with
+	 * @return - a new tuple with the contents of t added to the end of this
+	 */
+	public Tuple concat(Tuple t) {
+		StringBuilder newData = new StringBuilder(this.data);
+		if(this.data.length() > 0) newData.append(',');
+		newData.append(t.data);
+		return new Tuple(newData.toString());
 	}
 }

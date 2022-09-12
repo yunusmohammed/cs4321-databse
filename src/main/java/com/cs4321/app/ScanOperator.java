@@ -1,9 +1,10 @@
 package com.cs4321.app;
 
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 
 /**
  * The ScanOperator support queries that are full table scans,
@@ -11,7 +12,6 @@ import java.nio.file.Paths;
  */
 public class ScanOperator extends Operator {
     private final DatabaseCatalog dbc = DatabaseCatalog.getInstance();
-    private String queryOutputFileName;
     private String baseTablePath;
     private BufferedReader reader;
 
@@ -27,17 +27,6 @@ public class ScanOperator extends Operator {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * Constructor that initialises a ScanOperator
-     *
-     * @param baseTable           The table in the database the ScanOperator is scanning
-     * @param queryOutputFileName The name of the file that will contain the query results
-     */
-    public ScanOperator(String baseTable, String queryOutputFileName) {
-        this(baseTable);
-        setQueryOutputFileName(queryOutputFileName);
     }
 
     /**
@@ -77,35 +66,6 @@ public class ScanOperator extends Operator {
         }
     }
 
-    /**
-     * Calls getNextTuple() until all tuples have been accessed and writes each tuple to
-     * the queryOutputFile if the field has been set. Otherwise, writes each tuple to the console
-     */
-    @Override
-    public void dump() {
-        // If no output file is specified, print to console
-        if (getQueryOutputFileName() == null) {
-            Tuple nextTuple = getNextTuple();
-            while (nextTuple != null) {
-                System.out.println(nextTuple);
-                nextTuple = getNextTuple();
-            }
-        } else {
-            FileWriter fileWriter = null;
-            try {
-                fileWriter = new FileWriter(getQueryOutputFileName());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            PrintWriter printWriter = new PrintWriter(fileWriter);
-            Tuple nextTuple = getNextTuple();
-            while (nextTuple != null) {
-                printWriter.println(nextTuple);
-                nextTuple = getNextTuple();
-            }
-            printWriter.close();
-        }
-    }
 
     /**
      * Returns the baseTablePath
@@ -125,34 +85,6 @@ public class ScanOperator extends Operator {
         this.baseTablePath = dbc.tablePath(baseTable);
     }
 
-
-    /**
-     * Creates the queryOutput file and deletes any existing file with the same path
-     * and sets the queryOutputFileName field
-     *
-     * @param queryOutputFileName The name of the file that will contain the query results
-     */
-    public void setQueryOutputFileName(String queryOutputFileName) {
-        this.queryOutputFileName = queryOutputFileName;
-        File new_file = new File(queryOutputFileName);
-        if (new_file.isFile()) {
-            new_file.delete();
-        }
-        try {
-            Files.createFile(Paths.get(queryOutputFileName));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Returns the queryOutputFileName
-     *
-     * @return The name of the file that will contain the query results
-     */
-    public String getQueryOutputFileName() {
-        return queryOutputFileName;
-    }
 
     /**
      * Closes the initialised BufferedReader

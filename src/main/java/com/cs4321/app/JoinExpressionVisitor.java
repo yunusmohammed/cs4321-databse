@@ -35,21 +35,51 @@ import java.util.HashMap;
  */
 public class JoinExpressionVisitor implements ExpressionVisitor {
 
+  /**
+   * Database catalog
+   */
   final private DatabaseCatalog dbCatalog;
+
+  /**
+   * Map of tableName, offset value pairs to be used to correctly index tuples for table columns
+   */
   final private HashMap<String, Integer> tableOffset;
+
+  /**
+   * Name of the table referenced by the right child of the Join Operator
+   */
   final private String rightTableName;
+
+  /**
+   * Latest double value after expression evaluation
+   */
   private double doubleLastValue;
+
+  /**
+   * Latest boolean value after expression evaluation
+   */
   private boolean boolLastValue;
+
+  /**
+   * Current tuple from evaluating the left child of the parent Join Operator
+   */
   private Tuple leftRow;
+
+  /**
+   * Current tuple from evaluating the right child of the parent Join Operator
+   */
   private Tuple rightRow;
 
   /**
    * Initializes the JoinExpressionVisitor
-   * @param dbCatalog The database catalog
-   * @param tableOffset A map of offsets to correctly reference tuples for table columns
-   * @param rightTable The name of the table referenced by the right child of the Join Operator
+   * 
+   * @param dbCatalog   The database catalog
+   * @param tableOffset A map of offsets to correctly index tuples for table
+   *                    columns
+   * @param rightTable  The name of the table referenced by the right child of the
+   *                    Join Operator
    */
-  public JoinExpressionVisitor(DatabaseCatalog dbCatalog, HashMap tableOffset, String rightTable) {
+  public JoinExpressionVisitor(DatabaseCatalog dbCatalog, HashMap<String, Integer> tableOffset, String rightTable) {
     this.dbCatalog = dbCatalog;
     this.tableOffset = tableOffset;
     this.rightTableName = rightTable;
@@ -57,8 +87,9 @@ public class JoinExpressionVisitor implements ExpressionVisitor {
 
   /**
    * Evaluates the expression exp
-   * @param exp The expression to be evaluated, a boolean expression
-   * @param leftRow The row corresponding to the left expression of exp
+   * 
+   * @param exp      The expression to be evaluated, a boolean expression
+   * @param leftRow  The row corresponding to the left expression of exp
    * @param rightRow The row corresponding to the right expression of exp
    * @return The result of evaluating exp
    */
@@ -71,6 +102,7 @@ public class JoinExpressionVisitor implements ExpressionVisitor {
 
   /**
    * Evaluates the expression exp
+   * 
    * @param exp The expression to be evaluated, a boolean expression
    * @return The result of evaluating exp
    */
@@ -81,6 +113,7 @@ public class JoinExpressionVisitor implements ExpressionVisitor {
 
   /**
    * Evaluates the expression exp
+   * 
    * @param exp The expression to be evaluated, a double expression
    * @return The result of evaluating exp
    */

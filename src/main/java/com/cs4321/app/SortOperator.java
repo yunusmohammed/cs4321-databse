@@ -1,11 +1,11 @@
 package com.cs4321.app;
 
-public class SortOperator implements Operator {
+public class SortOperator extends Operator {
 
     @Override
-    public void getNextTuple() {
+    public Tuple getNextTuple() {
         // TODO Auto-generated method stub
-
+        return null;
     }
 
     @Override
@@ -16,7 +16,11 @@ public class SortOperator implements Operator {
 
     @Override
     public void dump() {
-        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void finalize() {
 
     }
 

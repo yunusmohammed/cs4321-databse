@@ -1,4 +1,5 @@
 package com.cs4321.app;
+
 import net.sf.jsqlparser.expression.Expression;
 
 /**
@@ -33,20 +34,6 @@ public class JoinOperator extends Operator {
      */
     private Tuple leftTuple;
 
-    /**
-     * Concatenates two tuples into one
-     * @param leftTuple The tuple on the left hand of the concatenation
-     * @param rightTuple The tuple on the right hand of the concatenation
-     * @return A tuple made by extending leftTuple with right
-     */
-    private Tuple joinTuples(Tuple leftTuple, Tuple rightTuple) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(leftTuple.toString());
-        sb.append(",");
-        sb.append(rightTuple.toString());
-        return new Tuple(sb.toString());
-    }
-
     public JoinOperator(JoinExpressionVisitor visitor, Operator leftChild, Operator rightChild, Expression expression) {
         this.leftChild = leftChild;
         this.rightChild = rightChild;
@@ -56,19 +43,20 @@ public class JoinOperator extends Operator {
 
     @Override
     public Tuple getNextTuple() {
-        // TODO Auto-generated method stub
-        if (this.leftTuple == null) this.leftChild.getNextTuple();
+        if (this.leftTuple == null)
+            this.leftChild.getNextTuple();
         while (this.leftTuple != null) {
             Tuple rightTuple = this.rightChild.getNextTuple();
-            if (rightTuple == null) this.leftTuple =  this.leftChild.getNextTuple();
-            else if (this.visitor.evalExpression(this.expression, leftTuple, rightTuple)) return joinTuples(this.leftTuple, rightTuple);
+            if (rightTuple == null)
+                this.leftTuple = this.leftChild.getNextTuple();
+            else if (this.visitor.evalExpression(this.expression, leftTuple, rightTuple))
+                return this.leftTuple.concat(rightTuple);
         }
         return null;
     }
 
     @Override
     public void reset() {
-        // TODO Auto-generated method stub
         this.leftChild.reset();
         this.rightChild.reset();
         this.leftTuple = null;

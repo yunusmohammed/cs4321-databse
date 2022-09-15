@@ -11,6 +11,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The QueryPlan is a tree of operators.  A QueryPlan is constructed for each Statement
@@ -20,6 +21,7 @@ import java.util.List;
  */
 public class QueryPlan {
     private Operator root;
+    private static final SelectExpressionVisitor visitor = new SelectExpressionVisitor();
     private static final String sep = File.separator;
     private String queryOutputName;
 
@@ -44,22 +46,39 @@ public class QueryPlan {
             Distinct distinct = selectBody.getDistinct();
 
             if ("*".equals(firstSelectItem.toString()) && otherFromItemsArrayList == null && whereExpression == null && distinct == null && orderByElementsList == null) {
-                generateScan(fromItem);
+                this.root = generateScan(selectBody);
+            } else if (selectItemsList.size() == 1 && firstSelectItem instanceof AllColumns && (otherFromItemsArrayList == null || otherFromItemsArrayList.size() == 0)
+                    && whereExpression != null && distinct == null && orderByElementsList == null) {
+                this.root = generateSelection(selectBody);
             } else {
                 //TODO: Add conditions for other operators @Lenhard, @Yohannes, @Yunus
-                return;
             }
         }
     }
 
     /**
-     * Generate a new scan operator and makes it the root
+     * Generate a new scan operator
      *
-     * @param fromItem The expression in the from section of a SQL statement
+     * @param selectBody The body of the Select statement
+     * @return The scan operator that was just created
      */
-    private void generateScan(FromItem fromItem) {
-        ScanOperator scanOperator = new ScanOperator(fromItem.toString());
-        setRoot(scanOperator);
+    private ScanOperator generateScan(PlainSelect selectBody) {
+        FromItem fromItem = selectBody.getFromItem();
+        return new ScanOperator(fromItem.toString());
+    }
+
+    /**
+     * Generate a new select operator and makes it the root
+     *
+     * @param selectBody The body of the Select statement
+     * @return The select operator that was just created
+     */
+    private SelectionOperator generateSelection(PlainSelect selectBody) {
+        FromItem fromItem = selectBody.getFromItem();
+        Expression whereExpression = selectBody.getWhere();
+
+        Map<String, Integer> mapping = DatabaseCatalog.getInstance().columnMap(fromItem.toString());
+        return new SelectionOperator(visitor, mapping, whereExpression, generateScan(selectBody));
     }
 
     /**

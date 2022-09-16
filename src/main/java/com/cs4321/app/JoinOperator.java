@@ -36,14 +36,9 @@ public class JoinOperator extends Operator {
      */
     private Tuple leftTuple;
 
-    public JoinOperator(JoinExpressionVisitor visitor, Operator leftChild, Operator rightChild,
-            Expression joinCondition) {
-        this.leftChild = leftChild;
-        this.rightChild = rightChild;
-        this.joinCondition = joinCondition;
-        this.visitor = visitor;
-    }
-
+    /**
+     * Base constructor of the JoinOperator
+     */
     public JoinOperator() {
 
     }

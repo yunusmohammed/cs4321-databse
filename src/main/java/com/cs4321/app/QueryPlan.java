@@ -109,89 +109,38 @@ public class QueryPlan {
         JoinOperator root = new JoinOperator();
         JoinOperator currentParent = root;
         List<Join> joins = selectBody.getJoins();
+        HashMap<String, Integer> tableOffset = generateJoinTableOffsets(selectBody);
         Stack<BinaryExpression> expressions = getExpressions(selectBody.getWhere());
         while (joins.size() > 0) {
             if (root == null) {
                 root = currentParent;
             }
             FromItem rightChildTable = joins.remove(joins.size() - 1).getRightItem();
-            Stack<Expression> rightChildExpressions = new Stack<>();
-            Stack<Expression> parentExpressions = new Stack<>();
-            Stack<BinaryExpression> leftChildExpressions = new Stack<>();
+            Stack<Expression> rightChildExpressions;
+            Stack<Expression> parentExpressions;
+            Stack<BinaryExpression> leftChildExpressions;
 
-            // Separate expression meant for left child, right child, and parent
-            for (BinaryExpression exp : expressions) {
-                String leftTable = null;
-                String rightTable = null;
-                if (exp.getLeftExpression() instanceof Column)
-                    leftTable = ((Column) exp.getLeftExpression()).getTable().getName();
-                if (exp.getRightExpression() instanceof Column)
-                    rightTable = ((Column) exp.getRightExpression()).getTable().getName();
+            JoinExpressions joinExpressions = getJoinExpressions(expressions, rightChildTable);
 
-                if (((leftTable != null && leftTable.equals(rightChildTable.toString()))
-                        && (rightTable == null || rightTable.equals(rightChildTable.toString()))) ||
-                        ((rightTable != null && rightTable.equals(rightChildTable.toString()))
-                                && (leftTable == null || leftTable.equals(rightChildTable.toString())))) {
-                    // expression references only the columns from the right child's table
-                    rightChildExpressions.add(exp);
-
-                } else if ((leftTable != null && leftTable.equals(rightChildTable.toString()))
-                        || (rightTable != null && rightTable.equals(rightChildTable.toString()))) {
-                    // expression references columns from the rigth child's table and some other
-                    // tables in the left child
-                    parentExpressions.add(exp);
-                } else
-                    leftChildExpressions.add(exp);
-            }
+            parentExpressions = joinExpressions.getParentExpressions();
+            leftChildExpressions = joinExpressions.getLeftExpressions();
+            rightChildExpressions = joinExpressions.getRightChildExpressions();
             expressions = leftChildExpressions;
 
             // Set Right Child of current Parent
-            Operator rightOperator;
-            PlainSelect righSelectBody = new PlainSelect();
-            righSelectBody.setFromItem(rightChildTable);
-            if (rightChildExpressions.size() == 0)
-                rightOperator = generateScan(righSelectBody);
-            else {
-                Expression rightChildExpression = generateExpressionTree(rightChildExpressions);
-                righSelectBody.setWhere(rightChildExpression);
-                rightOperator = generateSelection(righSelectBody);
-            }
-            currentParent.setRightChild(rightOperator);
+            currentParent.setRightChild(getJoinChildOperator(rightChildExpressions, rightChildTable));
 
             // Set Join Condition of current parent
             currentParent.setJoinCondition(generateExpressionTree(parentExpressions));
 
-            // Current table column offset map for current parent's expression visitor
-            HashMap<String, Integer> tableOffset = new HashMap<>();
-            int prevOffset = 0;
-            String prevTable = selectBody.getFromItem().toString();
-            tableOffset.put(prevTable, prevOffset);
-            for (Join join : joins) {
-                String curTable = join.getRightItem().toString();
-                int newOffset = prevOffset + DatabaseCatalog.getInstance().columnMap(prevTable).size();
-                tableOffset.put(curTable, newOffset);
-                prevOffset = newOffset;
-                prevTable = curTable;
-            }
-            JoinExpressionVisitor visitor = new JoinExpressionVisitor(tableOffset, rightChildTable.toString());
-
             // Set ExpressionVisitor of current parent
+            JoinExpressionVisitor visitor = new JoinExpressionVisitor(tableOffset, rightChildTable.toString());
             currentParent.setVisitor(visitor);
 
             // Set left child of current parent
             Operator leftOperator;
             if (joins.size() == 0) {
-                PlainSelect leftSelectBody = new PlainSelect();
-                leftSelectBody.setFromItem(rightChildTable);
-                // Left child is a leaf Operator
-                if (leftChildExpressions.size() == 0) {
-                    leftOperator = generateScan(leftSelectBody);
-                } else {
-                    Expression leftChildExpression = generateExpressionTree((Stack) leftChildExpressions);
-                    leftSelectBody.setWhere(leftChildExpression);
-                    leftOperator = generateSelection(leftSelectBody);
-                }
-                currentParent.setLeftChild(leftOperator);
+                currentParent.setLeftChild(getJoinChildOperator((Stack) leftChildExpressions, rightChildTable));
             } else {
                 leftOperator = new JoinOperator();
                 currentParent.setLeftChild(leftOperator);
@@ -227,6 +176,70 @@ public class QueryPlan {
             expressions.add(exp);
         }
         return expressions.pop();
+    }
+
+    private JoinExpressions getJoinExpressions(Stack<BinaryExpression> expressions, FromItem rightChildTable) {
+        Stack<Expression> rightChildExpressions = new Stack<>();
+        Stack<Expression> parentExpressions = new Stack<>();
+        Stack<BinaryExpression> leftChildExpressions = new Stack<>();
+
+        // Separate expression meant for left child, right child, and parent
+        for (BinaryExpression exp : expressions) {
+            String leftTable = null;
+            String rightTable = null;
+            if (exp.getLeftExpression() instanceof Column)
+                leftTable = ((Column) exp.getLeftExpression()).getTable().getName();
+            if (exp.getRightExpression() instanceof Column)
+                rightTable = ((Column) exp.getRightExpression()).getTable().getName();
+
+            if (((leftTable != null && leftTable.equals(rightChildTable.toString()))
+                    && (rightTable == null || rightTable.equals(rightChildTable.toString()))) ||
+                    ((rightTable != null && rightTable.equals(rightChildTable.toString()))
+                            && (leftTable == null || leftTable.equals(rightChildTable.toString())))) {
+                // expression references only the columns from the right child's table
+                rightChildExpressions.add(exp);
+
+            } else if ((leftTable != null && leftTable.equals(rightChildTable.toString()))
+                    || (rightTable != null && rightTable.equals(rightChildTable.toString()))) {
+                // expression references columns from the rigth child's table and some other
+                // tables in the left child
+                parentExpressions.add(exp);
+            } else
+                leftChildExpressions.add(exp);
+        }
+
+        return new JoinExpressions(parentExpressions, rightChildExpressions, leftChildExpressions);
+    }
+
+    private Operator getJoinChildOperator(Stack<Expression> childExpressions, FromItem rightChildTable) {
+        Operator operator;
+        PlainSelect righSelectBody = new PlainSelect();
+        righSelectBody.setFromItem(rightChildTable);
+        if (childExpressions.size() == 0)
+            operator = generateScan(righSelectBody);
+        else {
+            Expression rightChildExpression = generateExpressionTree(childExpressions);
+            righSelectBody.setWhere(rightChildExpression);
+            operator = generateSelection(righSelectBody);
+        }
+        return operator;
+    }
+
+    private HashMap<String, Integer> generateJoinTableOffsets(PlainSelect selectBody) {
+        HashMap<String, Integer> tableOffset = new HashMap<>();
+        List<Join> joins = selectBody.getJoins();
+        int prevOffset = 0;
+        String prevTable = selectBody.getFromItem().toString();
+        tableOffset.put(prevTable, prevOffset);
+        for (Join join : joins) {
+            String curTable = join.getRightItem().toString();
+            int newOffset = prevOffset + DatabaseCatalog.getInstance().columnMap(prevTable).size();
+            tableOffset.put(curTable, newOffset);
+            prevOffset = newOffset;
+            prevTable = curTable;
+        }
+
+        return tableOffset;
     }
 
     /**

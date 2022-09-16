@@ -98,16 +98,6 @@ public class QueryPlan {
         return new SelectionOperator(visitor, mapping, whereExpression, generateScan(selectBody));
     }
 
-    // TODO: Delete
-    private ScanOperator generateScan() {
-        return new ScanOperator("");
-    }
-
-    // TODO: Delete
-    private SelectOperator generateSelect() {
-        return new SelectOperator();
-    }
-
     /**
      * Generates a join query plan
      * 
@@ -157,14 +147,14 @@ public class QueryPlan {
 
             // Set Right Child of current Parent
             Operator rightOperator;
+            PlainSelect righSelectBody = new PlainSelect();
+            righSelectBody.setFromItem(rightChildTable);
             if (rightChildExpressions.size() == 0)
-                rightOperator = generateScan();
+                rightOperator = generateScan(righSelectBody);
             else {
                 Expression rightChildExpression = generateExpressionTree(rightChildExpressions);
-                PlainSelect righSelectBody = new PlainSelect();
-                righSelectBody.setFromItem(rightChildTable);
                 righSelectBody.setWhere(rightChildExpression);
-                rightOperator = generateSelect();
+                rightOperator = generateSelection(righSelectBody);
             }
             currentParent.setRightChild(rightOperator);
 
@@ -191,15 +181,15 @@ public class QueryPlan {
             // Set left child of current parent
             Operator leftOperator;
             if (joins.size() == 0) {
+                PlainSelect leftSelectBody = new PlainSelect();
+                leftSelectBody.setFromItem(rightChildTable);
                 // Left child is a leaf Operator
                 if (leftChildExpressions.size() == 0) {
-                    leftOperator = generateScan();
+                    leftOperator = generateScan(leftSelectBody);
                 } else {
                     Expression leftChildExpression = generateExpressionTree((Stack) leftChildExpressions);
-                    PlainSelect leftSelectBody = new PlainSelect();
-                    leftSelectBody.setFromItem(rightChildTable);
                     leftSelectBody.setWhere(leftChildExpression);
-                    leftOperator = generateSelect();
+                    leftOperator = generateSelection(leftSelectBody);
                 }
                 currentParent.setLeftChild(leftOperator);
             } else {

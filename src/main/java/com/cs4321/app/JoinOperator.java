@@ -1,7 +1,6 @@
 package com.cs4321.app;
 
 import java.util.HashMap;
-
 import net.sf.jsqlparser.expression.Expression;
 
 /**

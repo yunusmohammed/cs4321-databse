@@ -41,7 +41,8 @@ public class JoinExpressionVisitor implements ExpressionVisitor {
   final private DatabaseCatalog dbCatalog;
 
   /**
-   * Map of tableName, offset value pairs to be used to correctly index tuples for table columns
+   * Map of tableName, offset value pairs to be used to correctly index tuples for
+   * table columns
    */
   final private HashMap<String, Integer> tableOffset;
 
@@ -79,8 +80,8 @@ public class JoinExpressionVisitor implements ExpressionVisitor {
    * @param rightTable  The name of the table referenced by the right child of the
    *                    Join Operator
    */
-  public JoinExpressionVisitor(DatabaseCatalog dbCatalog, HashMap<String, Integer> tableOffset, String rightTable) {
-    this.dbCatalog = dbCatalog;
+  public JoinExpressionVisitor(HashMap<String, Integer> tableOffset, String rightTable) {
+    this.dbCatalog = DatabaseCatalog.getInstance();
     this.tableOffset = tableOffset;
     this.rightTableName = rightTable;
   }

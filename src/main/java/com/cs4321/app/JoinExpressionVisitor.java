@@ -101,6 +101,10 @@ public class JoinExpressionVisitor implements ExpressionVisitor {
     return boolLastValue;
   }
 
+  public HashMap<String, Integer> getTableOffsets() {
+    return this.tableOffset;
+  }
+
   /**
    * Evaluates the expression exp
    * 

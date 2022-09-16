@@ -1,5 +1,7 @@
 package com.cs4321.app;
 
+import java.util.HashMap;
+
 import net.sf.jsqlparser.expression.Expression;
 
 /**
@@ -107,6 +109,10 @@ public class JoinOperator extends Operator {
      */
     public void setVisitor(JoinExpressionVisitor visitor) {
         this.visitor = visitor;
+    }
+
+    public HashMap<String, Integer> getTableOffsets() {
+        return this.visitor.getTableOffsets();
     }
 
 }

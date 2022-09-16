@@ -22,7 +22,7 @@ import java.util.Map;
  * Statement
  * and returned to the interpreter, so it can read the results of the QueryPlan
  *
- * @author Jessica Tweneboah
+ * @author Jessica Tweneboah, Yunus Mohammed (ymm26@cornell.edu)
  */
 public class QueryPlan {
     private Operator root;
@@ -61,7 +61,7 @@ public class QueryPlan {
                     && otherFromItemsArrayList != null && otherFromItemsArrayList.size() > 0) {
                 this.root = generateJoin(selectBody);
             } else {
-                // TODO: Add conditions for other operators @Lenhard, @Yohannes, @Yunus
+                // TODO: Add conditions for other operators @Yohannes @Lenhard
                 return;
             }
         }
@@ -134,7 +134,8 @@ public class QueryPlan {
             // Set left child of current parent
             Operator leftOperator;
             if (joins.size() == 0) {
-                currentParent.setLeftChild(getJoinChildOperator((Stack) leftChildExpressions, rightChildTable));
+                currentParent
+                        .setLeftChild(getJoinChildOperator((Stack) leftChildExpressions, selectBody.getFromItem()));
             } else {
                 leftOperator = new JoinOperator();
                 currentParent.setLeftChild(leftOperator);
@@ -144,6 +145,13 @@ public class QueryPlan {
         return root;
     }
 
+    /**
+     * Decouple expression into all component binary expressions that are not AND
+     * expressions
+     * 
+     * @param expression the expression to decouple
+     * @return a stack of the decoupled expressions
+     */
     private Stack<BinaryExpression> getExpressions(Expression expression) {
         Stack<BinaryExpression> expressions = new Stack<>();
         Stack<Expression> stack = new Stack<>();
@@ -160,6 +168,13 @@ public class QueryPlan {
         return expressions;
     }
 
+    /**
+     * Conjoins a stack of expressions to build an expression
+     * tree
+     * 
+     * @param expressions a stack of expressions to conjoin
+     * @return root of the expression tree from conjoining expressions
+     */
     private Expression generateExpressionTree(Stack<Expression> expressions) {
         if (expressions.size() == 0)
             return null;
@@ -172,6 +187,15 @@ public class QueryPlan {
         return expressions.pop();
     }
 
+    /**
+     * Distributes expressions among a join operator and its children
+     * 
+     * @param expressions     expressions to be distribuited among the join operator
+     *                        and its children
+     * @param rightChildTable table corresponding to the right child of the Join
+     *                        Operator
+     * @return a JoinExpressions intance representing the result of the distribution
+     */
     private JoinExpressions getJoinExpressions(Stack<BinaryExpression> expressions, FromItem rightChildTable) {
         Stack<Expression> rightChildExpressions = new Stack<>();
         Stack<Expression> parentExpressions = new Stack<>();
@@ -205,20 +229,36 @@ public class QueryPlan {
         return new JoinExpressions(parentExpressions, rightChildExpressions, leftChildExpressions);
     }
 
-    private Operator getJoinChildOperator(Stack<Expression> childExpressions, FromItem rightChildTable) {
+    /**
+     * Generate a child operator evaluating childExpressions on childTable
+     * 
+     * @param childExpressions stack of expressions to be evaluated by the child
+     *                         operator
+     * @param childTable       table corresponding to the child operator
+     * @return the child operator
+     */
+    private Operator getJoinChildOperator(Stack<Expression> childExpressions, FromItem childTable) {
         Operator operator;
-        PlainSelect righSelectBody = new PlainSelect();
-        righSelectBody.setFromItem(rightChildTable);
+        PlainSelect selectBody = new PlainSelect();
+        selectBody.setFromItem(childTable);
         if (childExpressions.size() == 0)
-            operator = generateScan(righSelectBody);
+            operator = generateScan(selectBody);
         else {
             Expression rightChildExpression = generateExpressionTree(childExpressions);
-            righSelectBody.setWhere(rightChildExpression);
-            operator = generateSelection(righSelectBody);
+            selectBody.setWhere(rightChildExpression);
+            operator = generateSelection(selectBody);
         }
         return operator;
     }
 
+    /**
+     * Generates a map of offsets for column indices of tables in the results of
+     * joins
+     * 
+     * @param selectBody a select body containing the order in which tables are
+     *                   joined
+     * @return a map of column index offsets for tables after a join operation
+     */
     private HashMap<String, Integer> generateJoinTableOffsets(PlainSelect selectBody) {
         HashMap<String, Integer> tableOffset = new HashMap<>();
         List<Join> joins = selectBody.getJoins();

@@ -148,43 +148,43 @@ public class JoinExpressionVisitor implements ExpressionVisitor {
 
   @Override
   public void visit(EqualsTo exp) {
-    double left = computeDouble(exp);
-    double right = computeDouble(exp);
+    double left = computeDouble(exp.getLeftExpression());
+    double right = computeDouble(exp.getRightExpression());
     this.boolLastValue = left == right;
   }
 
   @Override
   public void visit(NotEqualsTo exp) {
-    double left = computeDouble(exp);
-    double right = computeDouble(exp);
+    double left = computeDouble(exp.getLeftExpression());
+    double right = computeDouble(exp.getRightExpression());
     this.boolLastValue = left != right;
   }
 
   @Override
   public void visit(GreaterThan exp) {
-    double left = computeDouble(exp);
-    double right = computeDouble(exp);
+    double left = computeDouble(exp.getLeftExpression());
+    double right = computeDouble(exp.getRightExpression());
     this.boolLastValue = left > right;
   }
 
   @Override
   public void visit(GreaterThanEquals exp) {
-    double left = computeDouble(exp);
-    double right = computeDouble(exp);
+    double left = computeDouble(exp.getLeftExpression());
+    double right = computeDouble(exp.getRightExpression());
     this.boolLastValue = left >= right;
   }
 
   @Override
   public void visit(MinorThan exp) {
-    double left = computeDouble(exp);
-    double right = computeDouble(exp);
+    double left = computeDouble(exp.getLeftExpression());
+    double right = computeDouble(exp.getRightExpression());
     this.boolLastValue = left < right;
   }
 
   @Override
   public void visit(MinorThanEquals exp) {
-    double left = computeDouble(exp);
-    double right = computeDouble(exp);
+    double left = computeDouble(exp.getLeftExpression());
+    double right = computeDouble(exp.getRightExpression());
     this.boolLastValue = left <= right;
   }
 

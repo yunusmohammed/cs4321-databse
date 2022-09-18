@@ -124,6 +124,12 @@ public class JoinOperator extends Operator {
         this.visitor = visitor;
     }
 
+    /**
+     * Gets a map of offsets to be applied to column indices of table columns in
+     * order to correctly index columns in joined rows
+     * 
+     * @return the table column index offsets
+     */
     public Map<String, Integer> getTableOffsets() {
         return this.visitor.getTableOffsets();
     }

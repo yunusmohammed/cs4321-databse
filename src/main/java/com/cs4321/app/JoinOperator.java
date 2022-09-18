@@ -43,6 +43,14 @@ public class JoinOperator extends Operator {
 
     }
 
+    /**
+     * Constructor for JoinOperator
+     * 
+     * @param leftChild     the left child operator of this join operator
+     * @param rightChild    the right child operator of this join operator
+     * @param joinCondition the condition to join rows on
+     * @param visitor       the expression visitor of this join operator
+     */
     public JoinOperator(Operator leftChild, Operator rightChild, Expression joinCondition,
             JoinExpressionVisitor visitor) {
         this.leftChild = leftChild;

@@ -34,3 +34,6 @@ target/
 # Intellij configs
 .idea/
 *.iml
+
+# VScode configs
+*.vscode/

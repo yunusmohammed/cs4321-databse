@@ -25,7 +25,7 @@ import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SubSelect;
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * ExpressionVisitor for the Join Operator
@@ -43,7 +43,7 @@ public class JoinExpressionVisitor implements ExpressionVisitor {
    * Map of tableName, offset value pairs to be used to correctly index tuples for
    * table columns
    */
-  final private HashMap<String, Integer> tableOffset;
+  final private Map<String, Integer> tableOffset;
 
   /**
    * Name of the table referenced by the right child of the Join Operator
@@ -79,7 +79,7 @@ public class JoinExpressionVisitor implements ExpressionVisitor {
    * @param rightTable  The name of the table referenced by the right child of the
    *                    Join Operator
    */
-  public JoinExpressionVisitor(HashMap<String, Integer> tableOffset, String rightTable) {
+  public JoinExpressionVisitor(Map<String, Integer> tableOffset, String rightTable) {
     this.dbCatalog = DatabaseCatalog.getInstance();
     this.tableOffset = tableOffset;
     this.rightTableName = rightTable;
@@ -100,7 +100,7 @@ public class JoinExpressionVisitor implements ExpressionVisitor {
     return boolLastValue;
   }
 
-  public HashMap<String, Integer> getTableOffsets() {
+  public Map<String, Integer> getTableOffsets() {
     return this.tableOffset;
   }
 
@@ -136,7 +136,7 @@ public class JoinExpressionVisitor implements ExpressionVisitor {
   @Override
   public void visit(Column exp) {
     String tableName = exp.getTable().getName();
-    Tuple row = (tableName.equals(rightTableName)) ? this.rightRow : this.leftRow;
+    Tuple row = (tableName.equals(this.rightTableName)) ? this.rightRow : this.leftRow;
     int index = tableOffset.get(tableName) + dbCatalog.columnMap(tableName).get(exp.getColumnName());
     this.doubleLastValue = row.get(index);
   }

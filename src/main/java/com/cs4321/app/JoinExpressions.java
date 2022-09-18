@@ -22,11 +22,9 @@ public class JoinExpressions {
      * @param parentExpressions     a stack expressions belonging to the parent
      *                              JoinOperator
      * @param rightChildExpressions a stack expressions belonging to the right child
-     *                              of the parent
-     *                              JoinOperator
+     *                              of the parent JoinOperator
      * @param leftChildExpressions  a stack expressions belonging to the left child
-     *                              of the parent
-     *                              JoinOperator
+     *                              of the parent JoinOperator
      */
     public JoinExpressions(Stack<Expression> parentExpressions, Stack<Expression> rightChildExpressions,
             Stack<BinaryExpression> leftChildExpressions) {

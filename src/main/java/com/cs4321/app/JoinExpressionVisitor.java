@@ -37,7 +37,7 @@ public class JoinExpressionVisitor implements ExpressionVisitor {
   /**
    * Database catalog
    */
-  final private DatabaseCatalog dbCatalog;
+  private DatabaseCatalog dbCatalog;
 
   /**
    * Map of tableName, offset value pairs to be used to correctly index tuples for
@@ -83,6 +83,13 @@ public class JoinExpressionVisitor implements ExpressionVisitor {
     this.dbCatalog = DatabaseCatalog.getInstance();
     this.tableOffset = tableOffset;
     this.rightTableName = rightTable;
+  }
+
+  /**
+   * Sets the database catalog
+   */
+  public void setDbCatalog(DatabaseCatalog dbCatalog) {
+    this.dbCatalog = dbCatalog;
   }
 
   /**
@@ -137,7 +144,8 @@ public class JoinExpressionVisitor implements ExpressionVisitor {
   public void visit(Column exp) {
     String tableName = exp.getTable().getName();
     Tuple row = (tableName.equals(this.rightTableName)) ? this.rightRow : this.leftRow;
-    int index = tableOffset.get(tableName) + dbCatalog.columnMap(tableName).get(exp.getColumnName());
+    int offSet = (tableName.equals(this.rightTableName)) ? 0 : tableOffset.get(tableName);
+    int index = offSet + dbCatalog.columnMap(tableName).get(exp.getColumnName());
     this.doubleLastValue = row.get(index);
   }
 

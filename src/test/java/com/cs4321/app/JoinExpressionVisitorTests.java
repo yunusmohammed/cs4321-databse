@@ -62,11 +62,6 @@ class JoinExpressionVisitorTests {
 		visitor.setDbCatalog(dbCatalog);
 	}
 
-	@BeforeEach
-	void setUp() throws Exception {
-
-	}
-
 	@Test
 	void testSimpleEquals() throws ParseException {
 		// True Case

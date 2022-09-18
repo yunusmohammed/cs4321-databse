@@ -43,16 +43,26 @@ public class JoinOperator extends Operator {
 
     }
 
+    public JoinOperator(Operator leftChild, Operator rightChild, Expression joinCondition,
+            JoinExpressionVisitor visitor) {
+        this.leftChild = leftChild;
+        this.rightChild = rightChild;
+        this.joinCondition = joinCondition;
+        this.visitor = visitor;
+    }
+
     @Override
     public Tuple getNextTuple() {
         if (this.leftTuple == null)
-            this.leftChild.getNextTuple();
+            this.leftTuple = this.leftChild.getNextTuple();
         while (this.leftTuple != null) {
             Tuple rightTuple = this.rightChild.getNextTuple();
-            if (rightTuple == null)
+            if (rightTuple == null) {
                 this.leftTuple = this.leftChild.getNextTuple();
-            else if (this.visitor.evalExpression(this.joinCondition, leftTuple, rightTuple))
+                this.rightChild.reset();
+            } else if (this.visitor.evalExpression(this.joinCondition, leftTuple, rightTuple)) {
                 return this.leftTuple.concat(rightTuple);
+            }
         }
         return null;
     }

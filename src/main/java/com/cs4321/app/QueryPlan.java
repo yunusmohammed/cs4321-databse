@@ -1,5 +1,6 @@
 package com.cs4321.app;
 
+import net.bytebuddy.TypeCache;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.*;
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +55,17 @@ public class QueryPlan {
             } else {
                 //TODO: Add conditions for other operators @Lenhard, @Yohannes, @Yunus
             }
+
+            boolean ordered = false;
+            if(orderByElementsList != null && orderByElementsList.size() > 0) {
+                this.root = generateSort(selectBody);
+                ordered = true;
+            }
+            if(distinct != null) {
+                // DuplicateEliminationOperator expects sorted child
+                if(!ordered) this.root = generateSort(selectBody);
+                this.root = generateDistinct();
+            }
         }
     }
 
@@ -79,6 +92,21 @@ public class QueryPlan {
 
         Map<String, Integer> mapping = DatabaseCatalog.getInstance().columnMap(fromItem.toString());
         return new SelectionOperator(visitor, mapping, whereExpression, generateScan(selectBody));
+    }
+
+    /**
+     * Generates a new sort operator. Places sort operator directly above the current root.
+     * @param selectBody- The body of the select statement.
+     * @return- A new sort operator.
+     */
+    private SortOperator generateSort(PlainSelect selectBody) {
+        FromItem fromItem = selectBody.getFromItem();
+        HashMap<String, Integer> mapping = DatabaseCatalog.getInstance().columnMap(fromItem.toString());
+        return new SortOperator(root, mapping, selectBody.getOrderByElements());
+    }
+
+    private Operator generateDistinct() {
+        return new DuplicateEliminationOperator(root);
     }
 
     /**

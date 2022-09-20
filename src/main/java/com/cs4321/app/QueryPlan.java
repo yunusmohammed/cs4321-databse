@@ -1,12 +1,12 @@
 package com.cs4321.app;
 
 import net.sf.jsqlparser.expression.BinaryExpression;
-import net.bytebuddy.TypeCache;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.*;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -16,7 +16,6 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
-import java.util.Map;
 
 /**
  * The QueryPlan is a tree of operators. A QueryPlan is constructed for each
@@ -30,6 +29,7 @@ public class QueryPlan {
     private static final SelectExpressionVisitor visitor = new SelectExpressionVisitor();
     private static final String sep = File.separator;
     private String queryOutputName;
+    private ColumnMap columnMap;
 
     /**
      * Evaluates SQL query statements
@@ -46,20 +46,22 @@ public class QueryPlan {
             List<SelectItem> selectItemsList = selectBody.getSelectItems();
             SelectItem firstSelectItem = selectItemsList.get(0);
             FromItem fromItem = selectBody.getFromItem();
-            List<Join> otherFromItemsArrayList = selectBody.getJoins();
+            List<Join> joinsList = selectBody.getJoins();
             List<OrderByElement> orderByElementsList = selectBody.getOrderByElements();
             Expression whereExpression = selectBody.getWhere();
             Distinct distinct = selectBody.getDistinct();
 
-            if ("*".equals(firstSelectItem.toString()) && otherFromItemsArrayList == null && whereExpression == null
+            this.columnMap = new ColumnMap(fromItem, joinsList);
+
+            if ("*".equals(firstSelectItem.toString()) && joinsList == null && whereExpression == null
                     && distinct == null && orderByElementsList == null) {
                 this.root = generateScan(selectBody);
             } else if (selectItemsList.size() == 1 && firstSelectItem instanceof AllColumns
-                    && (otherFromItemsArrayList == null || otherFromItemsArrayList.size() == 0)
+                    && (joinsList == null || joinsList.size() == 0)
                     && whereExpression != null && distinct == null && orderByElementsList == null) {
                 this.root = generateSelection(selectBody);
             } else if (selectItemsList.size() == 1 && firstSelectItem instanceof AllColumns
-                    && otherFromItemsArrayList != null && otherFromItemsArrayList.size() > 0) {
+                    && joinsList != null && joinsList.size() > 0) {
                 this.root = generateJoin(selectBody);
             } else {
                 // TODO: Add conditions for other operators @Yohannes @Lenhard
@@ -100,14 +102,12 @@ public class QueryPlan {
     private SelectionOperator generateSelection(PlainSelect selectBody) {
         FromItem fromItem = selectBody.getFromItem();
         Expression whereExpression = selectBody.getWhere();
-
-        Map<String, Integer> mapping = DatabaseCatalog.getInstance().columnMap(fromItem.toString());
-        return new SelectionOperator(visitor, mapping, whereExpression, generateScan(selectBody));
+        return new SelectionOperator(visitor, this.columnMap, whereExpression, generateScan(selectBody));
     }
 
     /**
      * Generates a join query plan
-     * 
+     *
      * @param selectBody The body of a select statement. The joins field must be non
      *                   null and non empty
      * @return the root of the join query plan
@@ -161,7 +161,7 @@ public class QueryPlan {
     /**
      * Decouple expression into all component binary expressions that are not AND
      * expressions
-     * 
+     *
      * @param expression the expression to decouple
      * @return a stack of the decoupled expressions
      */
@@ -184,7 +184,7 @@ public class QueryPlan {
     /**
      * Conjoins a stack of expressions to build an expression
      * tree
-     * 
+     *
      * @param expressions a stack of expressions to conjoin
      * @return root of the expression tree from conjoining expressions
      */
@@ -202,7 +202,7 @@ public class QueryPlan {
 
     /**
      * Distributes expressions among a join operator and its children
-     * 
+     *
      * @param expressions     expressions to be distribuited among the join operator
      *                        and its children
      * @param rightChildTable table corresponding to the right child of the Join
@@ -244,7 +244,7 @@ public class QueryPlan {
 
     /**
      * Generate a child operator evaluating childExpressions on childTable
-     * 
+     *
      * @param childExpressions stack of expressions to be evaluated by the child
      *                         operator
      * @param childTable       table corresponding to the child operator
@@ -267,7 +267,7 @@ public class QueryPlan {
     /**
      * Generates a map of offsets for column indices of tables in the results of
      * joins
-     * 
+     *
      * @param selectBody a select body containing the order in which tables are
      *                   joined
      * @return a map of column index offsets for tables after a join operation
@@ -292,7 +292,7 @@ public class QueryPlan {
     /**
      * Generates a new sort operator. Places sort operator directly above the
      * current root.
-     * 
+     *
      * @param selectBody The body of the select statement.
      * @return A new sort operator.
      */

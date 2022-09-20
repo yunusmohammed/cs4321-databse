@@ -8,11 +8,9 @@ import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SubSelect;
 
-import java.util.Map;
-
 public class SelectExpressionVisitor implements ExpressionVisitor {
 
-    private Map<String, Integer> columnMap;
+    private ColumnMap columnMap;
     private Tuple row;
 
     private double doubleLastValue;
@@ -25,11 +23,11 @@ public class SelectExpressionVisitor implements ExpressionVisitor {
      * @param exp       The expression being evaluated. Requires: exp to be of the form [A op B] where A and B are either
      *                  longs or column references, and op is one of =, !=, <, <=, >, or >= or a conjunction of other
      *                  expressions in that form.
-     * @param columnMap The mapping from a table's column name to the index that column represents in a row
+     * @param columnMap The ColumnMap representing a mapping from a column to the index that column represents in a row
      * @param row       The row for which the expression is being evaluated on.
      * @return Boolean result of evaluating the expression.
      */
-    public boolean evalExpression(Expression exp, Tuple row, Map<String, Integer> columnMap) {
+    public boolean evalExpression(Expression exp, Tuple row, ColumnMap columnMap) {
         this.row = row;
         this.columnMap = columnMap;
         exp.accept(this);
@@ -56,7 +54,7 @@ public class SelectExpressionVisitor implements ExpressionVisitor {
 
     @Override
     public void visit(Column exp) {
-        int index = columnMap.get(exp.getColumnName());
+        int index = columnMap.get(exp);
         doubleLastValue = row.get(index);
     }
 

@@ -1,18 +1,15 @@
 package com.cs4321.app;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.StringReader;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.ParseException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import utils.Utils;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.argThat;
 
 class SelectExpressionVisitorTest {
 
@@ -20,20 +17,20 @@ class SelectExpressionVisitorTest {
     SelectExpressionVisitor visitor;
 
     Tuple emptyRow;
-    Map<String, Integer> emptyColumnMap;
+    ColumnMap emptyColumnMap;
 
     Tuple exampleRow;
-    Map<String, Integer> exampleColumnMap;
+    ColumnMap exampleColumnMap;
 
     @BeforeEach
     void setUp() {
         emptyRow = new Tuple("");
-        emptyColumnMap = new HashMap<>();
+        emptyColumnMap = Mockito.mock(ColumnMap.class);
         exampleRow = new Tuple("1,2,3,4,5");
-        exampleColumnMap = new HashMap<>();
-        exampleColumnMap.put("A", 1);
-        exampleColumnMap.put("B", 2);
-        exampleColumnMap.put("C", 3);
+        exampleColumnMap = emptyColumnMap = Mockito.mock(ColumnMap.class);
+        Mockito.when(exampleColumnMap.get(argThat(a -> a != null && a.getColumnName().equals("A")))).thenReturn(1);
+        Mockito.when(exampleColumnMap.get(argThat(b -> b != null && b.getColumnName().equals("B")))).thenReturn(2);
+        Mockito.when(exampleColumnMap.get(argThat(c -> c != null && c.getColumnName().equals("C")))).thenReturn(3);
 
         visitor = new SelectExpressionVisitor();
     }

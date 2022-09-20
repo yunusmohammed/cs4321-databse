@@ -44,13 +44,13 @@ class TupleTest {
 	@Test
 	void equalsTest() {
 		// empty tuple
-		assertEquals(true, empty.equals(new Tuple("")));
+		assertEquals(empty, new Tuple(""));
 		// quadruple
-		assertEquals(true, quadruple.equals(new Tuple("9,-18,100,0")));
+		assertEquals(quadruple, new Tuple("9,-18,100,0"));
 		// not equal
-		assertEquals(false, quadruple.equals(single));
-		assertEquals(false, single.equals(quadruple));
-		assertEquals(false, empty.equals(single));
+		assertNotEquals(quadruple, single);
+		assertNotEquals(single, quadruple);
+		assertNotEquals(empty, single);
 	}
 	
 	@Test

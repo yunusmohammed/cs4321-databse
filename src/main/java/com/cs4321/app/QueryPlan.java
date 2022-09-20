@@ -1,6 +1,7 @@
 package com.cs4321.app;
 
 import net.sf.jsqlparser.expression.BinaryExpression;
+import net.bytebuddy.TypeCache;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.schema.Column;
@@ -63,6 +64,18 @@ public class QueryPlan {
             } else {
                 // TODO: Add conditions for other operators @Yohannes @Lenhard
                 return;
+            }
+
+            boolean ordered = false;
+            if (orderByElementsList != null && orderByElementsList.size() > 0) {
+                this.root = generateSort(selectBody);
+                ordered = true;
+            }
+            if (distinct != null) {
+                // DuplicateEliminationOperator expects sorted child
+                if (!ordered)
+                    this.root = generateSort(selectBody);
+                this.root = generateDistinct();
             }
         }
     }
@@ -274,6 +287,23 @@ public class QueryPlan {
         }
 
         return tableOffset;
+    }
+
+    /**
+     * Generates a new sort operator. Places sort operator directly above the
+     * current root.
+     * 
+     * @param selectBody The body of the select statement.
+     * @return A new sort operator.
+     */
+    private SortOperator generateSort(PlainSelect selectBody) {
+        FromItem fromItem = selectBody.getFromItem();
+        HashMap<String, Integer> mapping = DatabaseCatalog.getInstance().columnMap(fromItem.toString());
+        return new SortOperator(root, mapping, selectBody.getOrderByElements());
+    }
+
+    private Operator generateDistinct() {
+        return new DuplicateEliminationOperator(root);
     }
 
     /**

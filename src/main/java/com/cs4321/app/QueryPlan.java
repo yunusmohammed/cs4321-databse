@@ -57,13 +57,12 @@ public class QueryPlan {
                     && (joinsList == null || joinsList.size() == 0)
                     && whereExpression != null) {
                 this.root = generateSelection(selectBody);
-            } else if (joinsList != null && joinsList.size() > 0) {
-                this.root = generateProjection(selectBody);
             } else if (selectItemsList.size() == 1 && firstSelectItem instanceof AllColumns
                     && joinsList != null && joinsList.size() > 0) {
                 this.root = generateJoin(selectBody);
             } else {
                 // TODO: Add conditions for other operators @Yohannes @Lenhard
+                this.root = generateProjection(selectBody);
             }
 
             boolean ordered = false;
@@ -86,8 +85,9 @@ public class QueryPlan {
      * @return The scan operator that was just created
      */
     private ScanOperator generateScan(PlainSelect selectBody) {
-        FromItem fromItem = selectBody.getFromItem();
-        return new ScanOperator(fromItem.toString());
+        String baseTable = selectBody.getFromItem().toString();
+        if(selectBody.getFromItem().getAlias() != null) baseTable = columnMap.getBaseTable(selectBody.getFromItem().getAlias());
+        return new ScanOperator(baseTable);
     }
 
     /**
@@ -328,24 +328,25 @@ public class QueryPlan {
     private HashMap<String, Integer> getColumnIndex(PlainSelect selectBody) {
         int curIndex = 0;
         HashMap<String, Integer> columnIndex = new HashMap<>();
-        ColumnMap aliasMap = new ColumnMap(selectBody.getFromItem(), selectBody.getJoins());
         for(Object selectItem : selectBody.getSelectItems()) {
             if(selectItem instanceof AllColumns) {
                 // * with potential join
                 String fromItem = selectBody.getFromItem().toString();
+                if(selectBody.getFromItem().getAlias() != null) fromItem = selectBody.getFromItem().getAlias();
                 List<Join> joins = selectBody.getJoins();
                 List<String> tableNames = new ArrayList<>();
                 tableNames.add(fromItem);
                 if(joins != null && joins.size() > 0) {
                     for(Join join : joins) {
-                        tableNames.add(join.getRightItem().toString());
+                        if(join.getRightItem().getAlias() != null) tableNames.add(join.getRightItem().getAlias());
+                        else tableNames.add(join.getRightItem().toString());
                     }
                 }
                 for(String table : tableNames) {
                     Map<String, Integer> mapping = DatabaseCatalog.getInstance().columnMap(table);
                     for(String column : mapping.keySet()) {
                         // will not work if column names are the same for different tables, including self-joins
-                        columnIndex.put(column, mapping.get(column)+curIndex);
+                        columnIndex.put(table + "." + column, mapping.get(column)+curIndex);
                     }
                     curIndex += mapping.size();
                 }

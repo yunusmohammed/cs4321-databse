@@ -112,8 +112,17 @@ public class JoinExpressionVisitor implements ExpressionVisitor {
   }
 
   /**
-   * Evaluates the expression exp
+   * Return the column map of this visitor
    * 
+   * @return the column map of this visitor
+   */
+  public ColumnMap getColumnMap() {
+    return this.columnMap;
+  }
+
+  /**
+   * 
+   *  * 
    * @param exp The expression to be evaluated, a boolean expression
    * @return The result of evaluating exp
    */

@@ -163,7 +163,7 @@ public class QueryPlan {
 
             // Set ExpressionVisitor of current parent
             JoinExpressionVisitor visitor = new JoinExpressionVisitor(this.columnMap, tableOffset,
-                    rightChildTable.getName());
+                    rightChildTableName);
             currentParent.setVisitor(visitor);
 
             // Set left child of current parent
@@ -252,8 +252,10 @@ public class QueryPlan {
                 // expression references only the columns from the right child's table
                 rightChildExpressions.add(exp);
 
-            } else if ((leftTable != null && leftTable.equals(rightChildTableName))
-                    || (rightTable != null && rightTable.equals(rightChildTableName))) {
+            } else if ((leftTable != null && leftTable.equals(rightChildTableName)
+                    && rightTable != null && !rightTable.equals(rightChildTableName))
+                    || (leftTable != null && !leftTable.equals(rightChildTableName)
+                            && rightTable != null && rightTable.equals(rightChildTableName))) {
                 // expression references columns from the rigth child's table and some other
                 // tables in the left child
                 parentExpressions.add(exp);

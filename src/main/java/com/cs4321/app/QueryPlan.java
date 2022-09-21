@@ -54,6 +54,7 @@ public class QueryPlan {
 
             if ("*".equals(firstSelectItem.toString()) && joinsList == null && whereExpression == null) {
                 this.root = generateScan(selectBody);
+                System.out.println(queryNumber + "here");
             } else if (selectItemsList.size() == 1 && firstSelectItem instanceof AllColumns
                     && (joinsList == null || joinsList.size() == 0)
                     && whereExpression != null) {
@@ -356,8 +357,6 @@ public class QueryPlan {
                 for (String table : tableNames) {
                     Map<String, Integer> mapping = DatabaseCatalog.getInstance().columnMap(table);
                     for (String column : mapping.keySet()) {
-                        // will not work if column names are the same for different tables, including
-                        // self-joins
                         columnIndex.put(table + "." + column, mapping.get(column) + curIndex);
                     }
                     curIndex += mapping.size();

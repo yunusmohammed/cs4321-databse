@@ -88,24 +88,10 @@ class ProjectionOperatorTest {
         Mockito.when(mockChild.getNextTuple()).thenReturn(new Tuple("10,20,30,40"));
         assertEquals(expectedResult, projectOperator.getNextTuple());
 
-        // Selection is a mix of AllColumns and singular columns
-        selectItems = generateList(new String[]{"A", "*", "*", "B"});
-        projectOperator = new ProjectionOperator(columnMap, selectItems, mockChild);
-        Mockito.when(mockChild.getNextTuple()).thenReturn(new Tuple("10,20,30,40"));
-        expectedResult = new Tuple("10,10,20,30,40,10,20,30,40,20");
-        assertEquals(expectedResult, projectOperator.getNextTuple());
-
         // Selection is every column without using AllColumns
         selectItems = generateList(new String[]{"A", "B", "C", "D"});
         projectOperator = new ProjectionOperator(columnMap, selectItems, mockChild);
         Mockito.when(mockChild.getNextTuple()).thenReturn(new Tuple("10,20,30,40"));
-        expectedResult = new Tuple("10,20,30,40");
-        assertEquals(expectedResult, projectOperator.getNextTuple());
-
-        // Selection is every column using AllColumns
-        selectItems = generateList(new String[]{"*"});
-        Mockito.when(mockChild.getNextTuple()).thenReturn(new Tuple("10,20,30,40"));
-        projectOperator = new ProjectionOperator(columnMap, selectItems, mockChild);
         expectedResult = new Tuple("10,20,30,40");
         assertEquals(expectedResult, projectOperator.getNextTuple());
 

@@ -189,6 +189,8 @@ public class QueryPlan {
      */
     private Stack<BinaryExpression> getExpressions(Expression expression) {
         Stack<BinaryExpression> expressions = new Stack<>();
+        if (expression == null)
+            return expressions;
         Stack<Expression> stack = new Stack<>();
         stack.add(expression);
         while (stack.size() > 0) {
@@ -211,7 +213,7 @@ public class QueryPlan {
      * @return root of the expression tree from conjoining expressions
      */
     private Expression generateExpressionTree(Stack<Expression> expressions) {
-        if (expressions.size() == 0)
+        if (expressions == null || expressions.size() == 0)
             return null;
         while (expressions.size() >= 2) {
             Expression leftExpression = expressions.pop();
@@ -279,7 +281,7 @@ public class QueryPlan {
         Operator operator;
         PlainSelect selectBody = new PlainSelect();
         selectBody.setFromItem(childTable);
-        if (childExpressions.size() == 0)
+        if (childExpressions == null || childExpressions.size() == 0)
             operator = generateScan(selectBody);
         else {
             Expression rightChildExpression = generateExpressionTree(childExpressions);

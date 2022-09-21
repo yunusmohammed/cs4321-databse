@@ -76,7 +76,8 @@ public class JoinOperator extends Operator {
             if (rightTuple == null) {
                 this.leftTuple = this.leftChild.getNextTuple();
                 this.rightChild.reset();
-            } else if (this.visitor.evalExpression(this.joinCondition, leftTuple, rightTuple)) {
+            } else if (this.joinCondition == null
+                    || this.visitor.evalExpression(this.joinCondition, leftTuple, rightTuple)) {
                 return this.leftTuple.concat(rightTuple);
             }
         }

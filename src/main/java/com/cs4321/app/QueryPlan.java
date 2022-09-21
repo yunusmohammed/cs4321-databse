@@ -4,6 +4,7 @@ import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.*;
 
@@ -142,12 +143,15 @@ public class QueryPlan {
             if (root == null) {
                 root = currentParent;
             }
-            FromItem rightChildTable = joins.remove(joins.size() - 1).getRightItem();
+            Table rightChildTable = (Table) joins.remove(joins.size() - 1).getRightItem();
             Stack<Expression> rightChildExpressions;
             Stack<Expression> parentExpressions;
             Stack<BinaryExpression> leftChildExpressions;
 
-            JoinExpressions joinExpressions = getJoinExpressions(expressions, rightChildTable);
+            String rightChildTableName = rightChildTable.getAlias();
+            rightChildTableName = (rightChildTableName != null) ? rightChildTableName : rightChildTable.getName();
+
+            JoinExpressions joinExpressions = getJoinExpressions(expressions, rightChildTableName);
 
             parentExpressions = joinExpressions.getParentExpressions();
             leftChildExpressions = joinExpressions.getLeftExpressions();
@@ -162,7 +166,7 @@ public class QueryPlan {
 
             // Set ExpressionVisitor of current parent
             JoinExpressionVisitor visitor = new JoinExpressionVisitor(this.columnMap, tableOffset,
-                    rightChildTable.toString());
+                    rightChildTable.getName());
             currentParent.setVisitor(visitor);
 
             // Set left child of current parent
@@ -230,7 +234,7 @@ public class QueryPlan {
      *                        Operator
      * @return a JoinExpressions intance representing the result of the distribution
      */
-    private JoinExpressions getJoinExpressions(Stack<BinaryExpression> expressions, FromItem rightChildTable) {
+    private JoinExpressions getJoinExpressions(Stack<BinaryExpression> expressions, String rightChildTableName) {
         Stack<Expression> rightChildExpressions = new Stack<>();
         Stack<Expression> parentExpressions = new Stack<>();
         Stack<BinaryExpression> leftChildExpressions = new Stack<>();
@@ -244,15 +248,15 @@ public class QueryPlan {
             if (exp.getRightExpression() instanceof Column)
                 rightTable = ((Column) exp.getRightExpression()).getTable().getName();
 
-            if (((leftTable != null && leftTable.equals(rightChildTable.toString()))
-                    && (rightTable == null || rightTable.equals(rightChildTable.toString()))) ||
-                    ((rightTable != null && rightTable.equals(rightChildTable.toString()))
-                            && (leftTable == null || leftTable.equals(rightChildTable.toString())))) {
+            if (((leftTable != null && leftTable.equals(rightChildTableName))
+                    && (rightTable == null || rightTable.equals(rightChildTableName))) ||
+                    ((rightTable != null && rightTable.equals(rightChildTableName))
+                            && (leftTable == null || leftTable.equals(rightChildTableName)))) {
                 // expression references only the columns from the right child's table
                 rightChildExpressions.add(exp);
 
-            } else if ((leftTable != null && leftTable.equals(rightChildTable.toString()))
-                    || (rightTable != null && rightTable.equals(rightChildTable.toString()))) {
+            } else if ((leftTable != null && leftTable.equals(rightChildTableName))
+                    || (rightTable != null && rightTable.equals(rightChildTableName))) {
                 // expression references columns from the rigth child's table and some other
                 // tables in the left child
                 parentExpressions.add(exp);
@@ -297,13 +301,13 @@ public class QueryPlan {
         HashMap<String, Integer> tableOffset = new HashMap<>();
         List<Join> joins = selectBody.getJoins();
         int prevOffset = 0;
-        String prevTable = selectBody.getFromItem().getAlias();
-        prevTable = (prevTable != null) ? prevTable : selectBody.getFromItem().toString();
+        String prevTable = ((Table) selectBody.getFromItem()).getAlias();
+        prevTable = (prevTable != null) ? prevTable : ((Table) selectBody.getFromItem()).getName();
         tableOffset.put(prevTable, prevOffset);
         for (Join join : joins) {
             // default to use alias when an alias exists
-            String curTable = join.getRightItem().getAlias();
-            curTable = (curTable != null) ? curTable : join.getRightItem().toString();
+            String curTable = ((Table) join.getRightItem()).getAlias();
+            curTable = (curTable != null) ? curTable : ((Table) join.getRightItem()).getName();
             int newOffset = prevOffset
                     + DatabaseCatalog.getInstance().columnMap(this.columnMap.getBaseTable(prevTable)).size();
             tableOffset.put(curTable, newOffset);

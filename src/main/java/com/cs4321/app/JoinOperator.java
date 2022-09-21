@@ -3,6 +3,7 @@ package com.cs4321.app;
 import java.util.Map;
 
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.schema.Column;
 
 /**
  * Operator for handling Joins
@@ -57,6 +58,13 @@ public class JoinOperator extends Operator {
         this.rightChild = rightChild;
         this.joinCondition = joinCondition;
         this.visitor = visitor;
+    }
+
+    public int getColumnIndex(Column column) {
+        Map<String, Integer> tableOffset = this.visitor.getTableOffsets();
+        String tableName = column.getTable().getAlias();
+        tableName = (tableName != null) ? tableName : column.getTable().getName();
+        return tableOffset.get(tableName) + this.visitor.getColumnMap().get(column);
     }
 
     @Override

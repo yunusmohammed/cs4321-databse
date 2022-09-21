@@ -225,10 +225,11 @@ public class QueryPlan {
     /**
      * Distributes expressions among a join operator and its children
      *
-     * @param expressions     expressions to be distribuited among the join operator
-     *                        and its children
-     * @param rightChildTable table corresponding to the right child of the Join
-     *                        Operator
+     * @param expressions         expressions to be distribuited among the join
+     *                            operator
+     *                            and its children
+     * @param rightChildTableName table corresponding to the right child of the Join
+     *                            Operator
      * @return a JoinExpressions intance representing the result of the distribution
      */
     private JoinExpressions getJoinExpressions(Stack<BinaryExpression> expressions, String rightChildTableName) {

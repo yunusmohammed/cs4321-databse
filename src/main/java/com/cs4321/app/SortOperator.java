@@ -51,11 +51,13 @@ public class SortOperator extends Operator {
      */
     private int compare(Tuple a, Tuple b) {
         HashSet<Integer> seenColumns = new HashSet<>();
-        for(OrderByElement o : orderByElementList) {
-            int index = columnMap.get(o.toString());
-            seenColumns.add(index);
-            int aVal = a.get(index), bVal = b.get(index);
-            if(aVal != bVal) return aVal - bVal;
+        if(orderByElementList != null) {
+            for(OrderByElement o : orderByElementList) {
+                int index = columnMap.get(o.toString());
+                seenColumns.add(index);
+                int aVal = a.get(index), bVal = b.get(index);
+                if(aVal != bVal) return aVal - bVal;
+            }
         }
         for(int i=0; i<a.size(); i++) {
             if(!seenColumns.contains(i)) {

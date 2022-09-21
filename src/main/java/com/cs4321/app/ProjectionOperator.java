@@ -1,11 +1,14 @@
 package com.cs4321.app;
 
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SelectItem;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The ProjectOperator support SELECT queries that choose parts of the row.:
@@ -16,6 +19,7 @@ public class ProjectionOperator extends Operator {
     private final ColumnMap columnMap;
     private final List<SelectItem> selectItems;
     private final Operator child;
+    private final Map<String, Integer> columnOrder;
 
     /**
      * Creates an Operator that will represent a SELECT statement containing the selection of particular columns
@@ -28,6 +32,13 @@ public class ProjectionOperator extends Operator {
         this.columnMap = columnMap;
         this.selectItems = selectItems;
         this.child = child;
+        this.columnOrder = new HashMap<>();
+        for (int i = 0; i < selectItems.size(); i++) {
+            SelectItem item = selectItems.get(i);
+            Expression exp = (((SelectExpressionItem) item).getExpression());
+            Column c = (Column) exp;
+            this.columnOrder.put(c.toString(), i);
+        }
     }
 
     /**
@@ -68,6 +79,15 @@ public class ProjectionOperator extends Operator {
     @Override
     public void reset() {
         this.child.reset();
+    }
+
+    /**
+     * Returns the new index of the column after a merge.
+     *
+     * @param column The column whose index needs to be searched.
+     */
+    public int getColumnIndex(Column column) {
+        return this.columnOrder.get(column.toString());
     }
 
     /**

@@ -60,6 +60,8 @@ public class QueryPlan {
                     && (joinsList == null || joinsList.size() == 0)
                     && whereExpression != null && distinct == null && orderByElementsList == null) {
                 this.root = generateSelection(selectBody);
+            } else if (joinsList != null && joinsList.size() > 0) {
+                this.root = generateProjection(selectBody);
             } else if (selectItemsList.size() == 1 && firstSelectItem instanceof AllColumns
                     && joinsList != null && joinsList.size() > 0) {
                 this.root = generateJoin(selectBody);
@@ -103,6 +105,24 @@ public class QueryPlan {
         FromItem fromItem = selectBody.getFromItem();
         Expression whereExpression = selectBody.getWhere();
         return new SelectionOperator(visitor, this.columnMap, whereExpression, generateScan(selectBody));
+    }
+
+    /**
+     * Generate a new select operator and makes it the root
+     *
+     * @param selectBody The body of the Select statement
+     * @return The select operator that was just created
+     */
+    private ProjectionOperator generateProjection(PlainSelect selectBody) {
+        FromItem fromItem = selectBody.getFromItem();
+        List<SelectItem> selectItemsList = selectBody.getSelectItems();
+        Expression whereExpression = selectBody.getWhere();
+        if (whereExpression == null) {
+            return new ProjectionOperator(this.columnMap, selectItemsList, generateScan(selectBody));
+        } else {
+            return new ProjectionOperator(this.columnMap, selectItemsList, generateSelection(selectBody));
+        }
+
     }
 
     /**

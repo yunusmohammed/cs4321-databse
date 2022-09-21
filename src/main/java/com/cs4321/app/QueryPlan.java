@@ -54,7 +54,6 @@ public class QueryPlan {
 
             if ("*".equals(firstSelectItem.toString()) && joinsList == null && whereExpression == null) {
                 this.root = generateScan(selectBody);
-                System.out.println(queryNumber + "here");
             } else if (selectItemsList.size() == 1 && firstSelectItem instanceof AllColumns
                     && (joinsList == null || joinsList.size() == 0)
                     && whereExpression != null) {
@@ -372,7 +371,6 @@ public class QueryPlan {
                     curIndex += mapping.size();
                 }
             } else {
-                System.out.println(selectItem.toString() + " here");
                 columnIndex.put(selectItem.toString(), curIndex++);
             }
         }

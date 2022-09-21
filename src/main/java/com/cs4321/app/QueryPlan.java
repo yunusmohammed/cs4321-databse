@@ -284,7 +284,8 @@ public class QueryPlan {
             // default to use alias when an alias exists
             String curTable = join.getRightItem().getAlias();
             curTable = (curTable != null) ? curTable : join.getRightItem().toString();
-            int newOffset = prevOffset + DatabaseCatalog.getInstance().columnMap(prevTable).size();
+            int newOffset = prevOffset
+                    + DatabaseCatalog.getInstance().columnMap(this.columnMap.getBaseTable(prevTable)).size();
             tableOffset.put(curTable, newOffset);
             prevOffset = newOffset;
             prevTable = curTable;

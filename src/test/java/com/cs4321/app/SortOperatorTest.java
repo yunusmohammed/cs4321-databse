@@ -29,10 +29,10 @@ class SortOperatorTest {
         // initializes objects for sort operator
         mockChild = Mockito.mock(Operator.class);
         columnMap = new HashMap<>();
-        columnMap.put("A", 0);
-        columnMap.put("B", 1);
-        columnMap.put("C", 2);
-        columnMap.put("D", 3);
+        columnMap.put("Table.A", 0);
+        columnMap.put("Table.B", 1);
+        columnMap.put("Table.C", 2);
+        columnMap.put("Table.D", 3);
         orderByElementList = new ArrayList<>();
         sortOperator = new SortOperator(mockChild, columnMap, orderByElementList);
     }
@@ -40,8 +40,8 @@ class SortOperatorTest {
     @Test
     void testGetNextTuple() {
         // order by clause sorts by columns "B", "D", "A", and "C"
-        addOrderByElement("B");
-        addOrderByElement("D");
+        addOrderByElement("Table.B");
+        addOrderByElement("Table.D");
         // sets the value returned by getNextTuple for the child. null will be returned after four calls to getNextTuple
         Mockito.when(mockChild.getNextTuple()).thenReturn(thirdTuple, secondTuple, fourthTuple, firstTuple, null);
         assertEquals(firstTuple, sortOperator.getNextTuple());

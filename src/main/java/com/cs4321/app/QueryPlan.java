@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -100,10 +101,44 @@ public class QueryPlan {
      * @return- A new sort operator.
      */
     private SortOperator generateSort(PlainSelect selectBody) {
-        FromItem fromItem = selectBody.getFromItem();
-        HashMap<String, Integer> mapping = DatabaseCatalog.getInstance().columnMap(fromItem.toString());
-        return new SortOperator(root, mapping, selectBody.getOrderByElements());
+        return new SortOperator(root, getColumnIndex(selectBody), selectBody.getOrderByElements());
     }
+
+    /**
+     * Creates a mapping from columns names in the select clause to indexes in a corresponding tuple.
+     * @param selectBody- The body of the select statement.
+     * @return- A HashMap from column names to indexes in a tuple.
+     */
+    private HashMap<String, Integer> getColumnIndex(PlainSelect selectBody) {
+        int curIndex = 0;
+        HashMap<String, Integer> columnIndex = new HashMap<>();
+        for(Object selectItem : selectBody.getSelectItems()) {
+            if(selectItem instanceof AllColumns) {
+                // need to fix for * with a join
+                String fromItem = selectBody.getFromItem().toString();
+                List<Join> joins = selectBody.getJoins();
+                List<String> tableNames = new ArrayList<>();
+                tableNames.add(fromItem);
+                if(joins != null && joins.size() > 0) {
+                    for(Join join : joins) {
+                        tableNames.add(join.getRightItem().toString());
+                    }
+                }
+                for(String table : tableNames) {
+                    Map<String, Integer> mapping = DatabaseCatalog.getInstance().columnMap(table);
+                    for(String column : mapping.keySet()) {
+                        columnIndex.put(table + "." + column, mapping.get(column)+curIndex);
+                    }
+                    curIndex += mapping.size();
+                }
+            }
+            else {
+                columnIndex.put(selectItem.toString(), curIndex++);
+            }
+        }
+        return columnIndex;
+    }
+
 
     private Operator generateDistinct() {
         return new DuplicateEliminationOperator(root);

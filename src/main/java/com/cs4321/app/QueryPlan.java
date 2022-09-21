@@ -13,10 +13,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * The QueryPlan is a tree of operators. A QueryPlan is constructed for each
@@ -66,7 +63,6 @@ public class QueryPlan {
                 this.root = generateJoin(selectBody);
             } else {
                 // TODO: Add conditions for other operators @Yohannes @Lenhard
-                return;
             }
 
             boolean ordered = false;
@@ -309,9 +305,10 @@ public class QueryPlan {
     private HashMap<String, Integer> getColumnIndex(PlainSelect selectBody) {
         int curIndex = 0;
         HashMap<String, Integer> columnIndex = new HashMap<>();
+        ColumnMap aliasMap = new ColumnMap(selectBody.getFromItem(), selectBody.getJoins());
         for(Object selectItem : selectBody.getSelectItems()) {
             if(selectItem instanceof AllColumns) {
-                // need to fix for * with a join
+                // * with potential join
                 String fromItem = selectBody.getFromItem().toString();
                 List<Join> joins = selectBody.getJoins();
                 List<String> tableNames = new ArrayList<>();
@@ -324,7 +321,8 @@ public class QueryPlan {
                 for(String table : tableNames) {
                     Map<String, Integer> mapping = DatabaseCatalog.getInstance().columnMap(table);
                     for(String column : mapping.keySet()) {
-                        columnIndex.put(table + "." + column, mapping.get(column)+curIndex);
+                        System.out.println(aliasMap.get(table, column));
+                        columnIndex.put(aliasMap.get(table, column) + "." + column, mapping.get(column)+curIndex);
                     }
                     curIndex += mapping.size();
                 }

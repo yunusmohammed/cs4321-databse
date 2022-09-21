@@ -13,9 +13,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * The QueryPlan is a tree of operators. A QueryPlan is constructed for each
@@ -53,21 +51,18 @@ public class QueryPlan {
 
             this.columnMap = new ColumnMap(fromItem, joinsList);
 
-            if ("*".equals(firstSelectItem.toString()) && joinsList == null && whereExpression == null
-                    && distinct == null && orderByElementsList == null) {
+            if ("*".equals(firstSelectItem.toString()) && joinsList == null && whereExpression == null) {
                 this.root = generateScan(selectBody);
             } else if (selectItemsList.size() == 1 && firstSelectItem instanceof AllColumns
                     && (joinsList == null || joinsList.size() == 0)
-                    && whereExpression != null && distinct == null && orderByElementsList == null) {
+                    && whereExpression != null) {
                 this.root = generateSelection(selectBody);
-            } else if (joinsList != null && joinsList.size() > 0) {
-                this.root = generateProjection(selectBody);
             } else if (selectItemsList.size() == 1 && firstSelectItem instanceof AllColumns
                     && joinsList != null && joinsList.size() > 0) {
                 this.root = generateJoin(selectBody);
             } else {
                 // TODO: Add conditions for other operators @Yohannes @Lenhard
-                return;
+                this.root = generateProjection(selectBody);
             }
 
             boolean ordered = false;
@@ -77,8 +72,7 @@ public class QueryPlan {
             }
             if (distinct != null) {
                 // DuplicateEliminationOperator expects sorted child
-                if (!ordered)
-                    this.root = generateSort(selectBody);
+                if (!ordered) this.root = generateSort(selectBody);
                 this.root = generateDistinct();
             }
         }
@@ -91,8 +85,9 @@ public class QueryPlan {
      * @return The scan operator that was just created
      */
     private ScanOperator generateScan(PlainSelect selectBody) {
-        FromItem fromItem = selectBody.getFromItem();
-        return new ScanOperator(fromItem.toString());
+        String baseTable = selectBody.getFromItem().toString();
+        if(selectBody.getFromItem().getAlias() != null) baseTable = columnMap.getBaseTable(selectBody.getFromItem().getAlias());
+        return new ScanOperator(baseTable);
     }
 
     /**
@@ -322,10 +317,47 @@ public class QueryPlan {
      * @return A new sort operator.
      */
     private SortOperator generateSort(PlainSelect selectBody) {
-        FromItem fromItem = selectBody.getFromItem();
-        HashMap<String, Integer> mapping = DatabaseCatalog.getInstance().columnMap(fromItem.toString());
-        return new SortOperator(root, mapping, selectBody.getOrderByElements());
+        return new SortOperator(root, getColumnIndex(selectBody), selectBody.getOrderByElements());
     }
+
+    /**
+     * Creates a mapping from columns names in the select clause to indexes in a corresponding tuple.
+     * @param selectBody- The body of the select statement.
+     * @return- A HashMap from column names to indexes in a tuple.
+     */
+    private HashMap<String, Integer> getColumnIndex(PlainSelect selectBody) {
+        int curIndex = 0;
+        HashMap<String, Integer> columnIndex = new HashMap<>();
+        for(Object selectItem : selectBody.getSelectItems()) {
+            if(selectItem instanceof AllColumns) {
+                // * with potential join
+                String fromItem = selectBody.getFromItem().toString();
+                if(selectBody.getFromItem().getAlias() != null) fromItem = selectBody.getFromItem().getAlias();
+                List<Join> joins = selectBody.getJoins();
+                List<String> tableNames = new ArrayList<>();
+                tableNames.add(fromItem);
+                if(joins != null && joins.size() > 0) {
+                    for(Join join : joins) {
+                        if(join.getRightItem().getAlias() != null) tableNames.add(join.getRightItem().getAlias());
+                        else tableNames.add(join.getRightItem().toString());
+                    }
+                }
+                for(String table : tableNames) {
+                    Map<String, Integer> mapping = DatabaseCatalog.getInstance().columnMap(table);
+                    for(String column : mapping.keySet()) {
+                        // will not work if column names are the same for different tables, including self-joins
+                        columnIndex.put(table + "." + column, mapping.get(column)+curIndex);
+                    }
+                    curIndex += mapping.size();
+                }
+            }
+            else {
+                columnIndex.put(selectItem.toString(), curIndex++);
+            }
+        }
+        return columnIndex;
+    }
+
 
     private Operator generateDistinct() {
         return new DuplicateEliminationOperator(root);

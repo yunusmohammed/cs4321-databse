@@ -277,10 +277,13 @@ public class QueryPlan {
         HashMap<String, Integer> tableOffset = new HashMap<>();
         List<Join> joins = selectBody.getJoins();
         int prevOffset = 0;
-        String prevTable = selectBody.getFromItem().toString();
+        String prevTable = selectBody.getFromItem().getAlias();
+        prevTable = (prevTable != null) ? prevTable : selectBody.getFromItem().toString();
         tableOffset.put(prevTable, prevOffset);
         for (Join join : joins) {
-            String curTable = join.getRightItem().toString();
+            // default to use alias when an alias exists
+            String curTable = join.getRightItem().getAlias();
+            curTable = (curTable != null) ? curTable : join.getRightItem().toString();
             int newOffset = prevOffset + DatabaseCatalog.getInstance().columnMap(prevTable).size();
             tableOffset.put(curTable, newOffset);
             prevOffset = newOffset;

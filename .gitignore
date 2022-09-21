@@ -37,3 +37,6 @@ target/
 
 # VScode configs
 *.vscode/
+
+# End to end test outpurt
+src/test/resources/output

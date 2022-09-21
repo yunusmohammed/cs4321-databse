@@ -121,8 +121,8 @@ public class JoinExpressionVisitor implements ExpressionVisitor {
   }
 
   /**
-   * Evaluates the expression exp
    * 
+   *  * 
    * @param exp The expression to be evaluated, a boolean expression
    * @return The result of evaluating exp
    */

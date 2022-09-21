@@ -73,7 +73,8 @@ public class QueryPlan {
             }
             if (distinct != null) {
                 // DuplicateEliminationOperator expects sorted child
-                if (!ordered) this.root = generateSort(selectBody);
+                if (!ordered)
+                    this.root = generateSort(selectBody);
                 this.root = generateDistinct();
             }
         }
@@ -87,7 +88,8 @@ public class QueryPlan {
      */
     private ScanOperator generateScan(PlainSelect selectBody) {
         String baseTable = selectBody.getFromItem().toString();
-        if(selectBody.getFromItem().getAlias() != null) baseTable = columnMap.getBaseTable(selectBody.getFromItem().getAlias());
+        if (selectBody.getFromItem().getAlias() != null)
+            baseTable = columnMap.getBaseTable(selectBody.getFromItem().getAlias());
         return new ScanOperator(baseTable);
     }
 
@@ -325,43 +327,47 @@ public class QueryPlan {
     }
 
     /**
-     * Creates a mapping from columns names in the select clause to indexes in a corresponding tuple.
+     * Creates a mapping from columns names in the select clause to indexes in a
+     * corresponding tuple.
+     * 
      * @param selectBody- The body of the select statement.
      * @return- A HashMap from column names to indexes in a tuple.
      */
     private HashMap<String, Integer> getColumnIndex(PlainSelect selectBody) {
         int curIndex = 0;
         HashMap<String, Integer> columnIndex = new HashMap<>();
-        for(Object selectItem : selectBody.getSelectItems()) {
-            if(selectItem instanceof AllColumns) {
+        for (Object selectItem : selectBody.getSelectItems()) {
+            if (selectItem instanceof AllColumns) {
                 // * with potential join
                 String fromItem = selectBody.getFromItem().toString();
-                if(selectBody.getFromItem().getAlias() != null) fromItem = selectBody.getFromItem().getAlias();
+                if (selectBody.getFromItem().getAlias() != null)
+                    fromItem = selectBody.getFromItem().getAlias();
                 List<Join> joins = selectBody.getJoins();
                 List<String> tableNames = new ArrayList<>();
                 tableNames.add(fromItem);
-                if(joins != null && joins.size() > 0) {
-                    for(Join join : joins) {
-                        if(join.getRightItem().getAlias() != null) tableNames.add(join.getRightItem().getAlias());
-                        else tableNames.add(join.getRightItem().toString());
+                if (joins != null && joins.size() > 0) {
+                    for (Join join : joins) {
+                        if (join.getRightItem().getAlias() != null)
+                            tableNames.add(join.getRightItem().getAlias());
+                        else
+                            tableNames.add(join.getRightItem().toString());
                     }
                 }
-                for(String table : tableNames) {
+                for (String table : tableNames) {
                     Map<String, Integer> mapping = DatabaseCatalog.getInstance().columnMap(table);
-                    for(String column : mapping.keySet()) {
-                        // will not work if column names are the same for different tables, including self-joins
-                        columnIndex.put(table + "." + column, mapping.get(column)+curIndex);
+                    for (String column : mapping.keySet()) {
+                        // will not work if column names are the same for different tables, including
+                        // self-joins
+                        columnIndex.put(table + "." + column, mapping.get(column) + curIndex);
                     }
                     curIndex += mapping.size();
                 }
-            }
-            else {
+            } else {
                 columnIndex.put(selectItem.toString(), curIndex++);
             }
         }
         return columnIndex;
     }
-
 
     private Operator generateDistinct() {
         return new DuplicateEliminationOperator(root);

@@ -116,7 +116,12 @@ public class QueryPlan {
         FromItem fromItem = selectBody.getFromItem();
         List<SelectItem> selectItemsList = selectBody.getSelectItems();
         Expression whereExpression = selectBody.getWhere();
-        if (whereExpression == null) {
+        List<Join> joinsList = selectBody.getJoins();
+
+        if(joinsList != null) {
+            return new ProjectionOperator(this.columnMap, selectItemsList, generateJoin(selectBody));
+        }
+        else if (whereExpression == null) {
             return new ProjectionOperator(this.columnMap, selectItemsList, generateScan(selectBody));
         } else {
             return new ProjectionOperator(this.columnMap, selectItemsList, generateSelection(selectBody));
@@ -358,13 +363,14 @@ public class QueryPlan {
                     }
                 }
                 for (String table : tableNames) {
-                    Map<String, Integer> mapping = DatabaseCatalog.getInstance().columnMap(table);
+                    Map<String, Integer> mapping = DatabaseCatalog.getInstance().columnMap(columnMap.getBaseTable(table));
                     for (String column : mapping.keySet()) {
                         columnIndex.put(table + "." + column, mapping.get(column) + curIndex);
                     }
                     curIndex += mapping.size();
                 }
             } else {
+                System.out.println(selectItem.toString() + " here");
                 columnIndex.put(selectItem.toString(), curIndex++);
             }
         }

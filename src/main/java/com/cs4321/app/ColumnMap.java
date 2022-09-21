@@ -17,7 +17,7 @@ import java.util.Map;
  */
 public class ColumnMap {
     // Maps the name of every table to its corresponding base table
-    Map<String, String> aliasMap;
+    private Map<String, String> aliasMap;
 
     /**
      * Creates a ColumnMap that is designed to map any column to the index that column represents in a row.
@@ -59,5 +59,14 @@ public class ColumnMap {
         String baseTableName = this.aliasMap.get(tableName);
         String columnName = col.getColumnName();
         return DatabaseCatalog.getInstance().columnMap(baseTableName).get(columnName);
+    }
+
+    /**
+     * Returns the name of the base table for the corresponding table name.
+     *
+     * @param tableName The table name/alias to look for
+     */
+    public String getBaseTable(String tableName) {
+        return this.aliasMap.get(tableName);
     }
 }

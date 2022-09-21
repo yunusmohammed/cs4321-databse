@@ -138,7 +138,8 @@ public class QueryPlan {
             currentParent.setJoinCondition(generateExpressionTree(parentExpressions));
 
             // Set ExpressionVisitor of current parent
-            JoinExpressionVisitor visitor = new JoinExpressionVisitor(tableOffset, rightChildTable.toString());
+            JoinExpressionVisitor visitor = new JoinExpressionVisitor(this.columnMap, tableOffset,
+                    rightChildTable.toString());
             currentParent.setVisitor(visitor);
 
             // Set left child of current parent

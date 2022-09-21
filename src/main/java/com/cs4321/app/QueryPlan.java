@@ -51,12 +51,11 @@ public class QueryPlan {
 
             this.columnMap = new ColumnMap(fromItem, joinsList);
 
-            if ("*".equals(firstSelectItem.toString()) && joinsList == null && whereExpression == null
-                    && distinct == null && orderByElementsList == null) {
+            if ("*".equals(firstSelectItem.toString()) && joinsList == null && whereExpression == null) {
                 this.root = generateScan(selectBody);
             } else if (selectItemsList.size() == 1 && firstSelectItem instanceof AllColumns
                     && (joinsList == null || joinsList.size() == 0)
-                    && whereExpression != null && distinct == null && orderByElementsList == null) {
+                    && whereExpression != null) {
                 this.root = generateSelection(selectBody);
             } else if (selectItemsList.size() == 1 && firstSelectItem instanceof AllColumns
                     && joinsList != null && joinsList.size() > 0) {
@@ -72,8 +71,7 @@ public class QueryPlan {
             }
             if (distinct != null) {
                 // DuplicateEliminationOperator expects sorted child
-                if (!ordered)
-                    this.root = generateSort(selectBody);
+                if (!ordered) this.root = generateSort(selectBody);
                 this.root = generateDistinct();
             }
         }
@@ -322,8 +320,8 @@ public class QueryPlan {
                 for(String table : tableNames) {
                     Map<String, Integer> mapping = DatabaseCatalog.getInstance().columnMap(table);
                     for(String column : mapping.keySet()) {
-                        System.out.println(aliasMap.get(table, column));
-                        columnIndex.put(aliasMap.get(table, column) + "." + column, mapping.get(column)+curIndex);
+                        // will not work if column names are the same for different tables, including self-joins
+                        columnIndex.put(column, mapping.get(column)+curIndex);
                     }
                     curIndex += mapping.size();
                 }

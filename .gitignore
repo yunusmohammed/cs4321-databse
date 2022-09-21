@@ -31,3 +31,9 @@ hs_err_pid*
 # Target
 target/
 
+# Intellij configs
+.idea/
+*.iml
+
+# VScode configs
+*.vscode/

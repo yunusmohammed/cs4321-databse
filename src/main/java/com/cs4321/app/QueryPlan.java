@@ -1,7 +1,9 @@
 package com.cs4321.app;
 
-import net.bytebuddy.TypeCache;
+import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
+import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.*;
 
@@ -14,26 +16,28 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Stack;
 
 /**
- * The QueryPlan is a tree of operators.  A QueryPlan is constructed for each Statement
+ * The QueryPlan is a tree of operators. A QueryPlan is constructed for each
+ * Statement
  * and returned to the interpreter, so it can read the results of the QueryPlan
  *
- * @author Jessica Tweneboah
+ * @author Jessica Tweneboah, Yunus Mohammed (ymm26@cornell.edu)
  */
 public class QueryPlan {
     private Operator root;
     private static final SelectExpressionVisitor visitor = new SelectExpressionVisitor();
     private static final String sep = File.separator;
     private String queryOutputName;
-
+    private ColumnMap columnMap;
 
     /**
      * Evaluates SQL query statements
      *
      * @param statement   The SQL statement being evaluated
-     * @param queryNumber Specifies the index of the query being processed (starting at 1)
+     * @param queryNumber Specifies the index of the query being processed (starting
+     *                    at 1)
      */
     private void evaluateQueries(Statement statement, int queryNumber) {
         if (statement != null) {
@@ -43,28 +47,37 @@ public class QueryPlan {
             List<SelectItem> selectItemsList = selectBody.getSelectItems();
             SelectItem firstSelectItem = selectItemsList.get(0);
             FromItem fromItem = selectBody.getFromItem();
-            List<Join> otherFromItemsArrayList = selectBody.getJoins();
+            List<Join> joinsList = selectBody.getJoins();
             List<OrderByElement> orderByElementsList = selectBody.getOrderByElements();
             Expression whereExpression = selectBody.getWhere();
             Distinct distinct = selectBody.getDistinct();
 
-            if ("*".equals(firstSelectItem.toString()) && otherFromItemsArrayList == null && whereExpression == null && distinct == null && orderByElementsList == null) {
+            this.columnMap = new ColumnMap(fromItem, joinsList);
+
+            if ("*".equals(firstSelectItem.toString()) && joinsList == null && whereExpression == null
+                    && distinct == null && orderByElementsList == null) {
                 this.root = generateScan(selectBody);
-            } else if (selectItemsList.size() == 1 && firstSelectItem instanceof AllColumns && (otherFromItemsArrayList == null || otherFromItemsArrayList.size() == 0)
+            } else if (selectItemsList.size() == 1 && firstSelectItem instanceof AllColumns
+                    && (joinsList == null || joinsList.size() == 0)
                     && whereExpression != null && distinct == null && orderByElementsList == null) {
                 this.root = generateSelection(selectBody);
+            } else if (selectItemsList.size() == 1 && firstSelectItem instanceof AllColumns
+                    && joinsList != null && joinsList.size() > 0) {
+                this.root = generateJoin(selectBody);
             } else {
-                //TODO: Add conditions for other operators @Lenhard, @Yohannes, @Yunus
+                // TODO: Add conditions for other operators @Yohannes @Lenhard
+                return;
             }
 
             boolean ordered = false;
-            if(orderByElementsList != null && orderByElementsList.size() > 0) {
+            if (orderByElementsList != null && orderByElementsList.size() > 0) {
                 this.root = generateSort(selectBody);
                 ordered = true;
             }
-            if(distinct != null) {
+            if (distinct != null) {
                 // DuplicateEliminationOperator expects sorted child
-                if(!ordered) this.root = generateSort(selectBody);
+                if (!ordered)
+                    this.root = generateSort(selectBody);
                 this.root = generateDistinct();
             }
         }
@@ -90,15 +103,199 @@ public class QueryPlan {
     private SelectionOperator generateSelection(PlainSelect selectBody) {
         FromItem fromItem = selectBody.getFromItem();
         Expression whereExpression = selectBody.getWhere();
-
-        Map<String, Integer> mapping = DatabaseCatalog.getInstance().columnMap(fromItem.toString());
-        return new SelectionOperator(visitor, mapping, whereExpression, generateScan(selectBody));
+        return new SelectionOperator(visitor, this.columnMap, whereExpression, generateScan(selectBody));
     }
 
     /**
-     * Generates a new sort operator. Places sort operator directly above the current root.
-     * @param selectBody- The body of the select statement.
-     * @return- A new sort operator.
+     * Generates a join query plan
+     *
+     * @param selectBody The body of a select statement. The joins field must be non
+     *                   null and non empty
+     * @return the root of the join query plan
+     */
+    private JoinOperator generateJoin(PlainSelect selectBody) {
+        JoinOperator root = new JoinOperator();
+        JoinOperator currentParent = root;
+        List<Join> joins = selectBody.getJoins();
+        HashMap<String, Integer> tableOffset = generateJoinTableOffsets(selectBody);
+        Stack<BinaryExpression> expressions = getExpressions(selectBody.getWhere());
+        while (joins.size() > 0) {
+            if (root == null) {
+                root = currentParent;
+            }
+            FromItem rightChildTable = joins.remove(joins.size() - 1).getRightItem();
+            Stack<Expression> rightChildExpressions;
+            Stack<Expression> parentExpressions;
+            Stack<BinaryExpression> leftChildExpressions;
+
+            JoinExpressions joinExpressions = getJoinExpressions(expressions, rightChildTable);
+
+            parentExpressions = joinExpressions.getParentExpressions();
+            leftChildExpressions = joinExpressions.getLeftExpressions();
+            rightChildExpressions = joinExpressions.getRightChildExpressions();
+            expressions = leftChildExpressions;
+
+            // Set Right Child of current Parent
+            currentParent.setRightChild(getJoinChildOperator(rightChildExpressions, rightChildTable));
+
+            // Set Join Condition of current parent
+            currentParent.setJoinCondition(generateExpressionTree(parentExpressions));
+
+            // Set ExpressionVisitor of current parent
+            JoinExpressionVisitor visitor = new JoinExpressionVisitor(tableOffset, rightChildTable.toString());
+            currentParent.setVisitor(visitor);
+
+            // Set left child of current parent
+            Operator leftOperator;
+            if (joins.size() == 0) {
+                currentParent
+                        .setLeftChild(getJoinChildOperator((Stack) leftChildExpressions, selectBody.getFromItem()));
+            } else {
+                leftOperator = new JoinOperator();
+                currentParent.setLeftChild(leftOperator);
+                currentParent = (JoinOperator) leftOperator;
+            }
+        }
+        return root;
+    }
+
+    /**
+     * Decouple expression into all component binary expressions that are not AND
+     * expressions
+     *
+     * @param expression the expression to decouple
+     * @return a stack of the decoupled expressions
+     */
+    private Stack<BinaryExpression> getExpressions(Expression expression) {
+        Stack<BinaryExpression> expressions = new Stack<>();
+        Stack<Expression> stack = new Stack<>();
+        stack.add(expression);
+        while (stack.size() > 0) {
+            Expression exp = stack.pop();
+            if (!(exp instanceof AndExpression))
+                expressions.add((BinaryExpression) exp);
+            else {
+                stack.add(((AndExpression) exp).getLeftExpression());
+                stack.add(((AndExpression) exp).getRightExpression());
+            }
+        }
+        return expressions;
+    }
+
+    /**
+     * Conjoins a stack of expressions to build an expression
+     * tree
+     *
+     * @param expressions a stack of expressions to conjoin
+     * @return root of the expression tree from conjoining expressions
+     */
+    private Expression generateExpressionTree(Stack<Expression> expressions) {
+        if (expressions.size() == 0)
+            return null;
+        while (expressions.size() >= 2) {
+            Expression leftExpression = expressions.pop();
+            Expression rightExpression = expressions.pop();
+            AndExpression exp = new AndExpression(leftExpression, rightExpression);
+            expressions.add(exp);
+        }
+        return expressions.pop();
+    }
+
+    /**
+     * Distributes expressions among a join operator and its children
+     *
+     * @param expressions     expressions to be distribuited among the join operator
+     *                        and its children
+     * @param rightChildTable table corresponding to the right child of the Join
+     *                        Operator
+     * @return a JoinExpressions intance representing the result of the distribution
+     */
+    private JoinExpressions getJoinExpressions(Stack<BinaryExpression> expressions, FromItem rightChildTable) {
+        Stack<Expression> rightChildExpressions = new Stack<>();
+        Stack<Expression> parentExpressions = new Stack<>();
+        Stack<BinaryExpression> leftChildExpressions = new Stack<>();
+
+        // Separate expression meant for left child, right child, and parent
+        for (BinaryExpression exp : expressions) {
+            String leftTable = null;
+            String rightTable = null;
+            if (exp.getLeftExpression() instanceof Column)
+                leftTable = ((Column) exp.getLeftExpression()).getTable().getName();
+            if (exp.getRightExpression() instanceof Column)
+                rightTable = ((Column) exp.getRightExpression()).getTable().getName();
+
+            if (((leftTable != null && leftTable.equals(rightChildTable.toString()))
+                    && (rightTable == null || rightTable.equals(rightChildTable.toString()))) ||
+                    ((rightTable != null && rightTable.equals(rightChildTable.toString()))
+                            && (leftTable == null || leftTable.equals(rightChildTable.toString())))) {
+                // expression references only the columns from the right child's table
+                rightChildExpressions.add(exp);
+
+            } else if ((leftTable != null && leftTable.equals(rightChildTable.toString()))
+                    || (rightTable != null && rightTable.equals(rightChildTable.toString()))) {
+                // expression references columns from the rigth child's table and some other
+                // tables in the left child
+                parentExpressions.add(exp);
+            } else
+                leftChildExpressions.add(exp);
+        }
+
+        return new JoinExpressions(parentExpressions, rightChildExpressions, leftChildExpressions);
+    }
+
+    /**
+     * Generate a child operator evaluating childExpressions on childTable
+     *
+     * @param childExpressions stack of expressions to be evaluated by the child
+     *                         operator
+     * @param childTable       table corresponding to the child operator
+     * @return the child operator
+     */
+    private Operator getJoinChildOperator(Stack<Expression> childExpressions, FromItem childTable) {
+        Operator operator;
+        PlainSelect selectBody = new PlainSelect();
+        selectBody.setFromItem(childTable);
+        if (childExpressions.size() == 0)
+            operator = generateScan(selectBody);
+        else {
+            Expression rightChildExpression = generateExpressionTree(childExpressions);
+            selectBody.setWhere(rightChildExpression);
+            operator = generateSelection(selectBody);
+        }
+        return operator;
+    }
+
+    /**
+     * Generates a map of offsets for column indices of tables in the results of
+     * joins
+     *
+     * @param selectBody a select body containing the order in which tables are
+     *                   joined
+     * @return a map of column index offsets for tables after a join operation
+     */
+    private HashMap<String, Integer> generateJoinTableOffsets(PlainSelect selectBody) {
+        HashMap<String, Integer> tableOffset = new HashMap<>();
+        List<Join> joins = selectBody.getJoins();
+        int prevOffset = 0;
+        String prevTable = selectBody.getFromItem().toString();
+        tableOffset.put(prevTable, prevOffset);
+        for (Join join : joins) {
+            String curTable = join.getRightItem().toString();
+            int newOffset = prevOffset + DatabaseCatalog.getInstance().columnMap(prevTable).size();
+            tableOffset.put(curTable, newOffset);
+            prevOffset = newOffset;
+            prevTable = curTable;
+        }
+
+        return tableOffset;
+    }
+
+    /**
+     * Generates a new sort operator. Places sort operator directly above the
+     * current root.
+     *
+     * @param selectBody The body of the select statement.
+     * @return A new sort operator.
      */
     private SortOperator generateSort(PlainSelect selectBody) {
         return new SortOperator(root, getColumnIndex(selectBody), selectBody.getOrderByElements());
@@ -148,7 +345,8 @@ public class QueryPlan {
      * Constructor that initialises a QueryPlan
      *
      * @param statement   The SQL statement being evaluated
-     * @param queryNumber Specifies the index of the query being processed (starting at 1)
+     * @param queryNumber Specifies the index of the query being processed (starting
+     *                    at 1)
      */
     public QueryPlan(Statement statement, int queryNumber) {
         evaluateQueries(statement, queryNumber);
@@ -157,7 +355,6 @@ public class QueryPlan {
             setQueryOutputFileName(queryOutputName);
         }
     }
-
 
     /**
      * Evaluates the result of the QueryPlan
@@ -192,12 +389,12 @@ public class QueryPlan {
         this.root = root;
     }
 
-
     /**
      * Creates the queryOutput file and deletes any existing file with the same path
      * and sets the queryOutputFileName field
      *
-     * @param queryOutputFileName The name of the file that will contain the query results
+     * @param queryOutputFileName The name of the file that will contain the query
+     *                            results
      */
     public void setQueryOutputFileName(String queryOutputFileName) {
         File new_file = new File(queryOutputFileName);

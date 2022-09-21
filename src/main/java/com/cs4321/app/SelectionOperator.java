@@ -2,11 +2,9 @@ package com.cs4321.app;
 
 import net.sf.jsqlparser.expression.Expression;
 
-import java.util.Map;
-
 public class SelectionOperator extends Operator {
     private final SelectExpressionVisitor visitor;
-    private final Map<String, Integer> columnMap;
+    private final ColumnMap columnMap;
     private final Expression exp;
     private final ScanOperator child;
 
@@ -14,11 +12,11 @@ public class SelectionOperator extends Operator {
      * Creates an Operator that will represent a particular SELECT statement containing a WHERE clause.
      *
      * @param visitor   The ExpressionVisitor that will be used to determine whether a row passes a condition
-     * @param columnMap The mapping from a table's column name to the index that column represents in a row
+     * @param columnMap The ColumnMap representing a mapping from a column to the index that column represents in a row
      * @param exp       The expression that is used to validate a row
      * @param child     The Scan Operator that will provide the rows in a column
      */
-    public SelectionOperator(SelectExpressionVisitor visitor, Map<String, Integer> columnMap, Expression exp, ScanOperator child) {
+    public SelectionOperator(SelectExpressionVisitor visitor, ColumnMap columnMap, Expression exp, ScanOperator child) {
         this.visitor = visitor;
         this.columnMap = columnMap;
         this.exp = exp;

@@ -1,12 +1,12 @@
 package com.cs4321.app;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.argThat;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -34,32 +34,16 @@ class JoinExpressionVisitorTests {
 		exampleLeftRowAB = new Tuple("1,2,7,4,5");
 		exampleRightRowC = new Tuple("1,5,6");
 
-		tableAColumnMap = Mockito.mock(HashMap.class);
-		Mockito.when(tableAColumnMap.get("X")).thenReturn(0);
-		Mockito.when(tableAColumnMap.get("Y")).thenReturn(1);
-		Mockito.when(tableAColumnMap.get("Z")).thenReturn(2);
-
-		tableBColumnMap = Mockito.mock(HashMap.class);
-		Mockito.when(tableBColumnMap.get("X")).thenReturn(0);
-		Mockito.when(tableBColumnMap.get("Y")).thenReturn(1);
-
-		tableCColumnMap = Mockito.mock(HashMap.class);
-		Mockito.when(tableCColumnMap.get("X")).thenReturn(0);
-		Mockito.when(tableCColumnMap.get("Y")).thenReturn(1);
-		Mockito.when(tableCColumnMap.get("Z")).thenReturn(2);
-
 		exampleTableOffset = new HashMap<>();
 		exampleTableOffset.put("A", 0);
 		exampleTableOffset.put("B", 3);
 		exampleTableOffset.put("C", 5);
 
-		visitor = new JoinExpressionVisitor(exampleTableOffset, rightTable);
-
-		dbCatalog = Mockito.mock(DatabaseCatalog.class);
-		Mockito.when(dbCatalog.columnMap("A")).thenReturn(tableAColumnMap);
-		Mockito.when(dbCatalog.columnMap("B")).thenReturn(tableBColumnMap);
-		Mockito.when(dbCatalog.columnMap("C")).thenReturn(tableCColumnMap);
-		visitor.setDbCatalog(dbCatalog);
+		ColumnMap exampleColumnMap = Mockito.mock(ColumnMap.class);
+		Mockito.when(exampleColumnMap.get(argThat(a -> a != null && a.getColumnName().equals("X")))).thenReturn(0);
+		Mockito.when(exampleColumnMap.get(argThat(a -> a != null && a.getColumnName().equals("Y")))).thenReturn(1);
+		Mockito.when(exampleColumnMap.get(argThat(a -> a != null && a.getColumnName().equals("Z")))).thenReturn(2);
+		visitor = new JoinExpressionVisitor(exampleColumnMap, exampleTableOffset, rightTable);
 	}
 
 	@Test

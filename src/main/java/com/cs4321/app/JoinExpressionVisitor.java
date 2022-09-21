@@ -35,9 +35,10 @@ import java.util.Map;
 public class JoinExpressionVisitor implements ExpressionVisitor {
 
   /**
-   * Database catalog
+   * Map of tableName, offset value pairs to be used to correctly index tuples for
+   * table columns
    */
-  private DatabaseCatalog dbCatalog;
+  final private ColumnMap columnMap;
 
   /**
    * Map of tableName, offset value pairs to be used to correctly index tuples for
@@ -79,17 +80,10 @@ public class JoinExpressionVisitor implements ExpressionVisitor {
    * @param rightTable  The name of the table referenced by the right child of the
    *                    Join Operator
    */
-  public JoinExpressionVisitor(Map<String, Integer> tableOffset, String rightTable) {
-    this.dbCatalog = DatabaseCatalog.getInstance();
+  public JoinExpressionVisitor(ColumnMap columnMap, Map<String, Integer> tableOffset, String rightTable) {
     this.tableOffset = tableOffset;
     this.rightTableName = rightTable;
-  }
-
-  /**
-   * Sets the database catalog
-   */
-  public void setDbCatalog(DatabaseCatalog dbCatalog) {
-    this.dbCatalog = dbCatalog;
+    this.columnMap = columnMap;
   }
 
   /**
@@ -151,7 +145,7 @@ public class JoinExpressionVisitor implements ExpressionVisitor {
     String tableName = exp.getTable().getName();
     Tuple row = (tableName.equals(this.rightTableName)) ? this.rightRow : this.leftRow;
     int offSet = (tableName.equals(this.rightTableName)) ? 0 : tableOffset.get(tableName);
-    int index = offSet + dbCatalog.columnMap(tableName).get(exp.getColumnName());
+    int index = offSet + this.columnMap.get(exp);
     this.doubleLastValue = row.get(index);
   }
 

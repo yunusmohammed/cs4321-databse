@@ -57,6 +57,8 @@ public class QueryPlan {
                     && (joinsList == null || joinsList.size() == 0)
                     && whereExpression != null) {
                 this.root = generateSelection(selectBody);
+            } else if (joinsList != null && joinsList.size() > 0) {
+                this.root = generateProjection(selectBody);
             } else if (selectItemsList.size() == 1 && firstSelectItem instanceof AllColumns
                     && joinsList != null && joinsList.size() > 0) {
                 this.root = generateJoin(selectBody);
@@ -98,6 +100,24 @@ public class QueryPlan {
         FromItem fromItem = selectBody.getFromItem();
         Expression whereExpression = selectBody.getWhere();
         return new SelectionOperator(visitor, this.columnMap, whereExpression, generateScan(selectBody));
+    }
+
+    /**
+     * Generate a new select operator and makes it the root
+     *
+     * @param selectBody The body of the Select statement
+     * @return The select operator that was just created
+     */
+    private ProjectionOperator generateProjection(PlainSelect selectBody) {
+        FromItem fromItem = selectBody.getFromItem();
+        List<SelectItem> selectItemsList = selectBody.getSelectItems();
+        Expression whereExpression = selectBody.getWhere();
+        if (whereExpression == null) {
+            return new ProjectionOperator(this.columnMap, selectItemsList, generateScan(selectBody));
+        } else {
+            return new ProjectionOperator(this.columnMap, selectItemsList, generateSelection(selectBody));
+        }
+
     }
 
     /**
@@ -272,11 +292,15 @@ public class QueryPlan {
         HashMap<String, Integer> tableOffset = new HashMap<>();
         List<Join> joins = selectBody.getJoins();
         int prevOffset = 0;
-        String prevTable = selectBody.getFromItem().toString();
+        String prevTable = selectBody.getFromItem().getAlias();
+        prevTable = (prevTable != null) ? prevTable : selectBody.getFromItem().toString();
         tableOffset.put(prevTable, prevOffset);
         for (Join join : joins) {
-            String curTable = join.getRightItem().toString();
-            int newOffset = prevOffset + DatabaseCatalog.getInstance().columnMap(prevTable).size();
+            // default to use alias when an alias exists
+            String curTable = join.getRightItem().getAlias();
+            curTable = (curTable != null) ? curTable : join.getRightItem().toString();
+            int newOffset = prevOffset
+                    + DatabaseCatalog.getInstance().columnMap(this.columnMap.getBaseTable(prevTable)).size();
             tableOffset.put(curTable, newOffset);
             prevOffset = newOffset;
             prevTable = curTable;

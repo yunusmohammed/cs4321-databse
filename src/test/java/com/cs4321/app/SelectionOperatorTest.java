@@ -5,8 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -17,7 +15,7 @@ class SelectionOperatorTest {
 
     ScanOperator mockScan;
     SelectExpressionVisitor mockVisitor;
-    Map<String, Integer> mockColumnMap;
+    ColumnMap mockColumnMap;
     SelectionOperator selectOperator;
 
     @BeforeEach
@@ -25,7 +23,7 @@ class SelectionOperatorTest {
         Expression mockExpression = Mockito.mock(Expression.class);
         mockScan = Mockito.mock(ScanOperator.class);
         mockVisitor = Mockito.mock(SelectExpressionVisitor.class);
-        mockColumnMap = Mockito.mock(Map.class);
+        mockColumnMap = Mockito.mock(ColumnMap.class);
         selectOperator = new SelectionOperator(mockVisitor, mockColumnMap, mockExpression, mockScan);
     }
 

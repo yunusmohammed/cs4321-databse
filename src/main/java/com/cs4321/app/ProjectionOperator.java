@@ -62,7 +62,9 @@ public class ProjectionOperator extends Operator {
                 String columnName = column.getColumnName();
                 int index = this.columnMap.get((Column) expItem.getExpression());
                 if (this.child instanceof JoinOperator) {
-                    int offset = ((JoinOperator) this.child).getTableOffsets().get(columnName);
+                    String tableName = column.getTable().getAlias();
+                    tableName = (tableName != null) ? tableName : column.getTable().getName();
+                    int offset = ((JoinOperator) this.child).getTableOffsets().get(tableName);
                     index += offset;
                 }
                 builder.append(row.get(index));

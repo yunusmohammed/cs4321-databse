@@ -138,7 +138,7 @@ public class QueryPlan {
     private JoinOperator generateJoin(PlainSelect selectBody) {
         JoinOperator root = new JoinOperator();
         JoinOperator currentParent = root;
-        List<Join> joins = selectBody.getJoins();
+        List<Join> joins = new ArrayList<>(selectBody.getJoins());
         HashMap<String, Integer> tableOffset = generateJoinTableOffsets(selectBody);
         Stack<BinaryExpression> expressions = getExpressions(selectBody.getWhere());
         while (joins.size() > 0) {

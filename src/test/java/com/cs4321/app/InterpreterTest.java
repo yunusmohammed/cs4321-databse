@@ -31,8 +31,7 @@ class InterpreterTest {
 
     @Test
     void queryOutput() {
-        String resourcesPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep;
-        String correctOutputPath = resourcesPath + "correctOutput";
+        String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "correctOutput";
         Interpreter.setOutputdir(outputdir);
         Interpreter.parseQueries();
         File[] correctQueries = new File(correctOutputPath).listFiles();

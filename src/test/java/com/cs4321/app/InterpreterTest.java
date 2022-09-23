@@ -43,8 +43,7 @@ class InterpreterTest {
                 if(!equal) System.out.println(correctQueries[i].getName() + " is incorrect");
                 assertTrue(equal);
             } catch (Exception e) {
-                System.out.println("Issue reading output from " + correctQueries[i].getName());
-                e.printStackTrace();
+                throw new Error("Issue reading output from " + correctQueries[i].getName());
             }
         }
     }

@@ -3,7 +3,6 @@ package com.cs4321.app;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -51,15 +50,6 @@ class InterpreterTest {
                 }
             }
         }
-    }
-
-    private BufferedReader getBufferedReader(File f) {
-        try {
-            return Files.newBufferedReader(f.toPath());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
 

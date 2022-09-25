@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-
 import static org.junit.jupiter.api.Assertions.*;
+import org.apache.commons.io.FileUtils;
 
 class InterpreterTest {
 
@@ -27,6 +27,25 @@ class InterpreterTest {
     @BeforeAll
     static void setup() {
         DatabaseCatalog.setInputDir(inputdir);
+    }
+
+    @Test
+    void queryOutput() {
+        String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "correctOutput";
+        Interpreter.setOutputdir(outputdir);
+        Interpreter.parseQueries();
+        File[] correctQueries = new File(correctOutputPath).listFiles();
+        File[] outputQueries = new File(outputdir).listFiles();
+        if(correctQueries.length != outputQueries.length) System.out.println("At least one query has not been output");
+        for(int i=0; i<correctQueries.length; i++) {
+            try {
+                boolean equal = FileUtils.contentEquals(correctQueries[i], outputQueries[i]);
+                if(!equal) System.out.println(correctQueries[i].getName() + " is incorrect");
+                assertTrue(equal);
+            } catch (Exception e) {
+                throw new Error("Issue reading output from " + correctQueries[i].getName());
+            }
+        }
     }
 
 

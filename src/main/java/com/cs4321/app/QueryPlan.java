@@ -117,10 +117,9 @@ public class QueryPlan {
         Expression whereExpression = selectBody.getWhere();
         List<Join> joinsList = selectBody.getJoins();
 
-        if(joinsList != null) {
+        if (joinsList != null) {
             return new ProjectionOperator(this.columnMap, selectItemsList, generateJoin(selectBody));
-        }
-        else if (whereExpression == null) {
+        } else if (whereExpression == null) {
             return new ProjectionOperator(this.columnMap, selectItemsList, generateScan(selectBody));
         } else {
             return new ProjectionOperator(this.columnMap, selectItemsList, generateSelection(selectBody));
@@ -146,18 +145,15 @@ public class QueryPlan {
                 root = currentParent;
             }
             Table rightChildTable = (Table) joins.remove(joins.size() - 1).getRightItem();
-            Stack<Expression> rightChildExpressions;
-            Stack<Expression> parentExpressions;
-            Stack<BinaryExpression> leftChildExpressions;
 
             String rightChildTableName = rightChildTable.getAlias();
             rightChildTableName = (rightChildTableName != null) ? rightChildTableName : rightChildTable.getName();
 
             JoinExpressions joinExpressions = getJoinExpressions(expressions, rightChildTableName);
 
-            parentExpressions = joinExpressions.getParentExpressions();
-            leftChildExpressions = joinExpressions.getLeftExpressions();
-            rightChildExpressions = joinExpressions.getRightChildExpressions();
+            Stack<Expression> parentExpressions = joinExpressions.getParentExpressions();
+            Stack<BinaryExpression> leftChildExpressions = joinExpressions.getLeftExpressions();
+            Stack<Expression> rightChildExpressions = joinExpressions.getRightChildExpressions();
             expressions = leftChildExpressions;
 
             // Set Right Child of current Parent
@@ -260,11 +256,13 @@ public class QueryPlan {
                 // expression references only the columns from the right child's table
                 rightChildExpressions.add(exp);
 
-            } else if ((leftTable != null && leftTable.equals(rightChildTableName)
-                    && rightTable != null && !rightTable.equals(rightChildTableName))
+            } else if ((leftTable == null && rightTable == null)
+                    || (leftTable != null && leftTable.equals(rightChildTableName)
+                            && rightTable != null && !rightTable.equals(rightChildTableName))
                     || (leftTable != null && !leftTable.equals(rightChildTableName)
                             && rightTable != null && rightTable.equals(rightChildTableName))) {
-                // expression references columns from the rigth child's table and some other
+                // expression references no tables at all OR references columns from the rigth
+                // child's table and some other
                 // tables in the left child
                 parentExpressions.add(exp);
             } else
@@ -364,7 +362,8 @@ public class QueryPlan {
                     }
                 }
                 for (String table : tableNames) {
-                    Map<String, Integer> mapping = DatabaseCatalog.getInstance().columnMap(columnMap.getBaseTable(table));
+                    Map<String, Integer> mapping = DatabaseCatalog.getInstance()
+                            .columnMap(columnMap.getBaseTable(table));
                     for (String column : mapping.keySet()) {
                         columnIndex.put(table + "." + column, mapping.get(column) + curIndex);
                     }

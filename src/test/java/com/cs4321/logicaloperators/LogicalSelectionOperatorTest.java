@@ -15,7 +15,7 @@ import net.sf.jsqlparser.expression.Expression;
 public class LogicalSelectionOperatorTest {
 
   @Test
-  public void logicalSelectOperatorCorrectlyInitializedTest() {
+  public void logicalSelectionOperatorCorrectlyInitializedTest() {
     LogicalScanOperator expectedChildOperator = Mockito.mock(LogicalScanOperator.class);
     Expression expectedExpression = Mockito.mock(Expression.class);
     LogicalSelectionOperator logicalSelectOperator = new LogicalSelectionOperator(expectedExpression,

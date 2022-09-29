@@ -28,7 +28,7 @@ public class LogicalSelectionOperator extends LogicalOperator {
    * 
    * @return The child logical scan operator of the logical select
    */
-  public LogicalScanOperator getChildOperator() {
+  public LogicalScanOperator getChild() {
     return this.child;
   }
 

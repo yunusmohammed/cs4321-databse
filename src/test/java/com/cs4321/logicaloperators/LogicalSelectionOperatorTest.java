@@ -20,7 +20,7 @@ public class LogicalSelectionOperatorTest {
     Expression expectedExpression = Mockito.mock(Expression.class);
     LogicalSelectionOperator logicalSelectOperator = new LogicalSelectionOperator(expectedExpression,
         expectedChildOperator);
-    assertEquals(expectedChildOperator, logicalSelectOperator.getChildOperator());
+    assertEquals(expectedChildOperator, logicalSelectOperator.getChild());
     assertEquals(expectedExpression, logicalSelectOperator.getSelectCondition());
   }
 }

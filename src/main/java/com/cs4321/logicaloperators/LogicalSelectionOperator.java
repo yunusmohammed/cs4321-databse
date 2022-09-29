@@ -3,7 +3,7 @@ package com.cs4321.logicaloperators;
 import net.sf.jsqlparser.expression.Expression;
 
 /**
- * A Logical Select Operator
+ * A Logical Selection Operator
  * 
  * @author Yunus (ymm26@cornell.edu)
  */

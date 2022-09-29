@@ -79,7 +79,7 @@ public class LogicalJoinOperator extends LogicalOperator {
   /**
    * Set the join condition of this logical join operator
    */
-  public void setLeftChild(Expression joinCondition) {
+  public void setJoinCondition(Expression joinCondition) {
     this.joinCondition = joinCondition;
   }
 }

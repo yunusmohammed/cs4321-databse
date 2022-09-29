@@ -8,6 +8,8 @@ import java.util.Date;
 
 /**
  * A singleton that writes and maintains logs in files
+ * 
+ * @author Yunus (ymm26@cornell.edu)
  */
 public class Logger {
 
@@ -58,5 +60,14 @@ public class Logger {
     } catch (Exception e) {
       return false;
     }
+  }
+
+  /**
+   * Gets the logs file path
+   * 
+   * @return The logs file path
+   */
+  public String getLogsFilePath() {
+    return Logger.logsFilePath;
   }
 }

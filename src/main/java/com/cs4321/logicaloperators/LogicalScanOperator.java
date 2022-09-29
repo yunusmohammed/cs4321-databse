@@ -5,7 +5,7 @@ package com.cs4321.logicaloperators;
  * 
  * @author Yunus (ymm26@cornell.edu)
  */
-public class ScanOperator extends LogicalOperator {
+public class LogicalScanOperator extends LogicalOperator {
   private String baseTable;
 
   /**
@@ -13,7 +13,7 @@ public class ScanOperator extends LogicalOperator {
    * 
    * @param baseTable The table in the database the ScanOperator is scanning
    */
-  public ScanOperator(String baseTable) {
+  public LogicalScanOperator(String baseTable) {
     this.baseTable = baseTable;
   }
 

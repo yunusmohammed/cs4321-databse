@@ -6,4 +6,23 @@ package com.cs4321.logicaloperators;
  * @author Yunus (ymm26@cornell.edu)
  */
 public class ScanOperator extends LogicalOperator {
+  private String baseTable;
+
+  /**
+   * Constructor that initialises a ScanOperator
+   * 
+   * @param baseTable The table in the database the ScanOperator is scanning
+   */
+  public ScanOperator(String baseTable) {
+    this.baseTable = baseTable;
+  }
+
+  /**
+   * Get the table in the database the ScanOperator is scanning
+   * 
+   * @return The table in the database the ScanOperator is scanning
+   */
+  public String getBaseTable() {
+    return this.baseTable;
+  }
 }

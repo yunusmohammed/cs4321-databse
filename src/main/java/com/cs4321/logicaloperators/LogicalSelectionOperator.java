@@ -7,7 +7,7 @@ import net.sf.jsqlparser.expression.Expression;
  * 
  * @author Yunus (ymm26@cornell.edu)
  */
-public class LogicalSelectOperator extends LogicalOperator {
+public class LogicalSelectionOperator extends LogicalOperator {
   private final Expression selectCondition;
   private final LogicalScanOperator child;
 
@@ -18,7 +18,7 @@ public class LogicalSelectOperator extends LogicalOperator {
    * @param child           The child logical scan operator of the logical select
    *                        operator
    */
-  public LogicalSelectOperator(Expression selectCondition, LogicalScanOperator child) {
+  public LogicalSelectionOperator(Expression selectCondition, LogicalScanOperator child) {
     this.selectCondition = selectCondition;
     this.child = child;
   }

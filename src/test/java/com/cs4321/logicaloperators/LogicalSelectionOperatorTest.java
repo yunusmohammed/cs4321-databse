@@ -12,13 +12,14 @@ import net.sf.jsqlparser.expression.Expression;
  * 
  * @author Yunus (ymm26@cornell.edu)
  */
-public class LogicalSelectOperatorTest {
+public class LogicalSelectionOperatorTest {
 
   @Test
   public void logicalSelectOperatorCorrectlyInitializedTest() {
     LogicalScanOperator expectedChildOperator = Mockito.mock(LogicalScanOperator.class);
     Expression expectedExpression = Mockito.mock(Expression.class);
-    LogicalSelectOperator logicalSelectOperator = new LogicalSelectOperator(expectedExpression, expectedChildOperator);
+    LogicalSelectionOperator logicalSelectOperator = new LogicalSelectionOperator(expectedExpression,
+        expectedChildOperator);
     assertEquals(expectedChildOperator, logicalSelectOperator.getChildOperator());
     assertEquals(expectedExpression, logicalSelectOperator.getSelectCondition());
   }

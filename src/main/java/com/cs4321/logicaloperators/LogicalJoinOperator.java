@@ -1,5 +1,7 @@
 package com.cs4321.logicaloperators;
 
+import com.cs4321.app.JoinExpressionVisitor;
+
 import net.sf.jsqlparser.expression.Expression;
 
 /**
@@ -12,6 +14,7 @@ public class LogicalJoinOperator extends LogicalOperator {
   private LogicalOperator leftChild;
   private LogicalOperator rightChild;
   private Expression joinCondition;
+  private JoinExpressionVisitor visitor;
 
   /**
    * Base constructor for the LogicalJoinOperator
@@ -29,10 +32,12 @@ public class LogicalJoinOperator extends LogicalOperator {
    *                       operator
    * @param joinConditionn the condition to join rows on
    */
-  public LogicalJoinOperator(LogicalOperator leftChild, LogicalOperator rightChild, Expression joinCondition) {
+  public LogicalJoinOperator(LogicalOperator leftChild, LogicalOperator rightChild, Expression joinCondition,
+      JoinExpressionVisitor visitor) {
     this.leftChild = leftChild;
     this.rightChild = rightChild;
     this.joinCondition = joinCondition;
+    this.visitor = visitor;
   }
 
   /**
@@ -63,6 +68,15 @@ public class LogicalJoinOperator extends LogicalOperator {
   }
 
   /**
+   * Get the join exression visitor of this logical join operator
+   * 
+   * @return The join condition of this logical join operator
+   */
+  public JoinExpressionVisitor getJoinExpressionVisitor() {
+    return this.visitor;
+  }
+
+  /**
    * Set the left child of this logical join operator
    */
   public void setLeftChild(LogicalOperator leftChild) {
@@ -81,5 +95,12 @@ public class LogicalJoinOperator extends LogicalOperator {
    */
   public void setJoinCondition(Expression joinCondition) {
     this.joinCondition = joinCondition;
+  }
+
+  /**
+   * Set the join exression visitor of this logical join operator
+   */
+  public void setJoinExpressionVisitor(JoinExpressionVisitor visitor) {
+    this.visitor = visitor;
   }
 }

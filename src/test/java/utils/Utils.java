@@ -10,9 +10,9 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 
 /**
- * @author Yunus (ymm26@cornell.edu)
+ * Contains test utility functions
  * 
- *         Contains test utility functions
+ * @author Yunus (ymm26@cornell.edu)
  */
 public class Utils {
 

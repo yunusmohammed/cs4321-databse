@@ -7,6 +7,8 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import com.cs4321.app.ColumnMap;
+
 import net.sf.jsqlparser.statement.select.SelectItem;
 
 /**
@@ -20,10 +22,12 @@ public class LogicalProjectionOperatorTest {
   public void logicalProjectionOperatorCorrectlyInitializedTest() {
     LogicalOperator expectedChildOperator = Mockito.mock(LogicalOperator.class);
     List<SelectItem> expectedSelectItems = Mockito.mock(List.class);
+    ColumnMap expectedColumnMap = Mockito.mock(ColumnMap.class);
     LogicalProjectionOperator logicalProjectionOperator = new LogicalProjectionOperator(expectedSelectItems,
-        expectedChildOperator);
+        expectedChildOperator, expectedColumnMap);
     assertEquals(expectedChildOperator, logicalProjectionOperator.getChild());
     assertEquals(expectedSelectItems, logicalProjectionOperator.getSelectItems());
+    assertEquals(expectedColumnMap, logicalProjectionOperator.getColumnMap());
   }
 
 }

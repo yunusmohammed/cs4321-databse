@@ -6,6 +6,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import com.cs4321.app.JoinExpressionVisitor;
+
 import net.sf.jsqlparser.expression.Expression;
 
 /**
@@ -17,18 +19,20 @@ public class LogicalJoinOperatorTest {
   LogicalOperator expectedLeftChild;
   LogicalOperator expectedRightChild;
   Expression expectedJoinCondition;
+  JoinExpressionVisitor expectedExpressionVisitor;
 
   @BeforeEach
   void setUp() {
     expectedLeftChild = Mockito.mock(LogicalOperator.class);
     expectedRightChild = Mockito.mock(LogicalOperator.class);
     expectedJoinCondition = Mockito.mock(Expression.class);
+    expectedExpressionVisitor = Mockito.mock(JoinExpressionVisitor.class);
   }
 
   @Test
   public void logicalJoinOperatorCorrectlyInitializedTest() {
     LogicalJoinOperator logicalJoinOperator = new LogicalJoinOperator(expectedLeftChild, expectedRightChild,
-        expectedJoinCondition);
+        expectedJoinCondition, expectedExpressionVisitor);
     assertEquals(expectedLeftChild, logicalJoinOperator.getLeftChild());
     assertEquals(expectedRightChild, logicalJoinOperator.getRightChild());
     assertEquals(expectedJoinCondition, logicalJoinOperator.getJoinCondition());
@@ -40,8 +44,10 @@ public class LogicalJoinOperatorTest {
     logicalJoinOperator.setLeftChild(expectedLeftChild);
     logicalJoinOperator.setRightChild(expectedRightChild);
     logicalJoinOperator.setJoinCondition(expectedJoinCondition);
+    logicalJoinOperator.setJoinExpressionVisitor(expectedExpressionVisitor);
     assertEquals(expectedLeftChild, logicalJoinOperator.getLeftChild());
     assertEquals(expectedRightChild, logicalJoinOperator.getRightChild());
     assertEquals(expectedJoinCondition, logicalJoinOperator.getJoinCondition());
+    assertEquals(expectedExpressionVisitor, logicalJoinOperator.getJoinExpressionVisitor());
   }
 }

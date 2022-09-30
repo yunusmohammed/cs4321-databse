@@ -1,9 +1,14 @@
 package com.cs4321.logicaloperators;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import com.cs4321.app.ColumnMap;
 
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SelectItem;
 
 /**
@@ -16,6 +21,7 @@ public class LogicalProjectionOperator extends LogicalOperator {
   private final List<SelectItem> selectItems;
   private final LogicalOperator child;
   private final ColumnMap columnMap;
+  private final Map<String, Integer> columnOrder;
 
   /**
    * Constructor for the logical projection operator
@@ -29,6 +35,13 @@ public class LogicalProjectionOperator extends LogicalOperator {
     this.selectItems = selectItems;
     this.child = child;
     this.columnMap = columnMap;
+    this.columnOrder = new HashMap<>();
+    for (int i = 0; i < selectItems.size(); i++) {
+      SelectItem item = selectItems.get(i);
+      Expression exp = (((SelectExpressionItem) item).getExpression());
+      Column c = (Column) exp;
+      this.columnOrder.put(c.toString(), i);
+    }
   }
 
   /**
@@ -56,6 +69,15 @@ public class LogicalProjectionOperator extends LogicalOperator {
    */
   public ColumnMap getColumnMap() {
     return this.columnMap;
+  }
+
+  /**
+   * Get the column order of this logical project operator
+   * 
+   * @return The column order of this logical project operator
+   */
+  public Map<String, Integer> getColumnOrder() {
+    return this.columnOrder;
   }
 
 }

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import com.cs4321.app.ColumnMap;
 import com.cs4321.app.JoinExpressionVisitor;
 import com.cs4321.app.JoinExpressions;
+import com.cs4321.app.SelectExpressionVisitor;
 
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
@@ -118,7 +119,8 @@ public class LogicalQueryPlan {
    */
   private LogicalSelectionOperator generateLogicalSelection(PlainSelect selectBody) {
     Expression whereExpression = selectBody.getWhere();
-    return new LogicalSelectionOperator(whereExpression, generateLogicalScan(selectBody));
+    return new LogicalSelectionOperator(whereExpression, generateLogicalScan(selectBody), new SelectExpressionVisitor(),
+        this.columnMap);
   }
 
   /**

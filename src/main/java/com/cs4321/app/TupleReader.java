@@ -9,15 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TupleReader {
-    FileInputStream fin;
-    FileChannel fc;
-    ByteBuffer buffer;
-    String filename;
-    int numberOfPages = 0;
-    int currentPage = 0;
-    int tupleNextIndex = 0;
-    List<Tuple> tupleList;
-    int PAGE_SIZE = 4096;
+    private FileInputStream fin;
+    private FileChannel fc;
+    private ByteBuffer buffer;
+    private final String filename;
+    private int numberOfPages = 0;
+    private int currentPage = 0;
+    private int tupleNextIndex = 0;
+    private List<Tuple> tupleList;
+    private final int PAGE_SIZE = 4096;
 
     public TupleReader(String filename) throws IOException {
         this.fin = new FileInputStream(filename);

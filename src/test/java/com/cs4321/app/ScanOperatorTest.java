@@ -9,9 +9,9 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ScanOperatorTest {
-    private final ScanOperator scanOperator = new ScanOperator("Boats_binary");
+    private final ScanOperator scanOperator = new ScanOperator("Boats");
     private static final String sep = File.separator;
-    private static final String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input";
+    private static final String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_binary";
 
     @BeforeAll
     static void setup() {

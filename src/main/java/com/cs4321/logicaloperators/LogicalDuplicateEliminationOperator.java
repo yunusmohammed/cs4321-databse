@@ -5,7 +5,7 @@ package com.cs4321.logicaloperators;
  * 
  * @author Yunus (ymm26@cornell.edu)
  */
-public class LogicalDuplicateEliminationOperator extends LogicalJoinOperator {
+public class LogicalDuplicateEliminationOperator extends LogicalOperator {
 
   private LogicalOperator child;
 

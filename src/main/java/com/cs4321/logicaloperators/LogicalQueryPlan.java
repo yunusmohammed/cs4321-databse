@@ -177,9 +177,6 @@ public class LogicalQueryPlan {
     Map<String, Integer> tableOffset = LogicalQueryPlanUtils.generateJoinTableOffsets(selectBody, this.columnMap);
     Stack<BinaryExpression> expressions = LogicalQueryPlanUtils.getExpressions(selectBody.getWhere());
     while (joins.size() > 0) {
-      if (root == null) {
-        root = currentParent;
-      }
       Table rightChildTable = (Table) joins.remove(joins.size() - 1).getRightItem();
 
       String rightChildTableName = rightChildTable.getAlias();

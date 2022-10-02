@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
+/**
+ * Writes Tuples to a specified file using the Java NIO block format
+ */
 public class TupleWriter {
     private FileOutputStream fout;
     private FileChannel fc;
@@ -15,6 +18,12 @@ public class TupleWriter {
     private int numberOfTuplesSoFar = 0;
     private int sizeOfTuple = 0;
 
+    /**
+     * Initialises a Tuple Writer instance
+     *
+     * @param filename The query file to be written to
+     * @throws IOException
+     */
     public TupleWriter(String filename) throws IOException {
         this.fout = new FileOutputStream(filename);
         this.fc = fout.getChannel();
@@ -27,6 +36,13 @@ public class TupleWriter {
         a = buffer.remaining();
     }
 
+    /**
+     * Writes the specified Tuple to the specified file
+     *
+     * @param tuple     The tuple to be written to the file
+     * @param endOfFile true iff there are no more tuples to write to the file
+     * @throws IOException
+     */
     public void writeToFile(Tuple tuple, boolean endOfFile) throws IOException {
         // Empty file
         if (endOfFile && (numberOfTuplesSoFar == 0)) {
@@ -61,10 +77,20 @@ public class TupleWriter {
         }
     }
 
+    /**
+     * Removes all opened and unused resources
+     *
+     * @throws IOException
+     */
     public void close() throws IOException {
         fout.close();
     }
 
+    /**
+     * Resets the write to the beginning of the file
+     *
+     * @throws FileNotFoundException
+     */
     public void reset() throws FileNotFoundException {
         fout = new FileOutputStream(filename);
         fc = fout.getChannel();

@@ -25,7 +25,9 @@ public abstract class Operator {
 
     /**
      * Calls getNextTuple() until the next tuple is null (no more output) and writes each tuple to
-     * a suitable PrintStream.
+     * a provided filename.
+     *
+     * @param filename The name of the file that will contain the query results
      */
     void dump(String filename) {
         try {

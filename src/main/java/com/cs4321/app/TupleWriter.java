@@ -28,6 +28,12 @@ public class TupleWriter {
     }
 
     public void writeToFile(Tuple tuple, boolean endOfFile) throws IOException {
+        // Empty file
+        if (endOfFile && (numberOfTuplesSoFar == 0)) {
+            close();
+            return;
+        }
+
         if (!endOfFile) {
             String tupleStr = tuple.toString();
             String[] tupleArr = tupleStr.split(",");

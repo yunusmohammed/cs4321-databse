@@ -80,6 +80,9 @@ public class TupleReader {
         }
         if (tupleNextIndex == tupleList.size()) {
             tupleList = readFromFile();
+            if (tupleList == null) {
+                return null;
+            }
             currentPage++;
             tupleNextIndex = 0;
         }

@@ -11,7 +11,6 @@ public class TupleWriter {
     private FileChannel fc;
     private ByteBuffer buffer;
     private final String filename;
-    private final int MAX_TUPLES_PER_PAGE = 340;
     private final int PAGE_SIZE = 4096;
     private int numberOfTuplesSoFar = 0;
     private int sizeOfTuple = 0;
@@ -21,8 +20,11 @@ public class TupleWriter {
         this.fc = fout.getChannel();
         this.buffer = ByteBuffer.allocate(PAGE_SIZE);
         this.filename = filename;
+        int a = buffer.remaining();
         this.buffer.putInt(0);
+        a = buffer.remaining();
         this.buffer.putInt(0);
+        a = buffer.remaining();
     }
 
     public void writeToFile(Tuple tuple, boolean endOfFile) throws IOException {
@@ -34,10 +36,11 @@ public class TupleWriter {
             for (String s : tupleArr) {
                 buffer.putInt(Integer.parseInt(s));
             }
+            int a = buffer.remaining();
             numberOfTuplesSoFar++;
         }
 
-        if (numberOfTuplesSoFar == MAX_TUPLES_PER_PAGE || endOfFile) {
+        if (buffer.remaining() < (sizeOfTuple * 4) || endOfFile) {
             buffer.putInt(0, sizeOfTuple);
             buffer.putInt(4, numberOfTuplesSoFar);
             buffer.clear();

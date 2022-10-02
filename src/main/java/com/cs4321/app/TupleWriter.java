@@ -1,37 +1,70 @@
 package com.cs4321.app;
 
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
 public class TupleWriter {
+    private FileOutputStream fout;
+    private FileChannel fc;
+    private ByteBuffer buffer;
+    private final String filename;
+    private final int MAX_TUPLES_PER_PAGE = 340;
+    private final int PAGE_SIZE = 4096;
+    private int numberOfTuplesSoFar = 0;
+    private int sizeOfTuple = 0;
 
-    public static void writeToFile(String filename, Tuple tuple) throws IOException {
-        FileOutputStream fout = new FileOutputStream(filename);
-        FileChannel fc = fout.getChannel();
+    public TupleWriter(String filename) throws IOException {
+        this.fout = new FileOutputStream(filename);
+        this.fc = fout.getChannel();
+        this.buffer = ByteBuffer.allocate(PAGE_SIZE);
+        this.filename = filename;
+        this.buffer.putInt(0);
+        this.buffer.putInt(0);
+    }
 
-        ByteBuffer buffer = ByteBuffer.allocate(4096);
-        String tupleStr = tuple.toString();
+    public void writeToFile(Tuple tuple, boolean endOfFile) throws IOException {
+        if (!endOfFile) {
+            String tupleStr = tuple.toString();
+            String[] tupleArr = tupleStr.split(",");
+            sizeOfTuple = Math.max(sizeOfTuple, tupleArr.length);
 
-        for (int i = 0; i < tupleStr.length(); ++i) {
-            buffer.put((byte) tupleStr.charAt(i));
+            for (String s : tupleArr) {
+                buffer.putInt(Integer.parseInt(s));
+            }
+            numberOfTuplesSoFar++;
         }
-        buffer.flip();
-        fc.write( buffer );
+
+        if (numberOfTuplesSoFar == MAX_TUPLES_PER_PAGE || endOfFile) {
+            buffer.putInt(0, sizeOfTuple);
+            buffer.putInt(4, numberOfTuplesSoFar);
+            buffer.clear();
+            fc.write(buffer);
+
+            numberOfTuplesSoFar = 0;
+            buffer.clear();
+            buffer.put(new byte[PAGE_SIZE]);
+            buffer.clear();
+            buffer.putInt(0);
+            buffer.putInt(0);
+        }
+    }
+
+    public void close() throws IOException {
         fout.close();
     }
 
-    public static void main(String[] args) throws IOException {
-        writeToFile("output", new Tuple("1,2,3"));
-    }
+    public void reset() throws FileNotFoundException {
+        fout = new FileOutputStream(filename);
+        fc = fout.getChannel();
+        buffer = ByteBuffer.allocate(PAGE_SIZE);
 
-    public void close() {
-
-    }
-
-    public void reset() {
-
+        numberOfTuplesSoFar = 0;
+        sizeOfTuple = 0;
+        buffer.putInt(0);
+        buffer.putInt(0);
     }
 
 }

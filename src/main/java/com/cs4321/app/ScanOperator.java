@@ -85,6 +85,7 @@ public class ScanOperator extends Operator {
     @Override
     public void finalize() {
         try {
+            tupleReader.close();
             reader.close();
         } catch (IOException e) {
             e.printStackTrace();

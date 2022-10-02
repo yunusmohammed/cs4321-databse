@@ -1,6 +1,7 @@
 package com.cs4321.app;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -30,6 +31,7 @@ class InterpreterTest {
     }
 
     @Test
+    @Disabled("Add functionality for optional human testing later")
     void queryOutput() {
         String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "correctOutput";
         Interpreter.setOutputdir(outputdir);

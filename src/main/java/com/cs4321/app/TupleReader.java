@@ -41,7 +41,7 @@ public class TupleReader {
      * @return a list of all Tuples on the current page
      * @throws IOException
      */
-    public List<Tuple> readFromFile() throws IOException {
+    private List<Tuple> readFromFile() throws IOException {
         List<Tuple> tupleList = new ArrayList<>();
         int checkEndOfFile = fc.read(buffer);
         if (checkEndOfFile == -1) {

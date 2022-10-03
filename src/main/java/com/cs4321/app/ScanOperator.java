@@ -14,6 +14,7 @@ public class ScanOperator extends Operator {
     private final DatabaseCatalog dbc = DatabaseCatalog.getInstance();
     private String baseTablePath;
     private BufferedReader reader;
+    private TupleReader tupleReader;
 
     /**
      * Constructor that initialises a ScanOperator
@@ -24,7 +25,8 @@ public class ScanOperator extends Operator {
         setBaseTablePath(baseTable);
         try {
             reader = new BufferedReader(new FileReader(getBaseTablePath()));
-        } catch (FileNotFoundException e) {
+            tupleReader = new TupleReader(getBaseTablePath());
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -36,16 +38,12 @@ public class ScanOperator extends Operator {
      */
     @Override
     public Tuple getNextTuple() {
-        Tuple tuple = null;
         try {
-            String line = reader.readLine();
-            if (line != null) {
-                tuple = new Tuple(line);
-            }
+            return tupleReader.readNextTuple();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return tuple;
+        return null;
     }
 
     /**
@@ -55,12 +53,7 @@ public class ScanOperator extends Operator {
     @Override
     public void reset() {
         try {
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            reader = new BufferedReader(new FileReader(getBaseTablePath()));
+            tupleReader.reset();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -92,6 +85,7 @@ public class ScanOperator extends Operator {
     @Override
     public void finalize() {
         try {
+            tupleReader.close();
             reader.close();
         } catch (IOException e) {
             e.printStackTrace();

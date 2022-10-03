@@ -400,13 +400,7 @@ public class QueryPlan {
      */
     public void evaluate() {
         if (queryOutputName != null) {
-            try {
-                root.dump(new PrintStream(queryOutputName));
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-        } else {
-            root.dump(System.out);
+            root.dump(queryOutputName);
         }
     }
 

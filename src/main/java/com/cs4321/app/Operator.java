@@ -1,6 +1,6 @@
 package com.cs4321.app;
 
-import java.io.PrintStream;
+import java.io.IOException;
 
 /**
  * Abstract class which all operators extend.
@@ -25,15 +25,23 @@ public abstract class Operator {
 
     /**
      * Calls getNextTuple() until the next tuple is null (no more output) and writes each tuple to
-     * a suitable PrintStream.
+     * a provided filename.
+     *
+     * @param filename The name of the file that will contain the query results
      */
-    void dump(PrintStream output) {
-        Tuple nextTuple = getNextTuple();
-        while (nextTuple != null) {
-            output.println(nextTuple);
-            nextTuple = getNextTuple();
+    void dump(String filename) {
+        try {
+            TupleWriter tupleWriter = new TupleWriter(filename);
+            Tuple nextTuple = getNextTuple();
+            while (nextTuple != null) {
+                tupleWriter.writeToFile(nextTuple, false);
+                nextTuple = getNextTuple();
+            }
+            tupleWriter.writeToFile(null, true);
+            tupleWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        output.close();
     }
 
     /**

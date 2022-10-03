@@ -9,9 +9,9 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ScanOperatorTest {
-    private final ScanOperator scanOperator = new ScanOperator("Sailors");
+    private final ScanOperator scanOperator = new ScanOperator("Boats");
     private static final String sep = File.separator;
-    private static final String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input";
+    private static final String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_binary";
 
     @BeforeAll
     static void setup() {
@@ -21,23 +21,22 @@ class ScanOperatorTest {
 
     @Test
     void getNextTuple() {
-        Tuple tuple1 = new Tuple("1,200,50");
+        scanOperator.reset();
+        Tuple tuple1 = new Tuple("12,143,196");
         assertEquals(tuple1, scanOperator.getNextTuple());
 
-        Tuple tuple2 = new Tuple("2,200,200");
+        Tuple tuple2 = new Tuple("30,63,101");
         assertEquals(tuple2, scanOperator.getNextTuple());
 
-        Tuple tuple3 = new Tuple("3,100,105");
+        Tuple tuple3 = new Tuple("57,24,130");
         assertEquals(tuple3, scanOperator.getNextTuple());
-        scanOperator.reset();
     }
 
 
     @Test
     void reset() {
         scanOperator.reset();
-
-        Tuple tuple1 = new Tuple("1,200,50");
+        Tuple tuple1 = new Tuple("12,143,196");
         assertEquals(tuple1, scanOperator.getNextTuple());
     }
 

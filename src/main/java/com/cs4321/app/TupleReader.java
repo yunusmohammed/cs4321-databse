@@ -73,9 +73,6 @@ public class TupleReader {
                 tupleList.add(new Tuple(data.toString()));
             }
         }
-        while (buffer.hasRemaining()) {
-            buffer.getInt();
-        }
         numberOfPages++;
         // Reference: https://stackoverflow.com/a/14937929/13636444
         buffer.clear();

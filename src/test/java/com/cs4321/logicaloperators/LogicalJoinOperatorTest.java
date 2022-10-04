@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import com.cs4321.app.JoinExpressionVisitor;
+import com.cs4321.physicaloperators.JoinExpressionVisitor;
 
 import net.sf.jsqlparser.expression.Expression;
 

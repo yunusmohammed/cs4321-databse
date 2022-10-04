@@ -414,7 +414,7 @@ public class QueryPlan {
             long startTime = System.currentTimeMillis();
             root.dump(queryOutputName);
             long finishTime = System.currentTimeMillis();
-            logger.log("Elapsed time for query " + queryNumber + ": " + (finishTime - startTime));
+            // logger.log("Elapsed time for query " + queryNumber + ": " + (finishTime - startTime) + "ms");
         }
     }
 

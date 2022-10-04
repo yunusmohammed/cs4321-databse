@@ -1,4 +1,4 @@
-package com.cs4321.app;
+package com.cs4321.physicaloperators;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -6,6 +6,9 @@ import static org.mockito.ArgumentMatchers.argThat;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.cs4321.app.ColumnMap;
+import com.cs4321.app.DatabaseCatalog;
+import com.cs4321.app.Tuple;
 import com.cs4321.physicaloperators.JoinExpressionVisitor;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

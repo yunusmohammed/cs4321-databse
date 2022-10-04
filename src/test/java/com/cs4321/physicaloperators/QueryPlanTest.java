@@ -1,5 +1,6 @@
-package com.cs4321.app;
+package com.cs4321.physicaloperators;
 
+import com.cs4321.app.DatabaseCatalog;
 import com.cs4321.physicaloperators.Operator;
 import com.cs4321.physicaloperators.QueryPlan;
 import org.junit.jupiter.api.BeforeAll;
@@ -17,7 +18,8 @@ class QueryPlanTest {
     private static final String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input";
 
     @BeforeAll
-    static void setup() {DatabaseCatalog.setInputDir(inputdir);}
+    static void setup() {
+        DatabaseCatalog.setInputDir(inputdir);}
 
     @Test
     void setRoot() {

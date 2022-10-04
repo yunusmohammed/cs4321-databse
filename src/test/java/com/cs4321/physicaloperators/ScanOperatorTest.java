@@ -1,5 +1,7 @@
-package com.cs4321.app;
+package com.cs4321.physicaloperators;
 
+import com.cs4321.app.DatabaseCatalog;
+import com.cs4321.app.Tuple;
 import com.cs4321.physicaloperators.ScanOperator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

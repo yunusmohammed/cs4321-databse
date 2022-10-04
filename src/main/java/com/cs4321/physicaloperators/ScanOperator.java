@@ -1,5 +1,9 @@
-package com.cs4321.app;
+package com.cs4321.physicaloperators;
 
+
+import com.cs4321.app.DatabaseCatalog;
+import com.cs4321.app.Tuple;
+import com.cs4321.app.TupleReader;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

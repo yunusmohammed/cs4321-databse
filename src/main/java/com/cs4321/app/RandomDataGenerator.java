@@ -31,34 +31,23 @@ public class RandomDataGenerator {
     public RandomDataGenerator(String tableName, int minTuples, int maxTuples, int minColumns, int maxColumns, int minValue, int maxValue) {
         try {
             tablePath = Files.createTempFile(tableName, null).toString();
-        } catch (IOException e) {
-            logger.log("Unable to create temp file named " + tableName + " while generating random data.");
-            throw new Error();
-        }
-        this.minValue = minValue;
-        this.maxValue = maxValue;
-        numTuples = randomIntWithinRange(minTuples, maxTuples);
-        numColumns = randomIntWithinRange(minColumns, maxColumns);
-        columnNames = new String[numColumns];
-        for(int i=0; i<numColumns; i++) {
-            columnNames[i] = "" + i;
-        }
-        TupleWriter writer = null;
-        try {
-            writer = new TupleWriter(tablePath);
-        } catch (IOException e) {
-            logger.log("Unable to create TupleWriter for temp file " + tableName + " while generating random data.");
-        }
-        if(writer != null) {
+            this.minValue = minValue;
+            this.maxValue = maxValue;
+            numTuples = randomIntWithinRange(minTuples, maxTuples);
+            numColumns = randomIntWithinRange(minColumns, maxColumns);
+            columnNames = new String[numColumns];
+            for(int i=0; i<numColumns; i++) {
+                columnNames[i] = "" + i;
+            }
+            TupleWriter writer = new TupleWriter(tablePath);
             for(int i=0; i<numTuples; i++) {
                 Tuple t = generateTuple();
-                boolean endOfFile = i == numTuples - 1;
-                try {
-                    writer.writeToFile(t, endOfFile);
-                } catch (IOException e) {
-                    logger.log("Unable to write to temp file " + tableName + " while generating random data.");
-                }
+                writer.writeToFile(t, false);
             }
+            writer.writeToFile(null, true);
+        } catch (IOException e) {
+            logger.log("Unable to create random data table " + tableName + ".");
+            throw new Error();
         }
     }
 

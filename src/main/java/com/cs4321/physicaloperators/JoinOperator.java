@@ -1,7 +1,8 @@
-package com.cs4321.app;
+package com.cs4321.physicaloperators;
 
 import java.util.Map;
 
+import com.cs4321.app.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Column;
 

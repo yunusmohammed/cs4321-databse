@@ -1,5 +1,7 @@
 package com.cs4321.app;
 
+import com.cs4321.physicaloperators.DuplicateEliminationOperator;
+import com.cs4321.physicaloperators.Operator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

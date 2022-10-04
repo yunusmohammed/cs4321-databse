@@ -1,5 +1,8 @@
 package com.cs4321.app;
 
+import com.cs4321.physicaloperators.Operator;
+import com.cs4321.physicaloperators.ProjectionOperator;
+import com.cs4321.physicaloperators.ScanOperator;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.AllColumns;

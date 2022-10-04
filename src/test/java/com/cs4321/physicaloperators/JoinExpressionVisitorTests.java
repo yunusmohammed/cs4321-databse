@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.cs4321.physicaloperators.JoinExpressionVisitor;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

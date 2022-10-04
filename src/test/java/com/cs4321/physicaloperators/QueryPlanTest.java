@@ -1,5 +1,7 @@
 package com.cs4321.app;
 
+import com.cs4321.physicaloperators.Operator;
+import com.cs4321.physicaloperators.QueryPlan;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

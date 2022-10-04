@@ -1,5 +1,6 @@
 package com.cs4321.app;
 
+import com.cs4321.physicaloperators.SelectExpressionVisitor;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.ParseException;
 import org.junit.jupiter.api.BeforeEach;

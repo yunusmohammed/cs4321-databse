@@ -1,5 +1,6 @@
 package com.cs4321.app;
 
+import com.cs4321.physicaloperators.QueryPlan;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.parser.ParseException;
 import net.sf.jsqlparser.statement.Statement;

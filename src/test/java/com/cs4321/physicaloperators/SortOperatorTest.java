@@ -1,4 +1,6 @@
 package com.cs4321.app;
+import com.cs4321.physicaloperators.Operator;
+import com.cs4321.physicaloperators.SortOperator;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

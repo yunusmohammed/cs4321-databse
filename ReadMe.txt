@@ -1,4 +1,9 @@
-Top level class is the Interprerter class.
+Top level class is the Interpreter class.
+
+The following can be located as shown below
+Logical Operators: src/main/java/com/cs4321/logicaloperators
+Physical Operators: src/main/java/com/cs4321/physicaloperators
+Physical Plan Builder: src/main/java/com/cs4321/app/PhysicalPlanBuilder.java
 
 To extract join conditions from the WHERE clause of a join on tables corresponding 
 to T1, T2, ... Tn listed in that order in the SELECT clause:

@@ -1,5 +1,6 @@
-package com.cs4321.app.planbuilder;
+package com.cs4321.app;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -21,6 +22,11 @@ public class BuilderConfig {
     private Join joinType;
     private int joinBufferSize;
 
+    /**
+     * Extracts the config info from the file at `filePath`.
+     *
+     * @param filePath The path to the config file.
+     */
     public BuilderConfig(String filePath) {
         try {
             List<String> configLines = Files.readAllLines(Paths.get(filePath));
@@ -35,7 +41,7 @@ public class BuilderConfig {
             } else {
                 joinType = Join.SMJ;
             }
-            // Extract sort config ino
+            // Extract sort config info
             String sort_line = configLines.get(1);
             String[] sort_configs = sort_line.split(" ");
             if (sort_configs[0].equals("0")) {
@@ -44,23 +50,43 @@ public class BuilderConfig {
                 sortType = Sort.EXTERNAL;
                 sortBufferSize = Integer.parseInt(sort_configs[1]);
             }
-        } catch (Exception ignored) {
+        } catch (IOException e) {
+            Logger.getInstance().log("Invalid file path for config.");
         }
     }
 
+    /**
+     * Gets the sort type that dictates how to sort tuples.
+     *
+     * @return The sort type from the config file.
+     */
     public Sort getSortType() {
         return sortType;
     }
 
+    /**
+     * The size of the buffer to use when sorting; 0 if sorting doesn't use buffer.
+     *
+     * @return Size of buffer for sorting.
+     */
     public int getSortBufferSize() {
         return sortBufferSize;
     }
 
-
+    /**
+     * Gets the join type that dictates how to join tables.
+     *
+     * @return The join type from the config file.
+     */
     public Join getJoinType() {
         return joinType;
     }
 
+    /**
+     * The size of the buffer to use when joining; 0 if joining doesn't use buffer.
+     *
+     * @return Size of buffer for joining.
+     */
     public int getJoinBufferSize() {
         return joinBufferSize;
     }

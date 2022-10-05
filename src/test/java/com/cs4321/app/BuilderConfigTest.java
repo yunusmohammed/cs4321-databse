@@ -1,15 +1,10 @@
-package com.cs4321.app.planbuilder;
+package com.cs4321.app;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class BuilderConfigTest {
-
-    @BeforeEach
-    void setUp() {
-    }
 
     @Test
     void testInit() {

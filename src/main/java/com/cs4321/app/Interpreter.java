@@ -36,6 +36,7 @@ public class Interpreter {
         setInputdir(args[0]);
         setOutputdir(args[1]);
         DatabaseCatalog.setInputDir(getInputdir());
+        PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
         parseQueries();
     }
 

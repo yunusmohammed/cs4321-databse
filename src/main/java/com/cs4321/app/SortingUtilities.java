@@ -43,7 +43,7 @@ public class SortingUtilities {
     }
 
     /**
-     * Returns -1 if a should be before b in sorted order, 0 if a and b are equivalent, and 1 otherwise.
+     * Returns an integer less than 0 if a should be before b in sorted order, 0 if a and b are equivalent, and an integer greater than 0 otherwise.
      * Assumes a and b have the same size.
      * @param a - a tuple in the comparison
      * @param b - a tuple in the comparison

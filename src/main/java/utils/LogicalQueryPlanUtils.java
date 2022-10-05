@@ -8,7 +8,7 @@ import java.util.Stack;
 
 import com.cs4321.app.ColumnMap;
 import com.cs4321.app.DatabaseCatalog;
-import com.cs4321.app.JoinExpressions;
+import com.cs4321.physicaloperators.JoinExpressions;
 
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;

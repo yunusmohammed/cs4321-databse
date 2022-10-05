@@ -6,9 +6,9 @@ import java.util.Stack;
 import java.util.ArrayList;
 
 import com.cs4321.app.ColumnMap;
-import com.cs4321.app.JoinExpressionVisitor;
-import com.cs4321.app.JoinExpressions;
-import com.cs4321.app.SelectExpressionVisitor;
+import com.cs4321.physicaloperators.JoinExpressionVisitor;
+import com.cs4321.physicaloperators.JoinExpressions;
+import com.cs4321.physicaloperators.SelectExpressionVisitor;
 
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
@@ -39,9 +39,7 @@ public class LogicalQueryPlan {
    * 
    * @param queryStatement The query to construct the logical query plan from
    */
-  public LogicalQueryPlan(Statement queryStatement) {
-    this.generateLogicalQueryTree(queryStatement);
-  }
+  public LogicalQueryPlan(Statement queryStatement) { this.generateLogicalQueryTree(queryStatement); }
 
   /**
    * Get the root of this LogicalQueryPlan

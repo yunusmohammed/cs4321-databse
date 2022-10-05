@@ -1,4 +1,7 @@
-package com.cs4321.app;
+package com.cs4321.physicaloperators;
+import com.cs4321.app.Tuple;
+import com.cs4321.physicaloperators.Operator;
+import com.cs4321.physicaloperators.SortOperator;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

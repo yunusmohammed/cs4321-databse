@@ -1,5 +1,10 @@
-package com.cs4321.app;
+package com.cs4321.physicaloperators;
 
+import com.cs4321.app.ColumnMap;
+import com.cs4321.app.Tuple;
+import com.cs4321.physicaloperators.ScanOperator;
+import com.cs4321.physicaloperators.SelectExpressionVisitor;
+import com.cs4321.physicaloperators.SelectionOperator;
 import net.sf.jsqlparser.expression.Expression;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,6 +1,6 @@
 package com.cs4321.logicaloperators;
 
-import com.cs4321.app.JoinExpressionVisitor;
+import com.cs4321.physicaloperators.JoinExpressionVisitor;
 
 import net.sf.jsqlparser.expression.Expression;
 

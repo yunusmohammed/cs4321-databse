@@ -1,5 +1,10 @@
-package com.cs4321.app;
+package com.cs4321.physicaloperators;
 
+import com.cs4321.app.ColumnMap;
+import com.cs4321.app.Tuple;
+import com.cs4321.physicaloperators.Operator;
+import com.cs4321.physicaloperators.ProjectionOperator;
+import com.cs4321.physicaloperators.ScanOperator;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.AllColumns;

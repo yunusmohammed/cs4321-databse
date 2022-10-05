@@ -1,5 +1,7 @@
-package com.cs4321.app;
+package com.cs4321.physicaloperators;
 
+import com.cs4321.app.Tuple;
+import com.cs4321.physicaloperators.Operator;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
 import java.util.*;

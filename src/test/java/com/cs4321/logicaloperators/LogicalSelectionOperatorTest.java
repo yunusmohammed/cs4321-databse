@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.cs4321.app.ColumnMap;
-import com.cs4321.app.SelectExpressionVisitor;
+import com.cs4321.physicaloperators.SelectExpressionVisitor;
 
 import net.sf.jsqlparser.expression.Expression;
 

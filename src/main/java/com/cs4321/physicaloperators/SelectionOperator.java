@@ -1,5 +1,7 @@
-package com.cs4321.app;
+package com.cs4321.physicaloperators;
 
+import com.cs4321.app.ColumnMap;
+import com.cs4321.app.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 
 public class SelectionOperator extends Operator {

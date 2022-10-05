@@ -1,5 +1,8 @@
-package com.cs4321.app;
+package com.cs4321.physicaloperators;
 
+import com.cs4321.app.Tuple;
+import com.cs4321.physicaloperators.DuplicateEliminationOperator;
+import com.cs4321.physicaloperators.Operator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

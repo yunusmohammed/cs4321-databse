@@ -1,4 +1,7 @@
-package com.cs4321.app;
+package com.cs4321.physicaloperators;
+
+import com.cs4321.app.Tuple;
+import com.cs4321.physicaloperators.Operator;
 
 public class DuplicateEliminationOperator extends Operator {
 

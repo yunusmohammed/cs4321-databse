@@ -1,5 +1,8 @@
-package com.cs4321.app;
+package com.cs4321.physicaloperators;
 
+import com.cs4321.app.*;
+import com.cs4321.logicaloperators.LogicalOperator;
+import com.cs4321.logicaloperators.LogicalQueryPlan;
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
@@ -9,9 +12,7 @@ import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.*;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -30,6 +31,10 @@ public class QueryPlan {
     private String queryOutputName;
     private ColumnMap columnMap;
 
+    private Logger logger = Logger.getInstance();
+
+    private int queryNumber;
+
     /**
      * Evaluates SQL query statements
      *
@@ -39,6 +44,12 @@ public class QueryPlan {
      */
     private void evaluateQueries(Statement statement, int queryNumber) {
         if (statement != null) {
+
+            // need to implement physical plan builder to use logical query plan
+            LogicalQueryPlan logicalPlan = new LogicalQueryPlan(statement);
+            LogicalOperator logicalRoot = logicalPlan.getRoot();
+            this.queryNumber = queryNumber;
+
             Select select = (Select) statement;
             PlainSelect selectBody = (PlainSelect) select.getSelectBody();
 
@@ -400,7 +411,10 @@ public class QueryPlan {
      */
     public void evaluate() {
         if (queryOutputName != null) {
+            long startTime = System.currentTimeMillis();
             root.dump(queryOutputName);
+            long finishTime = System.currentTimeMillis();
+            // logger.log("Elapsed time for query " + queryNumber + ": " + (finishTime - startTime) + "ms");
         }
     }
 

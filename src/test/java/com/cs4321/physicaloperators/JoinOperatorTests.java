@@ -1,8 +1,12 @@
-package com.cs4321.app;
+package com.cs4321.physicaloperators;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doAnswer;
 
+import com.cs4321.app.Tuple;
+import com.cs4321.physicaloperators.JoinExpressionVisitor;
+import com.cs4321.physicaloperators.JoinOperator;
+import com.cs4321.physicaloperators.Operator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

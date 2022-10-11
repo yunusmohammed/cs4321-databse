@@ -44,50 +44,9 @@ public class QueryPlan {
      */
     private void evaluateQueries(Statement statement, int queryNumber) {
         if (statement != null) {
-
-            // need to implement physical plan builder to use logical query plan
             LogicalQueryPlan logicalPlan = new LogicalQueryPlan(statement);
             LogicalOperator logicalRoot = logicalPlan.getRoot();
-            this.queryNumber = queryNumber;
-
-            Select select = (Select) statement;
-            PlainSelect selectBody = (PlainSelect) select.getSelectBody();
-
-            List<SelectItem> selectItemsList = selectBody.getSelectItems();
-            SelectItem firstSelectItem = selectItemsList.get(0);
-            FromItem fromItem = selectBody.getFromItem();
-            List<Join> joinsList = selectBody.getJoins();
-            List<OrderByElement> orderByElementsList = selectBody.getOrderByElements();
-            Expression whereExpression = selectBody.getWhere();
-            Distinct distinct = selectBody.getDistinct();
-
-            this.columnMap = new ColumnMap(fromItem, joinsList);
-
-            if ("*".equals(firstSelectItem.toString()) && joinsList == null && whereExpression == null) {
-                this.root = generateScan(selectBody);
-            } else if (selectItemsList.size() == 1 && firstSelectItem instanceof AllColumns
-                    && (joinsList == null || joinsList.size() == 0)
-                    && whereExpression != null) {
-                this.root = generateSelection(selectBody);
-            } else if (selectItemsList.size() == 1 && firstSelectItem instanceof AllColumns
-                    && joinsList != null && joinsList.size() > 0) {
-                this.root = generateJoin(selectBody);
-            } else {
-                // TODO: Add conditions for other operators @Yohannes @Lenhard
-                this.root = generateProjection(selectBody);
-            }
-
-            boolean ordered = false;
-            if (orderByElementsList != null && orderByElementsList.size() > 0) {
-                this.root = generateSort(selectBody);
-                ordered = true;
-            }
-            if (distinct != null) {
-                // DuplicateEliminationOperator expects sorted child
-                if (!ordered)
-                    this.root = generateSort(selectBody);
-                this.root = generateDistinct();
-            }
+            this.root = PhysicalPlanBuilder.getInstance().constructPhysical(logicalRoot);
         }
     }
 
@@ -269,9 +228,9 @@ public class QueryPlan {
 
             } else if ((leftTable == null && rightTable == null)
                     || (leftTable != null && leftTable.equals(rightChildTableName)
-                            && rightTable != null && !rightTable.equals(rightChildTableName))
+                    && rightTable != null && !rightTable.equals(rightChildTableName))
                     || (leftTable != null && !leftTable.equals(rightChildTableName)
-                            && rightTable != null && rightTable.equals(rightChildTableName))) {
+                    && rightTable != null && rightTable.equals(rightChildTableName))) {
                 // expression references no tables at all OR references columns from the rigth
                 // child's table and some other
                 // tables in the left child
@@ -348,7 +307,7 @@ public class QueryPlan {
     /**
      * Creates a mapping from columns names in the select clause to indexes in a
      * corresponding tuple.
-     * 
+     *
      * @param selectBody- The body of the select statement.
      * @return- A HashMap from column names to indexes in a tuple.
      */

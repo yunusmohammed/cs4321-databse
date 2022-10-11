@@ -29,6 +29,7 @@ class InterpreterTest {
     @BeforeAll
     static void setup() {
         DatabaseCatalog.setInputDir(inputdir);
+        PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
     }
 
     @Test
@@ -36,6 +37,7 @@ class InterpreterTest {
     void queryOutput() {
         String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "correctOutput_binary";
         Interpreter.setOutputdir(outputdir);
+
         Interpreter.parseQueries();
         File[] correctQueries = new File(correctOutputPath).listFiles();
         File[] outputQueries = new File(outputdir).listFiles();

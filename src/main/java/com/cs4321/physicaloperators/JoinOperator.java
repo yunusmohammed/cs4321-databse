@@ -1,10 +1,10 @@
 package com.cs4321.physicaloperators;
 
-import java.util.Map;
-
 import com.cs4321.app.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Column;
+
+import java.util.Map;
 
 /**
  * Operator for handling Joins
@@ -47,14 +47,14 @@ public class JoinOperator extends Operator {
 
     /**
      * Constructor for JoinOperator
-     * 
+     *
      * @param leftChild     the left child operator of this join operator
      * @param rightChild    the right child operator of this join operator
      * @param joinCondition the condition to join rows on
      * @param visitor       the expression visitor of this join operator
      */
     public JoinOperator(Operator leftChild, Operator rightChild, Expression joinCondition,
-            JoinExpressionVisitor visitor) {
+                        JoinExpressionVisitor visitor) {
         this.leftChild = leftChild;
         this.rightChild = rightChild;
         this.joinCondition = joinCondition;
@@ -100,7 +100,7 @@ public class JoinOperator extends Operator {
 
     /**
      * Sets the left child of this join operator
-     * 
+     *
      * @param leftChild the left child of this operator
      */
     public void setLeftChild(Operator leftChild) {
@@ -109,7 +109,7 @@ public class JoinOperator extends Operator {
 
     /**
      * Sets the right child of this join operator
-     * 
+     *
      * @param rightChild the right child of this operator
      */
     public void setRightChild(Operator rightChild) {
@@ -117,9 +117,23 @@ public class JoinOperator extends Operator {
     }
 
     /**
+     * Gets the left child of this join operator
+     *
+     * @return The left child of this join
+     */
+    public Operator getLeftChild() {return this.leftChild;}
+
+    /**
+     * Gets the right child of this join operator
+     *
+     * @return The right child of this join
+     */
+    public Operator getRightChild() {return this.rightChild;}
+
+    /**
      * Sets the join condition of this join operator
-     * 
-     * @param rightChild the join condition of this operator
+     *
+     * @param joinCondition the join condition of this operator
      */
     public void setJoinCondition(Expression joinCondition) {
         this.joinCondition = joinCondition;
@@ -127,8 +141,8 @@ public class JoinOperator extends Operator {
 
     /**
      * Sets the expression visitor of this join operator
-     * 
-     * @param rightChild the expression of this operator
+     *
+     * @param visitor the expression visitor of this join operator
      */
     public void setVisitor(JoinExpressionVisitor visitor) {
         this.visitor = visitor;
@@ -137,7 +151,7 @@ public class JoinOperator extends Operator {
     /**
      * Gets a map of offsets to be applied to column indices of table columns in
      * order to correctly index columns in joined rows
-     * 
+     *
      * @return the table column index offsets
      */
     public Map<String, Integer> getTableOffsets() {

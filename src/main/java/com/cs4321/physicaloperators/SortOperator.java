@@ -16,11 +16,15 @@ public class SortOperator extends Operator {
     private PriorityQueue<Tuple> tuples;
 
     /**
-     * Creates an operator to represent an order by clause. This operator is at the root of the query plan unless there is a distinct clause.
+     * Creates an operator to represent an order by clause. This operator is at the
+     * root of the query plan unless there is a distinct clause.
      *
-     * @param child-              the rest of the query plan, besides a potential DuplicateEliminationOperator.
-     * @param columnMap-          a map from column names in the table to their associated indexes.
-     * @param orderByElementList- the list of elements for which our order by clause will sort.
+     * @param child-              the rest of the query plan, besides a potential
+     *                            DuplicateEliminationOperator.
+     * @param columnMap-          a map from column names in the table to their
+     *                            associated indexes.
+     * @param orderByElementList- the list of elements for which our order by clause
+     *                            will sort.
      */
     public SortOperator(Operator child, Map<String, Integer> columnMap, List<OrderByElement> orderByElementList) {
         this.child = child;
@@ -29,7 +33,8 @@ public class SortOperator extends Operator {
     }
 
     /**
-     * Returns the next tuple in ascending order determined by the columns in the order by clause. In order to ensure
+     * Returns the next tuple in ascending order determined by the columns in the
+     * order by clause. In order to ensure
      * the tuples are sorted, the SortOperator must read every tuple from its child.
      *
      * @return- the next tuple in sorted order.
@@ -44,13 +49,16 @@ public class SortOperator extends Operator {
                 nextTuple = child.getNextTuple();
             }
         }
-        if (tuples.size() == 0) return null;
+        if (tuples.size() == 0)
+            return null;
         return tuples.poll();
     }
 
     /**
-     * Compares Tuples [a] and [b] and returns a negative integer if [a] should be placed before [b] in sorted order,
-     * returns a positive integer if [b] should be placed before [a] in sorted order, and returns 0 if [a] and [b] are equal.
+     * Compares Tuples [a] and [b] and returns a negative integer if [a] should be
+     * placed before [b] in sorted order,
+     * returns a positive integer if [b] should be placed before [a] in sorted
+     * order, and returns 0 if [a] and [b] are equal.
      *
      * @param a- the Tuple to compare [b] with
      * @param b- the Tuple to compare [a] with
@@ -63,13 +71,15 @@ public class SortOperator extends Operator {
                 int index = columnMap.get(o.toString());
                 seenColumns.add(index);
                 int aVal = a.get(index), bVal = b.get(index);
-                if (aVal != bVal) return aVal - bVal;
+                if (aVal != bVal)
+                    return aVal - bVal;
             }
         }
         for (int i = 0; i < a.size(); i++) {
             if (!seenColumns.contains(i)) {
                 int aVal = a.get(i), bVal = b.get(i);
-                if (aVal != bVal) return aVal - bVal;
+                if (aVal != bVal)
+                    return aVal - bVal;
             }
         }
         return 0;
@@ -84,6 +94,10 @@ public class SortOperator extends Operator {
         child.reset();
     }
 
+    @Override
+    public String toString() {
+        return "";
+    }
 
     /**
      * Closes the query so that there cannot be more calls to getNextTuple.

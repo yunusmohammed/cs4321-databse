@@ -13,7 +13,8 @@ import java.io.IOException;
 public abstract class Operator {
 
     /**
-     * Gets the next tuple of the operator’s output. If the operator still has some available
+     * Gets the next tuple of the operator’s output. If the operator still has some
+     * available
      * output, it will return the next tuple, otherwise it would return null.
      *
      * @return The next tuple of the operator’s output
@@ -21,13 +22,15 @@ public abstract class Operator {
     abstract Tuple getNextTuple();
 
     /**
-     * Tells the operator to reset its state and start returning its output again from the
+     * Tells the operator to reset its state and start returning its output again
+     * from the
      * beginning;
      */
     abstract void reset();
 
     /**
-     * Calls getNextTuple() until the next tuple is null (no more output) and writes each tuple to
+     * Calls getNextTuple() until the next tuple is null (no more output) and writes
+     * each tuple to
      * a provided filename.
      *
      * @param filename The name of the file that will contain the query results
@@ -48,7 +51,16 @@ public abstract class Operator {
     }
 
     /**
-     * Cleanups any resources that need to be cleaned up such as BufferedReader, etc.
+     * Builds and returns a string representation of this operator
+     * 
+     * @return The string representation of this operator
+     */
+    @Override
+    public abstract String toString();
+
+    /**
+     * Cleanups any resources that need to be cleaned up such as BufferedReader,
+     * etc.
      */
     public abstract void finalize();
 }

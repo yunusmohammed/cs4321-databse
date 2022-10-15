@@ -54,7 +54,7 @@ public class JoinOperator extends Operator {
      * @param visitor       the expression visitor of this join operator
      */
     public JoinOperator(Operator leftChild, Operator rightChild, Expression joinCondition,
-                        JoinExpressionVisitor visitor) {
+            JoinExpressionVisitor visitor) {
         this.leftChild = leftChild;
         this.rightChild = rightChild;
         this.joinCondition = joinCondition;
@@ -93,6 +93,11 @@ public class JoinOperator extends Operator {
     }
 
     @Override
+    public String toString() {
+        return "";
+    }
+
+    @Override
     public void finalize() {
         this.leftChild.finalize();
         this.rightChild.finalize();
@@ -121,14 +126,18 @@ public class JoinOperator extends Operator {
      *
      * @return The left child of this join
      */
-    public Operator getLeftChild() {return this.leftChild;}
+    public Operator getLeftChild() {
+        return this.leftChild;
+    }
 
     /**
      * Gets the right child of this join operator
      *
      * @return The right child of this join
      */
-    public Operator getRightChild() {return this.rightChild;}
+    public Operator getRightChild() {
+        return this.rightChild;
+    }
 
     /**
      * Sets the join condition of this join operator

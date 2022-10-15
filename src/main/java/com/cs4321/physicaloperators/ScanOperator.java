@@ -1,6 +1,5 @@
 package com.cs4321.physicaloperators;
 
-
 import com.cs4321.app.DatabaseCatalog;
 import com.cs4321.app.Tuple;
 import com.cs4321.app.TupleReader;
@@ -63,7 +62,6 @@ public class ScanOperator extends Operator {
         }
     }
 
-
     /**
      * Returns the baseTablePath
      *
@@ -82,6 +80,10 @@ public class ScanOperator extends Operator {
         this.baseTablePath = dbc.tablePath(baseTable);
     }
 
+    @Override
+    public String toString() {
+        return "";
+    }
 
     /**
      * Closes the initialised BufferedReader

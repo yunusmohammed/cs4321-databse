@@ -9,7 +9,9 @@ public class DuplicateEliminationOperator extends Operator {
     private Tuple prevTuple;
 
     /**
-     * Constructs an operator to represent a distinct clause. This operator is always at the root of the query plan.
+     * Constructs an operator to represent a distinct clause. This operator is
+     * always at the root of the query plan.
+     * 
      * @param child- the rest of the query plan.
      */
     public DuplicateEliminationOperator(Operator child) {
@@ -17,13 +19,15 @@ public class DuplicateEliminationOperator extends Operator {
     }
 
     /**
-     * Returns the next unique tuple. Assumes the child returns tuples in sorted order.
+     * Returns the next unique tuple. Assumes the child returns tuples in sorted
+     * order.
+     * 
      * @return- the next unique tuple.
      */
     @Override
     public Tuple getNextTuple() {
         Tuple nextTuple = child.getNextTuple();
-        while(nextTuple != null && nextTuple.equals(prevTuple)) {
+        while (nextTuple != null && nextTuple.equals(prevTuple)) {
             nextTuple = child.getNextTuple();
         }
         prevTuple = nextTuple;
@@ -37,6 +41,11 @@ public class DuplicateEliminationOperator extends Operator {
     public void reset() {
         child.reset();
         prevTuple = null;
+    }
+
+    @Override
+    public String toString() {
+        return "";
     }
 
     /**

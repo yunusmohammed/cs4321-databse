@@ -86,6 +86,7 @@ public class TupleWriter {
      */
     public void close() throws IOException {
         fout.close();
+        fc.close();
     }
 
     /**

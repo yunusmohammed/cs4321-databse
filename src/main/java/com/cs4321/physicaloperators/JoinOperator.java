@@ -94,7 +94,7 @@ public class JoinOperator extends Operator {
 
     @Override
     public String toString() {
-        return "";
+        return "JoinOperator{" + this.leftChild.toString() + ", " + this.rightChild.toString() + "}";
     }
 
     @Override

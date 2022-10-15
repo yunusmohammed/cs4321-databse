@@ -4,6 +4,7 @@ import com.cs4321.app.Tuple;
 import com.cs4321.app.TupleWriter;
 
 import java.io.IOException;
+import java.io.PrintStream;
 
 /**
  * Abstract class which all operators extend.
@@ -45,6 +46,15 @@ public abstract class Operator {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    void dump(PrintStream output) {
+        Tuple nextTuple = getNextTuple();
+        while (nextTuple != null) {
+            output.println(nextTuple);
+            nextTuple = getNextTuple();
+        }
+        output.close();
     }
 
     /**

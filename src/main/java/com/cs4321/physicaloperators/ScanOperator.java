@@ -19,6 +19,7 @@ public class ScanOperator extends Operator {
     private String baseTablePath;
     private BufferedReader reader;
     private TupleReader tupleReader;
+    private boolean humanReadable;
 
     /**
      * Constructor that initialises a ScanOperator
@@ -28,8 +29,17 @@ public class ScanOperator extends Operator {
     public ScanOperator(String baseTable) {
         setBaseTablePath(baseTable);
         try {
-            reader = new BufferedReader(new FileReader(getBaseTablePath()));
             tupleReader = new TupleReader(getBaseTablePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public ScanOperator(String baseTable, boolean humanReadable) {
+        this(baseTable);
+        this.humanReadable = humanReadable;
+        try {
+            reader = new BufferedReader(new FileReader(getBaseTablePath()));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -42,6 +52,19 @@ public class ScanOperator extends Operator {
      */
     @Override
     public Tuple getNextTuple() {
+        if (humanReadable) {
+            Tuple tuple = null;
+            try {
+                String line = reader.readLine();
+                if (line != null) {
+                    tuple = new Tuple(line);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return tuple;
+        }
+
         try {
             return tupleReader.readNextTuple();
         } catch (IOException e) {
@@ -56,10 +79,23 @@ public class ScanOperator extends Operator {
      */
     @Override
     public void reset() {
-        try {
-            tupleReader.reset();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        if (humanReadable) {
+            try {
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                reader = new BufferedReader(new FileReader(getBaseTablePath()));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                tupleReader.reset();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -7,34 +7,36 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class InterpreterTest {
+class InterpreterHumanReadableTest {
 
     private static final String sep = File.separator;
-    private static final String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_binary";
+    private static final String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input";
     private static String outputdir;
 
     static {
         try {
-            outputdir = Files.createTempDirectory("output").toString();
+            outputdir = Files.createTempDirectory("output_humanReadable").toString();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-
     @BeforeAll
     static void setup() {
+        Interpreter.setHumanReadable(true);
+        Interpreter.setInputdir(inputdir);
         DatabaseCatalog.setInputDir(inputdir);
         PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
+        PhysicalPlanBuilder.setHumanReadable(true);
     }
 
     @Test
-    void queryOutput() {
-        String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "correctOutput_binary";
+    void queryOutputHumanReadable() {
+        String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "correctOutput";
         Interpreter.setOutputdir(outputdir);
 
         Interpreter.parseQueries();
@@ -53,21 +55,7 @@ class InterpreterTest {
     }
 
 
-    @Test
-    void outputdir() {
-        Interpreter.setOutputdir(outputdir);
-        assertEquals(outputdir, Interpreter.getOutputdir());
-    }
-
-    @Test
-    void inputdir() {
-        Interpreter.setInputdir(inputdir);
-        assertEquals(inputdir, Interpreter.getInputdir());
-    }
-
-    @Test
-    void queriesPath() {
-        Interpreter.setInputdir(inputdir);
-        assertEquals(inputdir + sep + "queries.sql", Interpreter.queriesPath());
-    }
 }
+
+
+

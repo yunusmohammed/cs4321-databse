@@ -19,24 +19,34 @@ import java.io.FileReader;
 public class Interpreter {
     private static String inputdir;
     private static String outputdir;
+    private static String tempdir;
     private static final String sep = File.separator;
+    private static boolean humanReadable = false;
 
     /**
      * Main function that is executed to run the project
      *
      * @param args The command-line arguments that are passed to the interpreter to run sql queries <br>
      *             args[0]: Specifies an absolute path to the input directory. <br>
-     *             args[1]: Specifies an absolute path to the output directory.
+     *             args[1]: Specifies an absolute path to the output directory. <br>
+     *             args[2]: Specifies is the temporary directory where your external <br>
+     *                      sort operators should write their “scratch” files. <br>
+     *             args[3]: optional -h parameter to specify human-readable files         
      */
     public static void main(String[] args) {
-        if (args.length < 2) {
+        if (args.length < 3) {
             System.out.println("Incorrect input format");
             return;
         }
         setInputdir(args[0]);
         setOutputdir(args[1]);
+        setTempdir(args[2]);
+        if (args.length > 3) {
+            humanReadable = "-h".equals(args[3]);
+        }
         DatabaseCatalog.setInputDir(getInputdir());
         PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
+        PhysicalPlanBuilder.setHumanReadable(humanReadable);
         parseQueries();
     }
 
@@ -66,7 +76,7 @@ public class Interpreter {
             }
             try {
                 if (statement != null) {
-                    QueryPlan queryPlan = new QueryPlan(statement, queryNumber);
+                    QueryPlan queryPlan = new QueryPlan(statement, queryNumber, humanReadable);
                     queryPlan.evaluate();
                 }
             } catch (Exception e) {
@@ -126,4 +136,25 @@ public class Interpreter {
         return inputdir + sep + "queries.sql";
     }
 
+    /**
+     * @return 
+     */
+    public static String getTempdir() {
+        return tempdir;
+    }
+
+    /**
+     * @param tempdir 
+     */
+    public static void setTempdir(String tempdir) {
+        Interpreter.tempdir = tempdir;
+    }
+
+    public static boolean isHumanReadable() {
+        return humanReadable;
+    }
+
+    public static void setHumanReadable(boolean humanReadable) {
+        Interpreter.humanReadable = humanReadable;
+    }
 }

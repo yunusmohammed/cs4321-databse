@@ -6,10 +6,7 @@ import com.cs4321.app.Logger;
 import com.cs4321.app.Tuple;
 import com.cs4321.app.TupleReader;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * The ScanOperator support queries that are full table scans,
@@ -132,5 +129,18 @@ public class ScanOperator extends Operator {
         } catch (IOException e) {
             logger.log(e.getMessage());
         }
+    }
+
+    /**
+     * Returns the string representation of the Scan Operator
+     *
+     * @return The string representation of the Scan Operator
+     * Eg: ScanOperator{baseTablePath='../src/test/resources/input_binary/db/data/Boats'}
+     */
+    @Override
+    public String toString() {
+        return "ScanOperator{" +
+                "baseTablePath='" + baseTablePath + '\'' +
+                '}';
     }
 }

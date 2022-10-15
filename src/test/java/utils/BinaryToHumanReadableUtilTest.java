@@ -1,5 +1,6 @@
 package utils;
 
+import com.cs4321.app.Logger;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 
@@ -15,12 +16,13 @@ class BinaryToHumanReadableUtilTest {
     String inputFilePath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_binary" + sep + "db" + sep + "data" + sep + "Boats";
     String expectedOutputFilePath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_binary" + sep + "db" + sep + "data" + sep + "Boats_humanreadable";
     private static String outputFilePath;
+    private static final Logger logger = Logger.getInstance();
 
     static {
         try {
             outputFilePath = String.valueOf(Files.createTempFile("output", null));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
         }
     }
 

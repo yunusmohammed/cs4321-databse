@@ -16,12 +16,13 @@ class InterpreterHumanReadableTest {
     private static final String sep = File.separator;
     private static final String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input";
     private static String outputdir;
+    private static final Logger logger = Logger.getInstance();
 
     static {
         try {
             outputdir = Files.createTempDirectory("output_humanReadable").toString();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
         }
     }
 

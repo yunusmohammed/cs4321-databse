@@ -22,6 +22,7 @@ public class Interpreter {
     private static String tempdir;
     private static final String sep = File.separator;
     private static boolean humanReadable = false;
+    private static final Logger logger = Logger.getInstance();
 
     /**
      * Main function that is executed to run the project
@@ -58,7 +59,7 @@ public class Interpreter {
         try {
             parser = new CCJSqlParser(new FileReader(queriesPath()));
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
         }
         Statement statement = null;
         int queryNumber = 1;

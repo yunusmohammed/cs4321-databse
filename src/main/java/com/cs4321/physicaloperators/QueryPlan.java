@@ -379,7 +379,7 @@ public class QueryPlan {
                     try {
                         root.dump(new PrintStream(queryOutputName));
                     } catch (FileNotFoundException e) {
-                        e.printStackTrace();
+                        logger.log(e.getMessage());
                     }
                 } else {
                     root.dump(System.out);
@@ -426,7 +426,7 @@ public class QueryPlan {
         try {
             Files.createFile(Paths.get(queryOutputFileName));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
         }
     }
 

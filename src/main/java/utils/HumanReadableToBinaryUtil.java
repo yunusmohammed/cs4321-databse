@@ -8,7 +8,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
-
+/**
+ * Utility file for converting from Human Readable files to Binary files
+ *
+ * @author Jessica
+ */
 public class HumanReadableToBinaryUtil {
     private static String inputFilePath;
     private static String outputFilePath;
@@ -29,6 +33,11 @@ public class HumanReadableToBinaryUtil {
         dump(outputFilePath);
     }
 
+    /**
+     * Gets the next tuple to be read from the input file
+     *
+     * @return The next tuple to be read
+     */
     private static Tuple getNextTuple() {
         Tuple tuple = null;
         try {
@@ -43,10 +52,10 @@ public class HumanReadableToBinaryUtil {
     }
 
     /**
-     * For binary files, calls getNextTuple() until the next tuple is null (no more output)
+     * Calls getNextTuple() until the next tuple is null (no more output)
      * and writes each tuple to a provided filename.
      *
-     * @param filename The name of the file that will contain the query results
+     * @param filename The name of the written binary file
      */
     private static void dump(String filename) {
         try {
@@ -64,40 +73,18 @@ public class HumanReadableToBinaryUtil {
     }
 
     /**
-     * Returns the query output directory
+     * Sets the output file path
      *
-     * @return The empty Output Directory that contains the results of the queries
-     */
-    private static String getOutputFilePath() {
-        return outputFilePath;
-    }
-
-    /**
-     * Sets the query output directory
-     *
-     * @param outputFilePath The empty Output Directory that contains the results of the queries
+     * @param outputFilePath The Output File that contains the written binary file
      */
     private static void setOutputFilePath(String outputFilePath) {
         HumanReadableToBinaryUtil.outputFilePath = outputFilePath;
     }
 
     /**
-     * Sets the query input directory
+     * Returns the input file path
      *
-     * @return The input directory, which contains a queries.sql file containing the sql queries.
-     * a db subdirectory, which contains a schema.txt file specifying the schema for your
-     * database as well as a data subdirectory, where the data itself is stored.
-     */
-    private static String getInputFilePath() {
-        return inputFilePath;
-    }
-
-    /**
-     * Returns the query input directory
-     *
-     * @param inputFilePath The input directory, which contains a queries.sql file containing the sql queries.
-     *                      a db subdirectory, which contains a schema.txt file specifying the schema for your
-     *                      database as well as a data subdirectory, where the data itself is stored.
+     * @param inputFilePath The input File that contains the human readable file to be read
      */
     private static void setInputFilePath(String inputFilePath) {
         HumanReadableToBinaryUtil.inputFilePath = inputFilePath;

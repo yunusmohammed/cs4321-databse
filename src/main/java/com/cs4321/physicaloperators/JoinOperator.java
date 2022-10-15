@@ -94,7 +94,9 @@ public class JoinOperator extends Operator {
 
     @Override
     public String toString() {
-        return "JoinOperator{" + this.leftChild.toString() + ", " + this.rightChild.toString() + "}";
+        String joinConditionString = (this.joinCondition == null) ? "null" : this.joinCondition.toString();
+        return "JoinOperator{" + this.leftChild.toString() + ", " + this.rightChild.toString() + ", "
+                + joinConditionString + "}";
     }
 
     @Override

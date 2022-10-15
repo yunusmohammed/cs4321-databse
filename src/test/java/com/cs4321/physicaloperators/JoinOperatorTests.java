@@ -4,9 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doAnswer;
 
 import com.cs4321.app.Tuple;
-import com.cs4321.physicaloperators.JoinExpressionVisitor;
-import com.cs4321.physicaloperators.JoinOperator;
-import com.cs4321.physicaloperators.Operator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,8 +27,14 @@ class JoinOperatorTests {
 	@BeforeEach
 	void setUp() throws Exception {
 		leftChild = Mockito.mock(Operator.class);
+		Mockito.when(leftChild.toString()).thenReturn("Operator{}");
+
 		rightChild = Mockito.mock(Operator.class);
+		Mockito.when(rightChild.toString()).thenReturn("Operator{}");
+
 		joinCondition = Mockito.mock(Expression.class);
+		Mockito.when(joinCondition.toString()).thenReturn("S.A < T.B");
+		
 		visitor = Mockito.mock(JoinExpressionVisitor.class);
 		joinOperator = new JoinOperator(leftChild, rightChild, joinCondition, visitor);
 	}
@@ -120,6 +123,26 @@ class JoinOperatorTests {
 		Tuple fourthExpectedResult = new Tuple("6,7,8,9,10");
 		assertEquals(fourthExpectedResult, joinOperator.getNextTuple());
 
+	}
+
+	@Test
+	void testToString() {
+		// joinOperator with Non-joinOperator children
+		assertEquals("JoinOperator{Operator{}, Operator{}, S.A < T.B}", joinOperator.toString());
+
+		// joinOperator with joinOperator child
+		Operator newOperator = Mockito.mock(Operator.class);
+		Mockito.when(newOperator.toString()).thenReturn("Operator{}");
+
+		Expression newJoinCondition = Mockito.mock(Expression.class);
+		Mockito.when(newJoinCondition.toString()).thenReturn("R.C < S.B");
+
+		JoinOperator joinOperatorWithJoinChild = new JoinOperator(joinOperator, newOperator, newJoinCondition, visitor);
+		assertEquals("JoinOperator{JoinOperator{Operator{}, Operator{}, S.A < T.B}, Operator{}, R.C < S.B}", joinOperatorWithJoinChild.toString());
+
+		// joinOperator with no join Condition
+		joinOperator.setJoinCondition(null);
+		assertEquals("JoinOperator{Operator{}, Operator{}, null}", joinOperator.toString());
 	}
 
 }

@@ -30,8 +30,8 @@ public class Interpreter {
      *             args[0]: Specifies an absolute path to the input directory. <br>
      *             args[1]: Specifies an absolute path to the output directory. <br>
      *             args[2]: Specifies is the temporary directory where your external <br>
-     *                      sort operators should write their “scratch” files. <br>
-     *             args[3]: optional -h parameter to specify human-readable files         
+     *             sort operators should write their “scratch” files. <br>
+     *             args[3]: optional -h parameter to specify human-readable files
      */
     public static void main(String[] args) {
         if (args.length < 3) {
@@ -137,23 +137,40 @@ public class Interpreter {
     }
 
     /**
-     * @return 
+     * Returns the temporary directory where your external sort operators
+     * should write their “scratch” files.
+     *
+     * @return the temporary directory where your external sort operators
+     * should write their “scratch” files.
      */
     public static String getTempdir() {
         return tempdir;
     }
 
     /**
-     * @param tempdir 
+     * Sets the value of tempdir
+     *
+     * @param tempdir the temporary directory where your external sort operators
+     *                should write their “scratch” files.
      */
     public static void setTempdir(String tempdir) {
         Interpreter.tempdir = tempdir;
     }
 
+    /**
+     * Returns true to set the project to read/write human readable files
+     *
+     * @return true to set the project to read/write human readable files
+     */
     public static boolean isHumanReadable() {
         return humanReadable;
     }
 
+    /**
+     * Sets the value of humanReadable
+     *
+     * @param humanReadable true if the project is set to read/write human readable files
+     */
     public static void setHumanReadable(boolean humanReadable) {
         Interpreter.humanReadable = humanReadable;
     }

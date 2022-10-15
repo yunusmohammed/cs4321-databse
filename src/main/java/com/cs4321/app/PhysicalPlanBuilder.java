@@ -33,6 +33,11 @@ public class PhysicalPlanBuilder {
         }
     }
 
+    /**
+     * Sets the value of humanReadable
+     *
+     * @param humanReadableFormat true if the project is set to read/write human readable files
+     */
     public static void setHumanReadable(boolean humanReadableFormat) {
         humanReadable = humanReadableFormat;
     }

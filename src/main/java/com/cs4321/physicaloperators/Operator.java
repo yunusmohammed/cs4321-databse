@@ -28,8 +28,8 @@ public abstract class Operator {
     abstract void reset();
 
     /**
-     * Calls getNextTuple() until the next tuple is null (no more output) and writes each tuple to
-     * a provided filename.
+     * For binary files, calls getNextTuple() until the next tuple is null (no more output)
+     * and writes each tuple to a provided filename.
      *
      * @param filename The name of the file that will contain the query results
      */
@@ -48,6 +48,12 @@ public abstract class Operator {
         }
     }
 
+    /**
+     * For human-readable files, calls getNextTuple() until the next tuple is null (no more output)
+     * and writes each tuple to a suitable PrintStream.
+     *
+     * @param output The output stream to write to
+     */
     void dump(PrintStream output) {
         Tuple nextTuple = getNextTuple();
         while (nextTuple != null) {

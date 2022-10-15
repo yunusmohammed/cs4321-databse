@@ -19,7 +19,7 @@ public class ScanOperator extends Operator {
     private String baseTablePath;
     private BufferedReader reader;
     private TupleReader tupleReader;
-    private boolean humanReadable;
+    private boolean humanReadable = false;
 
     /**
      * Constructor that initialises a ScanOperator

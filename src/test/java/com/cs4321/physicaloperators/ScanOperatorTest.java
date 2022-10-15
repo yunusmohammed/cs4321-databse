@@ -15,6 +15,7 @@ class ScanOperatorTest {
     private final ScanOperator scanOperator = new ScanOperator("Boats");
     private static final String sep = File.separator;
     private static final String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_binary";
+    private final DatabaseCatalog dbc = DatabaseCatalog.getInstance();
 
     @BeforeAll
     static void setup() {
@@ -43,5 +44,10 @@ class ScanOperatorTest {
         assertEquals(tuple1, scanOperator.getNextTuple());
     }
 
+    @Test
+    void toStringTest() {
+        String s = String.format("ScanOperator{baseTablePath='%s'}", dbc.tablePath("Boats"));
+        assertEquals(s, scanOperator.toString());
+    }
 
 }

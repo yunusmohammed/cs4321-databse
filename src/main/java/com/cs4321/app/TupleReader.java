@@ -10,6 +10,8 @@ import java.util.List;
 
 /**
  * Reads Tuples from a specified file using the Java NIO block format
+ *
+ * @author Jessica
  */
 public class TupleReader {
     private FileInputStream fin;

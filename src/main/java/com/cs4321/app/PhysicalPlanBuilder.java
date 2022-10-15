@@ -14,6 +14,7 @@ public class PhysicalPlanBuilder {
 
     private static BuilderConfig config;
     private static PhysicalPlanBuilder instance;
+    private static boolean humanReadable;
 
     /**
      * Private constructor to follow the singleton pattern.
@@ -30,6 +31,15 @@ public class PhysicalPlanBuilder {
             String filePath = DatabaseCatalog.getInputdir() + File.separator + fileName;
             config = new BuilderConfig(filePath);
         }
+    }
+
+    /**
+     * Sets the value of humanReadable
+     *
+     * @param humanReadableFormat true if the project is set to read/write human readable files
+     */
+    public static void setHumanReadable(boolean humanReadableFormat) {
+        humanReadable = humanReadableFormat;
     }
 
     /**
@@ -59,7 +69,7 @@ public class PhysicalPlanBuilder {
      * @return The physical scan operator corresponding to the logical scan operator.
      */
     public Operator visit(LogicalScanOperator operator) {
-        return new ScanOperator(operator.getBaseTable());
+        return new ScanOperator(operator.getBaseTable(), humanReadable);
     }
 
     /**

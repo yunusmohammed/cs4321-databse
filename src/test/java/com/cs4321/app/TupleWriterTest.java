@@ -16,6 +16,7 @@ class TupleWriterTest {
     private static TupleWriter tupleWriter;
     private static TupleReader tupleReader;
     private static BufferedReader reader;
+    private static final Logger logger = Logger.getInstance();
 
     @BeforeAll
     static void setup() {
@@ -35,12 +36,12 @@ class TupleWriterTest {
             tupleWriter = new TupleWriter(fileToWrite.toString());
             tupleReader = new TupleReader(fileToWrite.toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
         }
         try {
             reader = new BufferedReader(new FileReader(dbc.tablePath("Boats_humanreadable")));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
         }
     }
 
@@ -63,7 +64,7 @@ class TupleWriterTest {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
         }
     }
 

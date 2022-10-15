@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class QueryPlanTest {
 
     private Operator operator;
-    private final QueryPlan queryPlan = new QueryPlan(null, 0);
+    private final QueryPlan queryPlan = new QueryPlan(null, 0, false);
     private static final String sep = File.separator;
     private static final String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input";
 

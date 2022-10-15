@@ -14,6 +14,7 @@ class TupleReaderTest {
     private final DatabaseCatalog dbc = DatabaseCatalog.getInstance();
     private static TupleReader tupleReader;
     private static BufferedReader reader;
+    private static final Logger logger = Logger.getInstance();
 
     @BeforeAll
     static void setup() {
@@ -30,12 +31,12 @@ class TupleReaderTest {
         try {
             tupleReader = new TupleReader(dbc.tablePath("Boats"));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
         }
         try {
             reader = new BufferedReader(new FileReader(dbc.tablePath("Boats_humanreadable")));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
         }
     }
 

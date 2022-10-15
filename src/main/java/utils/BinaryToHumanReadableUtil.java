@@ -1,5 +1,6 @@
 package utils;
 
+import com.cs4321.app.Logger;
 import com.cs4321.app.Tuple;
 import com.cs4321.app.TupleReader;
 
@@ -18,6 +19,7 @@ public class BinaryToHumanReadableUtil {
     private static TupleReader tupleReader;
     private static String inputFilePath;
     private static String outputFilePath;
+    private static Logger logger = Logger.getInstance();
 
     public static void main(String[] args) {
         if (args.length < 2) {
@@ -29,12 +31,12 @@ public class BinaryToHumanReadableUtil {
         try {
             tupleReader = new TupleReader(inputFilePath);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
         }
         try {
             dump(new PrintStream(outputFilePath));
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
         }
     }
 
@@ -47,7 +49,7 @@ public class BinaryToHumanReadableUtil {
         try {
             return tupleReader.readNextTuple();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
         }
         return null;
     }

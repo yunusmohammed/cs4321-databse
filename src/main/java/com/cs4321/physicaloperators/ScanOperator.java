@@ -2,6 +2,7 @@ package com.cs4321.physicaloperators;
 
 
 import com.cs4321.app.DatabaseCatalog;
+import com.cs4321.app.Logger;
 import com.cs4321.app.Tuple;
 import com.cs4321.app.TupleReader;
 
@@ -19,6 +20,7 @@ public class ScanOperator extends Operator {
     private String baseTablePath;
     private BufferedReader reader;
     private TupleReader tupleReader;
+    private static final Logger logger = Logger.getInstance();
     private boolean humanReadable = false;
 
     /**
@@ -31,7 +33,7 @@ public class ScanOperator extends Operator {
         try {
             tupleReader = new TupleReader(getBaseTablePath());
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
         }
     }
 
@@ -41,7 +43,7 @@ public class ScanOperator extends Operator {
         try {
             reader = new BufferedReader(new FileReader(getBaseTablePath()));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
         }
     }
 
@@ -60,7 +62,7 @@ public class ScanOperator extends Operator {
                     tuple = new Tuple(line);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.log(e.getMessage());
             }
             return tuple;
         }
@@ -68,7 +70,7 @@ public class ScanOperator extends Operator {
         try {
             return tupleReader.readNextTuple();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
         }
         return null;
     }
@@ -83,18 +85,18 @@ public class ScanOperator extends Operator {
             try {
                 reader.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.log(e.getMessage());
             }
             try {
                 reader = new BufferedReader(new FileReader(getBaseTablePath()));
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                logger.log(e.getMessage());
             }
         } else {
             try {
                 tupleReader.reset();
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                logger.log(e.getMessage());
             }
         }
     }
@@ -128,7 +130,7 @@ public class ScanOperator extends Operator {
             tupleReader.close();
             reader.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
         }
     }
 }

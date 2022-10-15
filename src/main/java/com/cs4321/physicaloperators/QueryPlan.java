@@ -33,8 +33,7 @@ public class QueryPlan {
     private String queryOutputName;
     private boolean humanReadable;
     private ColumnMap columnMap;
-
-    private Logger logger = Logger.getInstance();
+    private final Logger logger = Logger.getInstance();
 
     private int queryNumber;
 

@@ -1,5 +1,6 @@
 package utils;
 
+import com.cs4321.app.Logger;
 import com.cs4321.app.Tuple;
 import com.cs4321.app.TupleWriter;
 
@@ -17,6 +18,7 @@ public class HumanReadableToBinaryUtil {
     private static String inputFilePath;
     private static String outputFilePath;
     private static BufferedReader reader;
+    private static Logger logger = Logger.getInstance();
 
     public static void main(String[] args) {
         if (args.length < 2) {
@@ -28,7 +30,7 @@ public class HumanReadableToBinaryUtil {
         try {
             reader = new BufferedReader(new FileReader(inputFilePath));
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
         }
         dump(outputFilePath);
     }
@@ -46,7 +48,7 @@ public class HumanReadableToBinaryUtil {
                 tuple = new Tuple(line);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
         }
         return tuple;
     }
@@ -68,7 +70,7 @@ public class HumanReadableToBinaryUtil {
             tupleWriter.writeToFile(null, true);
             tupleWriter.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
         }
     }
 

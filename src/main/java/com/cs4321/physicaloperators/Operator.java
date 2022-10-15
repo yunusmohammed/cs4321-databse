@@ -56,7 +56,9 @@ public abstract class Operator {
      * @return The string representation of this operator
      */
     @Override
-    public abstract String toString();
+    public String toString() {
+        return "Operator{}";
+    };
 
     /**
      * Cleanups any resources that need to be cleaned up such as BufferedReader,

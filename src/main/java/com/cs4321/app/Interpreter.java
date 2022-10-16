@@ -19,24 +19,35 @@ import java.io.FileReader;
 public class Interpreter {
     private static String inputdir;
     private static String outputdir;
+    private static String tempdir;
     private static final String sep = File.separator;
+    private static boolean humanReadable = false;
+    private static final Logger logger = Logger.getInstance();
 
     /**
      * Main function that is executed to run the project
      *
      * @param args The command-line arguments that are passed to the interpreter to run sql queries <br>
      *             args[0]: Specifies an absolute path to the input directory. <br>
-     *             args[1]: Specifies an absolute path to the output directory.
+     *             args[1]: Specifies an absolute path to the output directory. <br>
+     *             args[2]: Specifies is the temporary directory where your external <br>
+     *             sort operators should write their “scratch” files. <br>
+     *             args[3]: optional -h parameter to specify human-readable files
      */
     public static void main(String[] args) {
-        if (args.length < 2) {
+        if (args.length < 3) {
             System.out.println("Incorrect input format");
             return;
         }
         setInputdir(args[0]);
         setOutputdir(args[1]);
+        setTempdir(args[2]);
+        if (args.length > 3) {
+            humanReadable = "-h".equals(args[3]);
+        }
         DatabaseCatalog.setInputDir(getInputdir());
         PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
+        PhysicalPlanBuilder.setHumanReadable(humanReadable);
         parseQueries();
     }
 
@@ -48,7 +59,7 @@ public class Interpreter {
         try {
             parser = new CCJSqlParser(new FileReader(queriesPath()));
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
         }
         Statement statement = null;
         int queryNumber = 1;
@@ -66,7 +77,7 @@ public class Interpreter {
             }
             try {
                 if (statement != null) {
-                    QueryPlan queryPlan = new QueryPlan(statement, queryNumber);
+                    QueryPlan queryPlan = new QueryPlan(statement, queryNumber, humanReadable);
                     queryPlan.evaluate();
                 }
             } catch (Exception e) {
@@ -126,4 +137,42 @@ public class Interpreter {
         return inputdir + sep + "queries.sql";
     }
 
+    /**
+     * Returns the temporary directory where your external sort operators
+     * should write their “scratch” files.
+     *
+     * @return the temporary directory where your external sort operators
+     * should write their “scratch” files.
+     */
+    public static String getTempdir() {
+        return tempdir;
+    }
+
+    /**
+     * Sets the value of tempdir
+     *
+     * @param tempdir the temporary directory where your external sort operators
+     *                should write their “scratch” files.
+     */
+    public static void setTempdir(String tempdir) {
+        Interpreter.tempdir = tempdir;
+    }
+
+    /**
+     * Returns true to set the project to read/write human readable files
+     *
+     * @return true to set the project to read/write human readable files
+     */
+    public static boolean isHumanReadable() {
+        return humanReadable;
+    }
+
+    /**
+     * Sets the value of humanReadable
+     *
+     * @param humanReadable true if the project is set to read/write human readable files
+     */
+    public static void setHumanReadable(boolean humanReadable) {
+        Interpreter.humanReadable = humanReadable;
+    }
 }

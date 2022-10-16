@@ -1,9 +1,11 @@
 package com.cs4321.physicaloperators;
 
+import com.cs4321.app.Logger;
 import com.cs4321.app.Tuple;
 import com.cs4321.app.TupleWriter;
 
 import java.io.IOException;
+import java.io.PrintStream;
 
 /**
  * Abstract class which all operators extend.
@@ -11,6 +13,7 @@ import java.io.IOException;
  * @author Jessica and Lenhard
  */
 public abstract class Operator {
+    private static final Logger logger = Logger.getInstance();
 
     /**
      * Gets the next tuple of the operator’s output. If the operator still has some
@@ -29,9 +32,9 @@ public abstract class Operator {
     abstract void reset();
 
     /**
-     * Calls getNextTuple() until the next tuple is null (no more output) and writes
-     * each tuple to
-     * a provided filename.
+     * For binary files, calls getNextTuple() until the next tuple is null (no more
+     * output)
+     * and writes each tuple to a provided filename.
      *
      * @param filename The name of the file that will contain the query results
      */
@@ -46,8 +49,26 @@ public abstract class Operator {
             tupleWriter.writeToFile(null, true);
             tupleWriter.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
         }
+    }
+
+    /**
+     * Cleanups any resources that need to be cleaned up such as BufferedReader,
+     * etc.
+     * For human-readable files, calls getNextTuple() until the next tuple is null
+     * (no more output)
+     * and writes each tuple to a suitable PrintStream.
+     *
+     * @param output The output stream to write to
+     */
+    void dump(PrintStream output) {
+        Tuple nextTuple = getNextTuple();
+        while (nextTuple != null) {
+            output.println(nextTuple);
+            nextTuple = getNextTuple();
+        }
+        output.close();
     }
 
     /**

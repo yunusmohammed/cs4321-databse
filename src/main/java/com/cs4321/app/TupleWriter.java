@@ -8,6 +8,8 @@ import java.nio.channels.FileChannel;
 
 /**
  * Writes Tuples to a specified file using the Java NIO block format
+ *
+ * @author Jessica
  */
 public class TupleWriter {
     private FileOutputStream fout;
@@ -84,6 +86,7 @@ public class TupleWriter {
      */
     public void close() throws IOException {
         fout.close();
+        fc.close();
     }
 
     /**

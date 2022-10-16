@@ -12,7 +12,9 @@ import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.*;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -29,9 +31,9 @@ public class QueryPlan {
     private static final SelectExpressionVisitor visitor = new SelectExpressionVisitor();
     private static final String sep = File.separator;
     private String queryOutputName;
+    private boolean humanReadable;
     private ColumnMap columnMap;
-
-    private Logger logger = Logger.getInstance();
+    private final Logger logger = Logger.getInstance();
 
     private int queryNumber;
 
@@ -60,7 +62,7 @@ public class QueryPlan {
         String baseTable = selectBody.getFromItem().toString();
         if (selectBody.getFromItem().getAlias() != null)
             baseTable = columnMap.getBaseTable(selectBody.getFromItem().getAlias());
-        return new ScanOperator(baseTable);
+        return new ScanOperator(baseTable, humanReadable);
     }
 
     /**
@@ -357,12 +359,13 @@ public class QueryPlan {
      * @param queryNumber Specifies the index of the query being processed (starting
      *                    at 1)
      */
-    public QueryPlan(Statement statement, int queryNumber) {
+    public QueryPlan(Statement statement, int queryNumber, boolean humanReadable) {
         evaluateQueries(statement, queryNumber);
         if (Interpreter.getOutputdir() != null) {
             queryOutputName = Interpreter.getOutputdir() + sep + "query" + queryNumber;
             setQueryOutputFileName(queryOutputName);
         }
+        this.humanReadable = humanReadable;
     }
 
     /**
@@ -371,7 +374,20 @@ public class QueryPlan {
     public void evaluate() {
         if (queryOutputName != null) {
             long startTime = System.currentTimeMillis();
-            root.dump(queryOutputName);
+            if (humanReadable) {
+                if (queryOutputName != null) {
+                    try {
+                        root.dump(new PrintStream(queryOutputName));
+                    } catch (FileNotFoundException e) {
+                        logger.log(e.getMessage());
+                    }
+                } else {
+                    root.dump(System.out);
+                }
+            }
+            else {
+                root.dump(queryOutputName);
+            }
             long finishTime = System.currentTimeMillis();
             // logger.log("Elapsed time for query " + queryNumber + ": " + (finishTime - startTime) + "ms");
         }
@@ -410,7 +426,7 @@ public class QueryPlan {
         try {
             Files.createFile(Paths.get(queryOutputFileName));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
         }
     }
 

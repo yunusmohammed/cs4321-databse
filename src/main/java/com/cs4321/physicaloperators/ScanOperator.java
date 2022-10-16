@@ -1,13 +1,11 @@
 package com.cs4321.physicaloperators;
 
 import com.cs4321.app.DatabaseCatalog;
+import com.cs4321.app.Logger;
 import com.cs4321.app.Tuple;
 import com.cs4321.app.TupleReader;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * The ScanOperator support queries that are full table scans,
@@ -18,6 +16,8 @@ public class ScanOperator extends Operator {
     private String baseTablePath;
     private BufferedReader reader;
     private TupleReader tupleReader;
+    private static final Logger logger = Logger.getInstance();
+    private boolean humanReadable = false;
 
     /**
      * Constructor that initialises a ScanOperator
@@ -27,10 +27,19 @@ public class ScanOperator extends Operator {
     public ScanOperator(String baseTable) {
         setBaseTablePath(baseTable);
         try {
-            reader = new BufferedReader(new FileReader(getBaseTablePath()));
             tupleReader = new TupleReader(getBaseTablePath());
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
+        }
+    }
+
+    public ScanOperator(String baseTable, boolean humanReadable) {
+        this(baseTable);
+        this.humanReadable = humanReadable;
+        try {
+            reader = new BufferedReader(new FileReader(getBaseTablePath()));
+        } catch (IOException e) {
+            logger.log(e.getMessage());
         }
     }
 
@@ -41,10 +50,23 @@ public class ScanOperator extends Operator {
      */
     @Override
     public Tuple getNextTuple() {
+        if (humanReadable) {
+            Tuple tuple = null;
+            try {
+                String line = reader.readLine();
+                if (line != null) {
+                    tuple = new Tuple(line);
+                }
+            } catch (IOException e) {
+                logger.log(e.getMessage());
+            }
+            return tuple;
+        }
+
         try {
             return tupleReader.readNextTuple();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
         }
         return null;
     }
@@ -55,10 +77,23 @@ public class ScanOperator extends Operator {
      */
     @Override
     public void reset() {
-        try {
-            tupleReader.reset();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        if (humanReadable) {
+            try {
+                reader.close();
+            } catch (IOException e) {
+                logger.log(e.getMessage());
+            }
+            try {
+                reader = new BufferedReader(new FileReader(getBaseTablePath()));
+            } catch (FileNotFoundException e) {
+                logger.log(e.getMessage());
+            }
+        } else {
+            try {
+                tupleReader.reset();
+            } catch (FileNotFoundException e) {
+                logger.log(e.getMessage());
+            }
         }
     }
 
@@ -94,7 +129,20 @@ public class ScanOperator extends Operator {
             tupleReader.close();
             reader.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
         }
+    }
+
+    /**
+     * Returns the string representation of the Scan Operator
+     *
+     * @return The string representation of the Scan Operator
+     * Eg: ScanOperator{baseTablePath='../src/test/resources/input_binary/db/data/Boats'}
+     */
+    @Override
+    public String toString() {
+        return "ScanOperator{" +
+                "baseTablePath='" + baseTablePath + '\'' +
+                '}';
     }
 }

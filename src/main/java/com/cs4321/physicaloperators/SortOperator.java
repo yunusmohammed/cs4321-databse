@@ -96,7 +96,14 @@ public class SortOperator extends Operator {
 
     @Override
     public String toString() {
-        return "SortOperator{" + child.toString() + "}";
+        StringBuilder orderBy = new StringBuilder();
+        orderBy.append("Order By : ");
+        for(int i=0; i<orderByElementList.size(); i++) {
+            orderBy.append(orderByElementList.get(i).toString());
+            if(i < orderByElementList.size() - 1) orderBy.append(", ");
+        }
+        return "SortOperator{" + child.toString() + ", " + orderBy + "}";
+
     }
 
     /**

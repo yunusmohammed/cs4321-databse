@@ -87,6 +87,8 @@ class SortOperatorTest {
     @Test
     void testToString() {
         Mockito.when(mockChild.toString()).thenReturn("Operator{}");
-        assertEquals("SortOperator{Operator{}}", sortOperator.toString());
+        addOrderByElement("Table.B");
+        addOrderByElement("Table.D");
+        assertEquals("SortOperator{Operator{}, Order By : Table.B, Table.D}", sortOperator.toString());
     }
 }

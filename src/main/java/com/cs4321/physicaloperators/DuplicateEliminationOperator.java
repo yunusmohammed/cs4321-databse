@@ -45,7 +45,7 @@ public class DuplicateEliminationOperator extends Operator {
 
     @Override
     public String toString() {
-        return "";
+        return "DuplicateEliminationOperator{" + child.toString() + "}";
     }
 
     /**

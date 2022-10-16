@@ -96,7 +96,7 @@ public class SortOperator extends Operator {
 
     @Override
     public String toString() {
-        return "";
+        return "SortOperator{" + child.toString() + "}";
     }
 
     /**

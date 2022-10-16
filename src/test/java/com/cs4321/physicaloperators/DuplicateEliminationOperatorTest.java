@@ -45,4 +45,10 @@ class DuplicateEliminationOperatorTest {
         assertEquals(firstTuple, dupElimOperator.getNextTuple());
         assertEquals(thirdTuple, dupElimOperator.getNextTuple());
     }
+
+    @Test
+    void testToString() {
+        Mockito.when(child.toString()).thenReturn("Operator{}");
+        assertEquals("DuplicateEliminationOperator{Operator{}}", dupElimOperator.toString());
+    }
 }

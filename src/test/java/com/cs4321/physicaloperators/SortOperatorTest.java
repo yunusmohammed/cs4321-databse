@@ -83,4 +83,10 @@ class SortOperatorTest {
         assertEquals(thirdTuple, sortOperator.getNextTuple());
 
     }
+
+    @Test
+    void testToString() {
+        Mockito.when(mockChild.toString()).thenReturn("Operator{}");
+        assertEquals("SortOperator{Operator{}}", sortOperator.toString());
+    }
 }

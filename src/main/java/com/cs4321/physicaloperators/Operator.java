@@ -16,7 +16,8 @@ public abstract class Operator {
     private static final Logger logger = Logger.getInstance();
 
     /**
-     * Gets the next tuple of the operator’s output. If the operator still has some available
+     * Gets the next tuple of the operator’s output. If the operator still has some
+     * available
      * output, it will return the next tuple, otherwise it would return null.
      *
      * @return The next tuple of the operator’s output
@@ -24,13 +25,15 @@ public abstract class Operator {
     abstract Tuple getNextTuple();
 
     /**
-     * Tells the operator to reset its state and start returning its output again from the
+     * Tells the operator to reset its state and start returning its output again
+     * from the
      * beginning;
      */
     abstract void reset();
 
     /**
-     * For binary files, calls getNextTuple() until the next tuple is null (no more output)
+     * For binary files, calls getNextTuple() until the next tuple is null (no more
+     * output)
      * and writes each tuple to a provided filename.
      *
      * @param filename The name of the file that will contain the query results
@@ -51,7 +54,10 @@ public abstract class Operator {
     }
 
     /**
-     * For human-readable files, calls getNextTuple() until the next tuple is null (no more output)
+     * Cleanups any resources that need to be cleaned up such as BufferedReader,
+     * etc.
+     * For human-readable files, calls getNextTuple() until the next tuple is null
+     * (no more output)
      * and writes each tuple to a suitable PrintStream.
      *
      * @param output The output stream to write to
@@ -66,7 +72,18 @@ public abstract class Operator {
     }
 
     /**
-     * Cleanups any resources that need to be cleaned up such as BufferedReader, etc.
+     * Builds and returns a string representation of this operator
+     * 
+     * @return The string representation of this operator
+     */
+    @Override
+    public String toString() {
+        return "Operator{}";
+    };
+
+    /**
+     * Cleanups any resources that need to be cleaned up such as BufferedReader,
+     * etc.
      */
     public abstract void finalize();
 }

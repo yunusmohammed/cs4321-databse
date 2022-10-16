@@ -115,11 +115,6 @@ public class ScanOperator extends Operator {
         this.baseTablePath = dbc.tablePath(baseTable);
     }
 
-    @Override
-    public String toString() {
-        return "";
-    }
-
     /**
      * Closes the initialised BufferedReader
      */
@@ -137,7 +132,8 @@ public class ScanOperator extends Operator {
      * Returns the string representation of the Scan Operator
      *
      * @return The string representation of the Scan Operator
-     * Eg: ScanOperator{baseTablePath='../src/test/resources/input_binary/db/data/Boats'}
+     *         Eg:
+     *         ScanOperator{baseTablePath='../src/test/resources/input_binary/db/data/Boats'}
      */
     @Override
     public String toString() {

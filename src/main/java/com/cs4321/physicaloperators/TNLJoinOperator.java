@@ -11,7 +11,7 @@ import java.util.Map;
  *
  * @author Yunus (ymm26@cornell.edu)
  */
-public class JoinOperator extends Operator {
+public class TNLJoinOperator extends Operator {
 
     /**
      * The left child of the Operator
@@ -41,7 +41,7 @@ public class JoinOperator extends Operator {
     /**
      * Base constructor of the JoinOperator
      */
-    public JoinOperator() {
+    public TNLJoinOperator() {
 
     }
 
@@ -53,7 +53,7 @@ public class JoinOperator extends Operator {
      * @param joinCondition the condition to join rows on
      * @param visitor       the expression visitor of this join operator
      */
-    public JoinOperator(Operator leftChild, Operator rightChild, Expression joinCondition,
+    public TNLJoinOperator(Operator leftChild, Operator rightChild, Expression joinCondition,
             JoinExpressionVisitor visitor) {
         this.leftChild = leftChild;
         this.rightChild = rightChild;

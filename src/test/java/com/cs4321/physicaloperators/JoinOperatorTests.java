@@ -18,7 +18,7 @@ class JoinOperatorTests {
 	Operator rightChild;
 	Expression joinCondition;
 	JoinExpressionVisitor visitor;
-	JoinOperator joinOperator;
+	TNLJoinOperator joinOperator;
 
 	@BeforeAll
 	static void setUpBeforeClass() throws Exception {
@@ -36,7 +36,7 @@ class JoinOperatorTests {
 		Mockito.when(joinCondition.toString()).thenReturn("S.A < T.B");
 		
 		visitor = Mockito.mock(JoinExpressionVisitor.class);
-		joinOperator = new JoinOperator(leftChild, rightChild, joinCondition, visitor);
+		joinOperator = new TNLJoinOperator(leftChild, rightChild, joinCondition, visitor);
 	}
 
 	@Test
@@ -137,7 +137,7 @@ class JoinOperatorTests {
 		Expression newJoinCondition = Mockito.mock(Expression.class);
 		Mockito.when(newJoinCondition.toString()).thenReturn("R.C < S.B");
 
-		JoinOperator joinOperatorWithJoinChild = new JoinOperator(joinOperator, newOperator, newJoinCondition, visitor);
+		TNLJoinOperator joinOperatorWithJoinChild = new TNLJoinOperator(joinOperator, newOperator, newJoinCondition, visitor);
 		assertEquals("JoinOperator{JoinOperator{Operator{}, Operator{}, S.A < T.B}, Operator{}, R.C < S.B}", joinOperatorWithJoinChild.toString());
 
 		// joinOperator with no join Condition

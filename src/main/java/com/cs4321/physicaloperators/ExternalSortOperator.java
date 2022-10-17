@@ -58,7 +58,7 @@ public class ExternalSortOperator extends Operator{
     private void createSortedRelation() throws IOException {
         Tuple cur = child.getNextTuple();
         if(cur == null) return;
-        int maxTuples = bufferSize * 4096 - 4 * cur.size();
+        int maxTuples = (bufferSize * 4096) / (4 * cur.size());
         int numFiles = 1;
         // pass 0
         while(cur != null) {

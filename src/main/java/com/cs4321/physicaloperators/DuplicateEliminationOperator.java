@@ -43,6 +43,10 @@ public class DuplicateEliminationOperator extends Operator {
         prevTuple = null;
     }
 
+    /**
+     * Returns a string representation of the duplicate elimination operator and its children.
+     * @return - a string representation of the duplicate elimination operator.
+     */
     @Override
     public String toString() {
         return "DuplicateEliminationOperator{" + child.toString() + "}";

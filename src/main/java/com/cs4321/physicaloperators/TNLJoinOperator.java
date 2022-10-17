@@ -4,7 +4,7 @@ import com.cs4321.app.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 
 /**
- * Operator for handling Joins
+ * Operator for handling Joins using Tuple Nested Loop Join
  *
  * @author Yunus (ymm26@cornell.edu)
  */

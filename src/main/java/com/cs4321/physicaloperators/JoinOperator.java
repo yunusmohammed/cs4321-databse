@@ -5,6 +5,12 @@ import java.util.Map;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Column;
 
+/**
+ * Base class for join operators
+ *
+ * @author Yunus (ymm26@cornell.edu)
+ */
+
 public abstract class JoinOperator extends Operator {
   /**
    * The left child of the Operator

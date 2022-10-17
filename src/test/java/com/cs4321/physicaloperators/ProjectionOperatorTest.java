@@ -2,9 +2,7 @@ package com.cs4321.physicaloperators;
 
 import com.cs4321.app.ColumnMap;
 import com.cs4321.app.Tuple;
-import com.cs4321.physicaloperators.Operator;
-import com.cs4321.physicaloperators.ProjectionOperator;
-import com.cs4321.physicaloperators.ScanOperator;
+import net.sf.jsqlparser.parser.ParseException;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.AllColumns;
@@ -99,6 +97,23 @@ class ProjectionOperatorTest {
         Mockito.when(mockChild.getNextTuple()).thenReturn(new Tuple("10,20,30,40"));
         expectedResult = new Tuple("10,20,30,40");
         assertEquals(expectedResult, projectOperator.getNextTuple());
+    }
 
+    @Test
+    void testToString() throws ParseException {
+        ProjectionOperator projectOperator;
+        List<SelectItem> selectItems;
+
+        // One column projection
+        selectItems = generateList(new String[]{"A"});
+        projectOperator = new ProjectionOperator(columnMap, selectItems, mockChild);
+        Mockito.when(projectOperator.toString()).thenReturn("ScanOperator{}");
+        assertEquals("ProjectionOperator{ScanOperator{}, [A]}", projectOperator.toString());
+
+        // Multiple columns projection
+        selectItems = generateList(new String[]{"A", "D", "C", "B"});
+        projectOperator = new ProjectionOperator(columnMap, selectItems, mockChild);
+        Mockito.when(projectOperator.toString()).thenReturn("ScanOperator{}");
+        assertEquals("ProjectionOperator{ScanOperator{}, [A, D, C, B]}", projectOperator.toString());
     }
 }

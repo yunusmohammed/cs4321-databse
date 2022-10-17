@@ -101,9 +101,15 @@ public class ProjectionOperator extends Operator {
         return this.columnOrder.get(column.toString());
     }
 
+    /**
+     * Returns the string representation of the Projection Operator formatted as
+     * ProjectionOperator{child, [c1, c2, ... cn]} where c is the column.
+     *
+     * @return The string representation of the Projection Operator
+     */
     @Override
     public String toString() {
-        return "";
+        return "ProjectionOperator{" + this.child.toString() + ", " + this.selectItems.toString() + "}";
     }
 
     /**

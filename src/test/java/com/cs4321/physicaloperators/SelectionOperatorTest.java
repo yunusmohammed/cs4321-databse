@@ -2,13 +2,12 @@ package com.cs4321.physicaloperators;
 
 import com.cs4321.app.ColumnMap;
 import com.cs4321.app.Tuple;
-import com.cs4321.physicaloperators.ScanOperator;
-import com.cs4321.physicaloperators.SelectExpressionVisitor;
-import com.cs4321.physicaloperators.SelectionOperator;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.parser.ParseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import utils.Utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -58,6 +57,24 @@ class SelectionOperatorTest {
         Mockito.when(mockScan.getNextTuple()).thenReturn(expectedResult);
         Mockito.when(mockVisitor.evalExpression(any(), any(), eq(mockColumnMap))).thenReturn(true);
         assertEquals(expectedResult, selectOperator.getNextTuple());
+    }
+
+    @Test
+    void testToString() throws ParseException {
+        Expression exp;
+        SelectionOperator selectionOperator;
+
+        // Simple expression
+        exp = Utils.getExpression("Sailors", "1 < 2");
+        Mockito.when(mockScan.toString()).thenReturn("ScanOperator{}");
+        selectionOperator = new SelectionOperator(mockVisitor, mockColumnMap, exp, mockScan);
+        assertEquals("SelectionOperator{ScanOperator{}, 1 < 2}", selectionOperator.toString());
+
+        // Complex expression
+        exp = Utils.getExpression("Sailors", "1 < 2 AND R.A = R.B AND R.C > R.A");
+        Mockito.when(mockScan.toString()).thenReturn("ScanOperator{}");
+        selectionOperator = new SelectionOperator(mockVisitor, mockColumnMap, exp, mockScan);
+        assertEquals("SelectionOperator{ScanOperator{}, 1 < 2 AND R.A = R.B AND R.C > R.A}", selectionOperator.toString());
     }
 
     @Test

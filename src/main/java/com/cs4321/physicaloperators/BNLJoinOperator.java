@@ -25,7 +25,7 @@ public class BNLJoinOperator extends JoinOperator {
   private final int SIZE_OF_A_PAGE = 4096;
 
   // Maximum number tuples that can be held in tupleBuffer at any time
-  private final int tupleBufferSize;
+  private int tupleBufferSize;
 
   // /**
   // * Base constructor of the JoinOperator
@@ -94,6 +94,7 @@ public class BNLJoinOperator extends JoinOperator {
     Tuple nextTuple;
     while (i < tupleBufferSize && (nextTuple = this.getLeftChild().getNextTuple()) != null) {
       this.tupleBuffer.add(nextTuple);
+      i += 1;
     }
     this.resetTupleBufferIterator();
   }
@@ -105,11 +106,34 @@ public class BNLJoinOperator extends JoinOperator {
     this.tupleBufferIterator = this.tupleBuffer.iterator();
   }
 
+  /**
+   * Gets the maximum number of tuples held in the buffer of the BNLJ operator at
+   * a time
+   * 
+   * @return The maximum number of tuples held in the buffer of the BNLJ operator
+   *         at a time
+   */
+  public int getTupleBufferSize() {
+    return this.tupleBufferSize;
+  }
+
+  /**
+   * Sets the maximum number of tuples held in the buffer of the BNLJ operator at
+   * a time
+   * 
+   * @param tupleBufferSize The maximum number of tuples held in the buffer of the
+   *                        BNLJ operator at a time
+   */
+  public void setTupleBufferSize(int tupleBufferSize) {
+    this.tupleBufferSize = tupleBufferSize;
+  }
+
   @Override
   public void reset() {
     super.reset();
     this.tupleBuffer = new ArrayList<>();
     this.tupleBufferIterator = this.tupleBuffer.iterator();
+    this.rightTuple = null;
   }
 
   @Override

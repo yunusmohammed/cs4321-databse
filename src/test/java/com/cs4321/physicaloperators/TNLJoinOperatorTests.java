@@ -133,10 +133,8 @@ class TNLJoinOperatorTests {
 		// joinOperator with TNLJoinOperator child
 		Operator newOperator = Mockito.mock(Operator.class);
 		Mockito.when(newOperator.toString()).thenReturn("Operator{}");
-
 		Expression newJoinCondition = Mockito.mock(Expression.class);
 		Mockito.when(newJoinCondition.toString()).thenReturn("R.C < S.B");
-
 		TNLJoinOperator joinOperatorWithJoinChild = new TNLJoinOperator(joinOperator, newOperator, newJoinCondition, visitor);
 		assertEquals("TNLJoinOperator{TNLJoinOperator{Operator{}, Operator{}, S.A < T.B}, Operator{}, R.C < S.B}", joinOperatorWithJoinChild.toString());
 

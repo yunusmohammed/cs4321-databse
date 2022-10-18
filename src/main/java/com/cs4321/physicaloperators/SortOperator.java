@@ -94,9 +94,20 @@ public class SortOperator extends Operator {
         child.reset();
     }
 
+    /**
+     * Returns a string representation of the sort operator and its children. The orderBy elements are also printed.
+     * @return - a string representation of the sort operator
+     */
     @Override
     public String toString() {
-        return "";
+        StringBuilder orderBy = new StringBuilder();
+        orderBy.append("Order By : ");
+        for(int i=0; i<orderByElementList.size(); i++) {
+            orderBy.append(orderByElementList.get(i).toString());
+            if(i < orderByElementList.size() - 1) orderBy.append(", ");
+        }
+        return "SortOperator{" + child.toString() + ", " + orderBy + "}";
+
     }
 
     /**

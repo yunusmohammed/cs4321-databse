@@ -32,7 +32,7 @@ public class SelectionOperator extends Operator {
      * If possible, gets the next Tuple in its column
      *
      * @return The next Tuple in the column that passes the statement's expression;
-     *         null if no such Tuple exists
+     * null if no such Tuple exists
      */
     @Override
     public Tuple getNextTuple() {
@@ -52,9 +52,14 @@ public class SelectionOperator extends Operator {
         this.child.reset();
     }
 
+    /**
+     * Returns the string representation of the Selection Operator formatted as SelectionOperator{child, condition}
+     *
+     * @return The string representation of the Selection Operator
+     */
     @Override
     public String toString() {
-        return "";
+        return "SelectionOperator{" + this.child.toString() + ", " + this.exp.toString() + "}";
     }
 
     /**

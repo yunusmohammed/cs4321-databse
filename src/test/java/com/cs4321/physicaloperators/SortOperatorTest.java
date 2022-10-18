@@ -83,4 +83,12 @@ class SortOperatorTest {
         assertEquals(thirdTuple, sortOperator.getNextTuple());
 
     }
+
+    @Test
+    void testToString() {
+        Mockito.when(mockChild.toString()).thenReturn("Operator{}");
+        addOrderByElement("Table.B");
+        addOrderByElement("Table.D");
+        assertEquals("SortOperator{Operator{}, Order By : Table.B, Table.D}", sortOperator.toString());
+    }
 }

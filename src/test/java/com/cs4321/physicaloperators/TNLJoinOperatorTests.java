@@ -12,13 +12,13 @@ import org.mockito.Mockito;
 
 import net.sf.jsqlparser.expression.Expression;
 
-class JoinOperatorTests {
+class TNLJoinOperatorTests {
 
 	Operator leftChild;
 	Operator rightChild;
 	Expression joinCondition;
 	JoinExpressionVisitor visitor;
-	JoinOperator joinOperator;
+	TNLJoinOperator joinOperator;
 
 	@BeforeAll
 	static void setUpBeforeClass() throws Exception {
@@ -36,7 +36,7 @@ class JoinOperatorTests {
 		Mockito.when(joinCondition.toString()).thenReturn("S.A < T.B");
 		
 		visitor = Mockito.mock(JoinExpressionVisitor.class);
-		joinOperator = new JoinOperator(leftChild, rightChild, joinCondition, visitor);
+		joinOperator = new TNLJoinOperator(leftChild, rightChild, joinCondition, visitor);
 	}
 
 	@Test
@@ -127,22 +127,22 @@ class JoinOperatorTests {
 
 	@Test
 	void testToString() {
-		// joinOperator with Non-joinOperator children
-		assertEquals("JoinOperator{Operator{}, Operator{}, S.A < T.B}", joinOperator.toString());
+		// TNLJoinOperator with Non-joinOperator children
+		assertEquals("TNLJoinOperator{Operator{}, Operator{}, S.A < T.B}", joinOperator.toString());
 
-		// joinOperator with joinOperator child
+		// joinOperator with TNLJoinOperator child
 		Operator newOperator = Mockito.mock(Operator.class);
 		Mockito.when(newOperator.toString()).thenReturn("Operator{}");
 
 		Expression newJoinCondition = Mockito.mock(Expression.class);
 		Mockito.when(newJoinCondition.toString()).thenReturn("R.C < S.B");
 
-		JoinOperator joinOperatorWithJoinChild = new JoinOperator(joinOperator, newOperator, newJoinCondition, visitor);
-		assertEquals("JoinOperator{JoinOperator{Operator{}, Operator{}, S.A < T.B}, Operator{}, R.C < S.B}", joinOperatorWithJoinChild.toString());
+		TNLJoinOperator joinOperatorWithJoinChild = new TNLJoinOperator(joinOperator, newOperator, newJoinCondition, visitor);
+		assertEquals("TNLJoinOperator{TNLJoinOperator{Operator{}, Operator{}, S.A < T.B}, Operator{}, R.C < S.B}", joinOperatorWithJoinChild.toString());
 
 		// joinOperator with no join Condition
 		joinOperator.setJoinCondition(null);
-		assertEquals("JoinOperator{Operator{}, Operator{}, null}", joinOperator.toString());
+		assertEquals("TNLJoinOperator{Operator{}, Operator{}, null}", joinOperator.toString());
 	}
 
 }

@@ -6,7 +6,8 @@ import com.cs4321.physicaloperators.*;
 import java.io.File;
 
 /**
- * The PhysicalPlanBuilder is a singleton that provides information about how to create a physical tree from a logical tree.
+ * The PhysicalPlanBuilder is a singleton that provides information about how to
+ * create a physical tree from a logical tree.
  *
  * @author Lenhard Thomas
  */
@@ -19,7 +20,8 @@ public class PhysicalPlanBuilder {
     /**
      * Private constructor to follow the singleton pattern.
      */
-    private PhysicalPlanBuilder() {}
+    private PhysicalPlanBuilder() {
+    }
 
     /**
      * Reads the config file to determine how to construct physical tree.
@@ -36,7 +38,8 @@ public class PhysicalPlanBuilder {
     /**
      * Sets the value of humanReadable
      *
-     * @param humanReadableFormat true if the project is set to read/write human readable files
+     * @param humanReadableFormat true if the project is set to read/write human
+     *                            readable files
      */
     public static void setHumanReadable(boolean humanReadableFormat) {
         humanReadable = humanReadableFormat;
@@ -48,7 +51,8 @@ public class PhysicalPlanBuilder {
      * @return The PhysicalPlanBuilder singleton.
      */
     public static PhysicalPlanBuilder getInstance() {
-        if (instance == null) instance = new PhysicalPlanBuilder();
+        if (instance == null)
+            instance = new PhysicalPlanBuilder();
         return PhysicalPlanBuilder.instance;
     }
 
@@ -66,7 +70,8 @@ public class PhysicalPlanBuilder {
      * Creates a physical scan operator from the logical scan operator.
      *
      * @param operator The logical scan operator acting as a blueprint.
-     * @return The physical scan operator corresponding to the logical scan operator.
+     * @return The physical scan operator corresponding to the logical scan
+     *         operator.
      */
     public Operator visit(LogicalScanOperator operator) {
         return new ScanOperator(operator.getBaseTable(), humanReadable);
@@ -76,18 +81,21 @@ public class PhysicalPlanBuilder {
      * Creates a physical selection operator from the logical selection operator.
      *
      * @param operator The logical selection operator acting as a blueprint.
-     * @return The physical selection operator corresponding to the logical selection operator.
+     * @return The physical selection operator corresponding to the logical
+     *         selection operator.
      */
     public Operator visit(LogicalSelectionOperator operator) {
         ScanOperator child = (ScanOperator) constructPhysical(operator.getChild());
-        return new SelectionOperator(operator.getSelectExpressionVisitor(), operator.getColumnMap(), operator.getSelectCondition(), child);
+        return new SelectionOperator(operator.getSelectExpressionVisitor(), operator.getColumnMap(),
+                operator.getSelectCondition(), child);
     }
 
     /**
      * Creates a physical projection operator from the logical projection operator.
      *
      * @param operator The logical projection operator acting as a blueprint.
-     * @return The physical projection operator corresponding to the logical projection operator.
+     * @return The physical projection operator corresponding to the logical
+     *         projection operator.
      */
     public Operator visit(LogicalProjectionOperator operator) {
         Operator child = constructPhysical(operator.getChild());
@@ -95,18 +103,21 @@ public class PhysicalPlanBuilder {
     }
 
     /**
-     * Creates a physical join operator from the logical join operator. It also utilizes the config file
+     * Creates a physical join operator from the logical join operator. It also
+     * utilizes the config file
      * to choose which kind of join operator to create.
      *
      * @param operator The logical join operator acting as a blueprint.
-     * @return The physical join operator corresponding to the logical join operator.
+     * @return The physical join operator corresponding to the logical join
+     *         operator.
      */
     public Operator visit(LogicalJoinOperator operator) {
         Operator leftChild = constructPhysical(operator.getLeftChild());
         Operator rightChild = constructPhysical(operator.getRightChild());
         switch (config.getJoinType()) {
             case TNLJ:
-                return new JoinOperator(leftChild, rightChild, operator.getJoinCondition(), operator.getJoinExpressionVisitor());
+                return new TNLJoinOperator(leftChild, rightChild, operator.getJoinCondition(),
+                        operator.getJoinExpressionVisitor());
             case BNLJ:
                 // TODO: BNLJ
                 return null;
@@ -119,11 +130,13 @@ public class PhysicalPlanBuilder {
     }
 
     /**
-     * Creates a physical sort operator from the logical sort operator. It also utilizes the config file
+     * Creates a physical sort operator from the logical sort operator. It also
+     * utilizes the config file
      * to choose which kind of sort operator to create.
      *
      * @param operator The logical sort operator acting as a blueprint.
-     * @return The physical sort operator corresponding to the logical sort operator.
+     * @return The physical sort operator corresponding to the logical sort
+     *         operator.
      */
     public Operator visit(LogicalSortOperator operator) {
         Operator child = constructPhysical(operator.getChild());
@@ -139,10 +152,13 @@ public class PhysicalPlanBuilder {
     }
 
     /**
-     * Creates a physical DuplicateElimination operator from the logical DuplicateElimination operator.
+     * Creates a physical DuplicateElimination operator from the logical
+     * DuplicateElimination operator.
      *
-     * @param operator The logical DuplicateElimination operator acting as a blueprint.
-     * @return The physical DuplicateElimination operator corresponding to the logical DuplicateElimination operator.
+     * @param operator The logical DuplicateElimination operator acting as a
+     *                 blueprint.
+     * @return The physical DuplicateElimination operator corresponding to the
+     *         logical DuplicateElimination operator.
      */
     public Operator visit(LogicalDuplicateEliminationOperator operator) {
         Operator child = constructPhysical(operator.getChild());

@@ -106,9 +106,9 @@ public class QueryPlan {
      *                   null and non empty
      * @return the root of the join query plan
      */
-    private JoinOperator generateJoin(PlainSelect selectBody) {
-        JoinOperator root = new JoinOperator();
-        JoinOperator currentParent = root;
+    private TNLJoinOperator generateJoin(PlainSelect selectBody) {
+        TNLJoinOperator root = new TNLJoinOperator();
+        TNLJoinOperator currentParent = root;
         List<Join> joins = new ArrayList<>(selectBody.getJoins());
         HashMap<String, Integer> tableOffset = generateJoinTableOffsets(selectBody);
         Stack<BinaryExpression> expressions = getExpressions(selectBody.getWhere());
@@ -145,9 +145,9 @@ public class QueryPlan {
                 currentParent
                         .setLeftChild(getJoinChildOperator((Stack) leftChildExpressions, selectBody.getFromItem()));
             } else {
-                leftOperator = new JoinOperator();
+                leftOperator = new TNLJoinOperator();
                 currentParent.setLeftChild(leftOperator);
-                currentParent = (JoinOperator) leftOperator;
+                currentParent = (TNLJoinOperator) leftOperator;
             }
         }
         return root;
@@ -230,9 +230,9 @@ public class QueryPlan {
 
             } else if ((leftTable == null && rightTable == null)
                     || (leftTable != null && leftTable.equals(rightChildTableName)
-                    && rightTable != null && !rightTable.equals(rightChildTableName))
+                            && rightTable != null && !rightTable.equals(rightChildTableName))
                     || (leftTable != null && !leftTable.equals(rightChildTableName)
-                    && rightTable != null && rightTable.equals(rightChildTableName))) {
+                            && rightTable != null && rightTable.equals(rightChildTableName))) {
                 // expression references no tables at all OR references columns from the rigth
                 // child's table and some other
                 // tables in the left child
@@ -384,12 +384,12 @@ public class QueryPlan {
                 } else {
                     root.dump(System.out);
                 }
-            }
-            else {
+            } else {
                 root.dump(queryOutputName);
             }
             long finishTime = System.currentTimeMillis();
-            // logger.log("Elapsed time for query " + queryNumber + ": " + (finishTime - startTime) + "ms");
+            // logger.log("Elapsed time for query " + queryNumber + ": " + (finishTime -
+            // startTime) + "ms");
         }
     }
 

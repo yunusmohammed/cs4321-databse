@@ -16,14 +16,14 @@ public class TNLJoinOperator extends JoinOperator {
     private Tuple leftTuple;
 
     /**
-     * Base constructor of the JoinOperator
+     * Base constructor of the TNLJoinOperator
      */
     public TNLJoinOperator() {
         super();
     }
 
     /**
-     * Constructor for JoinOperator
+     * Constructor for TNLJoinOperator
      *
      * @param leftChild     the left child operator of this join operator
      * @param rightChild    the right child operator of this join operator

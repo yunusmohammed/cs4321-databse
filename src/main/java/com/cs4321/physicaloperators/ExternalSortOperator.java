@@ -20,7 +20,7 @@ public class ExternalSortOperator extends Operator{
     private Map<String, Integer> columnMap;
     private List<OrderByElement> orderByElementList;
     private PriorityQueue<Tuple> tuples;
-    private Path tempFileDir;
+    private Path tempFolderName;
     private int bufferSize;
     private TupleReader sortedReader;
     private Logger logger = Logger.getInstance();
@@ -32,16 +32,17 @@ public class ExternalSortOperator extends Operator{
      * @param child - the rest of the query plan, besides a potential DuplicateEliminationOperator.
      * @param columnMap - a map from column names in the table to their associated indexes.
      * @param orderByElementList - the list of elements for which our order by clause will sort.
-     * @param tempFileDir - the path to the folder we will use to store our temporary files for the sort.
+     * @param tempFolderDir - the path to the folder we will use to store our temporary files.
+     * @param tempFolderName - the name of the subdirectory we create in [tempFolderDir] to store our temporary files.
      * @param bufferSize - the number of pages available to be used in memory. Requires: bufferSize >= 3
      */
-    public ExternalSortOperator(Operator child, Map<String, Integer> columnMap, List<OrderByElement> orderByElementList, String tempFileDir, int bufferSize) {
+    public ExternalSortOperator(Operator child, Map<String, Integer> columnMap, List<OrderByElement> orderByElementList, String tempFolderDir, String tempFolderName, int bufferSize) {
         try {
             this.child = child;
             this.columnMap = columnMap;
             this.orderByElementList = orderByElementList;
-            File tempDir = new File(tempFileDir);
-            this.tempFileDir = Files.createTempDirectory(tempDir.toPath(), "" + System.currentTimeMillis());
+            File tempDir = new File(tempFolderDir);
+            this.tempFolderName = Files.createTempDirectory(tempDir.toPath(), tempFolderName);
             this.bufferSize = bufferSize;
             currentPassFilenames = new ArrayList<>();
             createSortedRelation();
@@ -62,7 +63,7 @@ public class ExternalSortOperator extends Operator{
         int numFiles = 1;
         // pass 0
         while(cur != null) {
-            String outputFile = Files.createTempFile(tempFileDir, "" + numFiles++, "").toString();
+            String outputFile = Files.createTempFile(tempFolderName, "" + numFiles++, "").toString();
             currentPassFilenames.add(outputFile);
             TupleWriter writer = new TupleWriter(outputFile);
             List<Tuple> sortedTuples = new ArrayList<>();
@@ -89,7 +90,7 @@ public class ExternalSortOperator extends Operator{
                     Tuple readerTuple = reader.readNextTuple();
                     if(readerTuple != null) nextTuples.add(new AbstractMap.SimpleEntry<>(readerTuple, reader));
                 }
-                String outputFile = Files.createTempFile(tempFileDir, "" + numFiles++, "").toString();
+                String outputFile = Files.createTempFile(tempFolderName, "" + numFiles++, "").toString();
                 nextPassFilenames.add(outputFile);
                 TupleWriter writer = new TupleWriter(outputFile);
                 while(nextTuples.size() > 0) {

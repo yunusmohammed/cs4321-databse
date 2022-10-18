@@ -25,6 +25,7 @@ public class ExternalSortOperator extends Operator{
     private TupleReader sortedReader;
     private Logger logger = Logger.getInstance();
     private List<String> currentPassFilenames;
+    private static int numOperators = 1;
 
     /**
      * Creates an operator to represent an order by clause without needing to perform an in-memory sort.
@@ -33,16 +34,15 @@ public class ExternalSortOperator extends Operator{
      * @param columnMap - a map from column names in the table to their associated indexes.
      * @param orderByElementList - the list of elements for which our order by clause will sort.
      * @param tempFolderDir - the path to the folder we will use to store our temporary files.
-     * @param tempFolderName - the name of the subdirectory we create in [tempFolderDir] to store our temporary files.
      * @param bufferSize - the number of pages available to be used in memory. Requires: bufferSize >= 3
      */
-    public ExternalSortOperator(Operator child, Map<String, Integer> columnMap, List<OrderByElement> orderByElementList, String tempFolderDir, String tempFolderName, int bufferSize) {
+    public ExternalSortOperator(Operator child, Map<String, Integer> columnMap, List<OrderByElement> orderByElementList, String tempFolderDir, int bufferSize) {
         try {
             this.child = child;
             this.columnMap = columnMap;
             this.orderByElementList = orderByElementList;
             File tempDir = new File(tempFolderDir);
-            this.tempFolderName = Files.createTempDirectory(tempDir.toPath(), tempFolderName);
+            this.tempFolderName = Files.createTempDirectory(tempDir.toPath(), "" + numOperators++);
             this.bufferSize = bufferSize;
             currentPassFilenames = new ArrayList<>();
             createSortedRelation();
@@ -85,6 +85,8 @@ public class ExternalSortOperator extends Operator{
                 // [buffersize - 1] way merge
                 PriorityQueue<Map.Entry<Tuple, TupleReader>> nextTuples =
                         new PriorityQueue<>((a, b) -> SortingUtilities.compare(a.getKey(), b.getKey(), orderByElementList, columnMap));
+                // In the current pass, we have [currentPassFilenames.size()] runs, and we want to merge [bufferSize - 1]
+                // runs at a time.
                 for(int i=index; i<index + bufferSize - 1 && i < currentPassFilenames.size(); i++) {
                     TupleReader reader = new TupleReader(currentPassFilenames.get(i));
                     Tuple readerTuple = reader.readNextTuple();

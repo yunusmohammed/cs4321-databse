@@ -28,7 +28,6 @@ class ExternalSortOperatorTest {
     Tuple secondTuple = new Tuple("89,0,99,2");
     Tuple thirdTuple = new Tuple("90,0,99,2");
     Tuple fourthTuple = new Tuple("90,0,100,2");
-    int numFolders = 1;
 
     private void addOrderByElement(String s) {
         // adds a column name at the end of the order by clause
@@ -56,7 +55,7 @@ class ExternalSortOperatorTest {
         addOrderByElement("Table.B");
         addOrderByElement("Table.D");
         Mockito.when(mockChild.getNextTuple()).thenReturn(thirdTuple, secondTuple, fourthTuple, firstTuple, null);
-        externalSortOperator = new ExternalSortOperator(mockChild, columnMap, orderByElementList, tempFileDir, "" + numFolders++, 3);
+        externalSortOperator = new ExternalSortOperator(mockChild, columnMap, orderByElementList, tempFileDir, 3);
     }
 
     @Test
@@ -74,7 +73,7 @@ class ExternalSortOperatorTest {
             orderByElementList.remove(orderByElementList.size()-1);
         }
         Mockito.when(mockChild.getNextTuple()).thenReturn(firstTuple, secondTuple, thirdTuple, fourthTuple, null);
-        externalSortOperator = new ExternalSortOperator(mockChild, columnMap, orderByElementList, tempFileDir, "" + numFolders++, 3);
+        externalSortOperator = new ExternalSortOperator(mockChild, columnMap, orderByElementList, tempFileDir, 3);
         assertEquals(secondTuple, externalSortOperator.getNextTuple());
         assertEquals(thirdTuple, externalSortOperator.getNextTuple());
         assertEquals(firstTuple, externalSortOperator.getNextTuple());

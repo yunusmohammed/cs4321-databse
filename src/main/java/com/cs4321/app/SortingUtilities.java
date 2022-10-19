@@ -9,14 +9,14 @@ import java.util.List;
 public class SortingUtilities {
 
     private static Logger logger = Logger.getInstance();
+    private static int numFilesSorted = 0;
 
     /**
      * Takes in a file, sorts the tuples in memory, and then writes out a sorted file.
      * @param filename - the name of the file to sort
-     * @param outputName - the name of the file to output. Must be unique.
      * @return - the path to the sorted file
      */
-    public static String sortFile(String filename, String outputName) {
+    public static String sortFile(String filename) {
         String outputPath = null;
         try {
             TupleReader reader = new TupleReader(filename);
@@ -27,7 +27,7 @@ public class SortingUtilities {
                 tuple = reader.readNextTuple();
             }
             Collections.sort(tuples, (a, b) -> compare(a, b));
-            outputPath = Files.createTempFile(outputName, null).toString();
+            outputPath = Files.createTempFile("" + numFilesSorted++, null).toString();
             TupleWriter writer = new TupleWriter(outputPath);
             if(writer != null) {
                 for(Tuple t : tuples) {

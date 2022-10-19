@@ -48,7 +48,6 @@ class InterpreterTest {
         File[] outputQueries = new File(outputdir).listFiles();
         List<Statement> statements = Interpreter.getStatements();
         if (correctQueries.length != outputQueries.length) logger.log("At least one query has not been output");
-        int numFilesSorted = 0;
         for (int i = 0; i < correctQueries.length; i++) {
             try {
                 boolean equal;
@@ -56,10 +55,9 @@ class InterpreterTest {
                 PlainSelect selectBody = (PlainSelect) select.getSelectBody();
                 List<OrderByElement> orderByElementsList = selectBody.getOrderByElements();
                 if(orderByElementsList == null || orderByElementsList.size() == 0) {
-                    File sortedCorrect = new File(SortingUtilities.sortFile(correctQueries[i].toString(), "" + numFilesSorted));
-                    File sortedOutput = new File(SortingUtilities.sortFile(outputQueries[i].toString(), "" + numFilesSorted + 1));
+                    File sortedCorrect = new File(SortingUtilities.sortFile(correctQueries[i].toString()));
+                    File sortedOutput = new File(SortingUtilities.sortFile(outputQueries[i].toString()));
                     equal = FileUtils.contentEquals(sortedCorrect, sortedOutput);
-                    numFilesSorted += 2;
                 }
                 else equal = FileUtils.contentEquals(correctQueries[i], outputQueries[i]);
                 if (!equal) logger.log(correctQueries[i].getName() + " is incorrect");

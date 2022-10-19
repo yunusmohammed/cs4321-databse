@@ -119,8 +119,8 @@ public class PhysicalPlanBuilder {
                 return new TNLJoinOperator(leftChild, rightChild, operator.getJoinCondition(),
                         operator.getJoinExpressionVisitor());
             case BNLJ:
-                // TODO: BNLJ
-                return null;
+                return new BNLJoinOperator(leftChild, rightChild, operator.getJoinCondition(),
+                        operator.getJoinExpressionVisitor(), config.getJoinBufferSize());
             case SMJ:
                 // TODO: SMJ
                 return null;

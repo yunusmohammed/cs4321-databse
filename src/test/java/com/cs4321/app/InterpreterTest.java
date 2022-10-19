@@ -55,7 +55,7 @@ class InterpreterTest {
                 Select select = (Select) statements.get(i);
                 PlainSelect selectBody = (PlainSelect) select.getSelectBody();
                 List<OrderByElement> orderByElementsList = selectBody.getOrderByElements();
-                if(orderByElementsList == null || orderByElementsList.size() > 0) {
+                if(orderByElementsList == null || orderByElementsList.size() == 0) {
                     File sortedCorrect = new File(SortingUtilities.sortFile(correctQueries[i].toString(), "" + numFilesSorted));
                     File sortedOutput = new File(SortingUtilities.sortFile(outputQueries[i].toString(), "" + numFilesSorted + 1));
                     equal = FileUtils.contentEquals(sortedCorrect, sortedOutput);

@@ -56,7 +56,6 @@ public class BNLJoinOperator extends JoinOperator {
   public Tuple getNextTuple() {
     if (this.tupleBuffer.size() == 0) {
       this.refillTupleBuffer();
-      this.resetTupleBufferIterator();
     }
 
     while (this.tupleBuffer.size() != 0) {
@@ -76,7 +75,6 @@ public class BNLJoinOperator extends JoinOperator {
         }
       }
       this.refillTupleBuffer();
-      this.resetTupleBufferIterator();
       this.getRightChild().reset();
     }
     return null;

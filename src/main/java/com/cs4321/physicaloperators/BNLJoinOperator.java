@@ -46,10 +46,12 @@ public class BNLJoinOperator extends JoinOperator {
   public BNLJoinOperator(Operator leftChild, Operator rightChild, Expression joinCondition,
       JoinExpressionVisitor visitor, int bufferSize) {
     super(leftChild, rightChild, joinCondition, visitor);
-    int leftChildTupleAttributeCount = leftChild.getNextTuple().size();
-    leftChild.reset();
 
-    this.tupleBufferSize = (bufferSize * SIZE_OF_A_PAGE) / (leftChildTupleAttributeCount * SIZE_OF_TUPLE_ATTRIBUTE);
+    Tuple leftTuple = leftChild.getNextTuple();
+    int leftChildTupleAttributeCount = (leftTuple == null) ? 0 : leftTuple.size();
+    leftChild.reset();
+    this.tupleBufferSize = (leftChildTupleAttributeCount == 0) ? 0
+        : (bufferSize * SIZE_OF_A_PAGE) / (leftChildTupleAttributeCount * SIZE_OF_TUPLE_ATTRIBUTE);
   }
 
   @Override

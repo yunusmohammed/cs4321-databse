@@ -49,16 +49,19 @@ public class BNLJoinOperatorTests {
     assertEquals(512, bnlj.getTupleBufferSize());
 
     // Tuple of 1 attribute
-    leftChild = Mockito.mock(Operator.class);
     Mockito.when(leftChild.getNextTuple()).thenReturn(new Tuple("10"));
     bnlj  = new BNLJoinOperator(leftChild, rightChild, joinCondition, visitor, 1);
     assertEquals(1024, bnlj.getTupleBufferSize());
 
     // Tuple of 6 attribute
-    leftChild = Mockito.mock(Operator.class);
     Mockito.when(leftChild.getNextTuple()).thenReturn(new Tuple("1,2,3,4,5,6"));
     bnlj  = new BNLJoinOperator(leftChild, rightChild, joinCondition, visitor, 1);
     assertEquals(170, bnlj.getTupleBufferSize());
+
+    // Buffer size of Empty Left Child
+    Mockito.when(leftChild.getNextTuple()).thenReturn(null);
+    bnlj  = new BNLJoinOperator(leftChild, rightChild, joinCondition, visitor, 1);
+    assertEquals(0, bnlj.getTupleBufferSize());
   }
 
   @Test
@@ -118,10 +121,6 @@ public class BNLJoinOperatorTests {
     
     // leftChild fully fills 1 page
     Mockito.when(leftChild.getNextTuple()).thenReturn(new Tuple("1,2,3"), new Tuple("4,5,6"), null);
-    // doAnswer(_invocation -> {
-		// 	Mockito.when(leftChild.getNextTuple()).thenReturn(new Tuple("1,2,3"), new Tuple("4,5,6"), null);
-		// 	return null;
-		// }).when(leftChild).reset();
     assertEquals(new Tuple("1,2,3,7,8"), bnlj.getNextTuple());
     assertEquals(new Tuple("4,5,6,7,8"), bnlj.getNextTuple());
     assertEquals(new Tuple("1,2,3,9,10"), bnlj.getNextTuple());
@@ -152,6 +151,13 @@ public class BNLJoinOperatorTests {
     assertEquals(new Tuple("11,12,13,9,10"), bnlj.getNextTuple());
     assertNull(bnlj.getNextTuple());
     bnlj.reset();
+
+    // bnlj init with empty left child
+    leftChild = Mockito.mock(Operator.class);
+    bnlj = new BNLJoinOperator(leftChild, rightChild, joinCondition, visitor, 4);
+    assertNull(bnlj.getNextTuple());
+    bnlj.reset();
+
   }
 
   @Test

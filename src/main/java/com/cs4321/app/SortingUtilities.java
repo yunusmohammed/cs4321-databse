@@ -1,10 +1,10 @@
 package com.cs4321.app;
 
+import net.sf.jsqlparser.statement.select.OrderByElement;
+
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class SortingUtilities {
 
@@ -26,7 +26,7 @@ public class SortingUtilities {
                 tuples.add(tuple);
                 tuple = reader.readNextTuple();
             }
-            Collections.sort(tuples, (a, b) -> compare(a, b));
+            Collections.sort(tuples, (a, b) -> compare(a, b, null, null));
             outputPath = Files.createTempFile(outputName, null).toString();
             TupleWriter writer = new TupleWriter(outputPath);
             if(writer != null) {
@@ -43,16 +43,36 @@ public class SortingUtilities {
     }
 
     /**
-     * Returns an integer less than 0 if a should be before b in sorted order, 0 if a and b are equivalent, and an integer greater than 0 otherwise.
-     * Assumes a and b have the same size.
-     * @param a - a tuple in the comparison
-     * @param b - a tuple in the comparison
-     * @return - an integer that determines whether a or b should come first
+     * Compares Tuples [a] and [b] and returns a negative integer if [a] should be
+     * placed before [b] in sorted order,
+     * returns a positive integer if [b] should be placed before [a] in sorted
+     * order, and returns 0 if [a] and [b] are equal.
+     *
+     * @param a- the Tuple to compare [b] with
+     * @param b- the Tuple to compare [a] with
+     * @param orderByElementList- the list of column names in the order by clause. Should be null if no order by clause
+     * is used.
+     * @param columnMap - a map from column names in the table to their associated indexes. Should be null if no order
+     * by clause is used.
+     * @return- an integer in accordance to the rules mentioned above
      */
-    private static int compare(Tuple a, Tuple b) {
-        for(int i=0; i<a.size(); i++) {
-            int difference = a.get(i) - b.get(i);
-            if(difference != 0) return difference;
+    public static int compare(Tuple a, Tuple b, List<OrderByElement> orderByElementList, Map<String, Integer> columnMap) {
+        HashSet<Integer> seenColumns = new HashSet<>();
+        if (orderByElementList != null) {
+            for (OrderByElement o : orderByElementList) {
+                int index = columnMap.get(o.toString());
+                seenColumns.add(index);
+                int aVal = a.get(index), bVal = b.get(index);
+                if (aVal != bVal)
+                    return aVal - bVal;
+            }
+        }
+        for (int i = 0; i < a.size(); i++) {
+            if (!seenColumns.contains(i)) {
+                int aVal = a.get(i), bVal = b.get(i);
+                if (aVal != bVal)
+                    return aVal - bVal;
+            }
         }
         return 0;
     }

@@ -1,12 +1,12 @@
 package com.cs4321.physicaloperators;
 
-import com.cs4321.app.ColumnMap;
+import com.cs4321.app.AliasMap;
 import com.cs4321.app.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 
 public class SelectionOperator extends Operator {
     private final SelectExpressionVisitor visitor;
-    private final ColumnMap columnMap;
+    private final AliasMap aliasMap;
     private final Expression exp;
     private final ScanOperator child;
 
@@ -14,18 +14,19 @@ public class SelectionOperator extends Operator {
      * Creates an Operator that will represent a particular SELECT statement
      * containing a WHERE clause.
      *
-     * @param visitor   The ExpressionVisitor that will be used to determine whether
-     *                  a row passes a condition
-     * @param columnMap The ColumnMap representing a mapping from a column to the
-     *                  index that column represents in a row
-     * @param exp       The expression that is used to validate a row
-     * @param child     The Scan Operator that will provide the rows in a column
+     * @param visitor  The ExpressionVisitor that will be used to determine whether
+     *                 a row passes a condition
+     * @param aliasMap The AliasMap representing a mapping from a column to the
+     *                 index that column represents in a row
+     * @param exp      The expression that is used to validate a row
+     * @param child    The Scan Operator that will provide the rows in a column
      */
-    public SelectionOperator(SelectExpressionVisitor visitor, ColumnMap columnMap, Expression exp, ScanOperator child) {
+    public SelectionOperator(SelectExpressionVisitor visitor, AliasMap aliasMap, Expression exp, ScanOperator child) {
         this.visitor = visitor;
-        this.columnMap = columnMap;
+        this.aliasMap = aliasMap;
         this.exp = exp;
         this.child = child;
+        this.setColumnMap(child.getColumnMap());
     }
 
     /**
@@ -37,7 +38,7 @@ public class SelectionOperator extends Operator {
     @Override
     public Tuple getNextTuple() {
         Tuple row = this.child.getNextTuple();
-        while (row != null && !this.visitor.evalExpression(this.exp, row, this.columnMap)) {
+        while (row != null && !this.visitor.evalExpression(this.exp, row, this.aliasMap)) {
             row = this.child.getNextTuple();
         }
         return row;

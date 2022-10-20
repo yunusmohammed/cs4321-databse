@@ -1,18 +1,20 @@
 package com.cs4321.physicaloperators;
 
+import com.cs4321.app.AliasMap;
 import com.cs4321.app.DatabaseCatalog;
 import com.cs4321.app.Tuple;
-import com.cs4321.physicaloperators.ScanOperator;
+import net.sf.jsqlparser.schema.Table;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.io.File;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 
 class ScanOperatorTest {
-    private final ScanOperator scanOperator = new ScanOperator("Boats");
+    private static ScanOperator scanOperator;
     private static final String sep = File.separator;
     private static final String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_binary";
     private final DatabaseCatalog dbc = DatabaseCatalog.getInstance();
@@ -20,6 +22,11 @@ class ScanOperatorTest {
     @BeforeAll
     static void setup() {
         DatabaseCatalog.setInputDir(inputdir);
+        Table table = new Table();
+        table.setName("Boats");
+        AliasMap mockMap = Mockito.mock(AliasMap.class);
+        Mockito.when(mockMap.getBaseTable(any())).thenReturn("Boats");
+        scanOperator = new ScanOperator(table, mockMap);
     }
 
 

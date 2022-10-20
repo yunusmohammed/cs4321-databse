@@ -1,6 +1,6 @@
 package com.cs4321.logicaloperators;
 
-import com.cs4321.app.ColumnMap;
+import com.cs4321.app.AliasMap;
 import com.cs4321.app.PhysicalPlanBuilder;
 import com.cs4321.physicaloperators.Operator;
 import net.sf.jsqlparser.expression.Expression;
@@ -21,8 +21,8 @@ public class LogicalProjectionOperator extends LogicalOperator {
 
     private final List<SelectItem> selectItems;
     private final LogicalOperator child;
-    private final ColumnMap columnMap;
     private final Map<String, Integer> columnOrder;
+    private final AliasMap aliasMap;
 
     /**
      * Constructor for the logical projection operator
@@ -30,19 +30,21 @@ public class LogicalProjectionOperator extends LogicalOperator {
      * @param selectItems The list of columns that will be chosen from a row
      * @param child       The logical child operator of this logical projection
      *                    operator
-     * @param columnMap   A ColumnMap instance for alias resolution
+     * @param aliasMap    A AliasMap instance for alias resolution
      */
-    public LogicalProjectionOperator(List<SelectItem> selectItems, LogicalOperator child, ColumnMap columnMap) {
+    public LogicalProjectionOperator(List<SelectItem> selectItems, LogicalOperator child, AliasMap aliasMap) {
         this.selectItems = selectItems;
         this.child = child;
-        this.columnMap = columnMap;
         this.columnOrder = new HashMap<>();
         for (int i = 0; i < selectItems.size(); i++) {
             SelectItem item = selectItems.get(i);
             Expression exp = (((SelectExpressionItem) item).getExpression());
             Column c = (Column) exp;
-            this.columnOrder.put(c.toString(), i);
+            String tableName = c.getTable().getAlias();
+            if (tableName == null) tableName = c.getTable().getName();
+            this.columnOrder.put(tableName + "." + c.getColumnName(), i);
         }
+        this.aliasMap = aliasMap;
     }
 
     /**
@@ -64,21 +66,21 @@ public class LogicalProjectionOperator extends LogicalOperator {
     }
 
     /**
-     * Get the ColumnMap of this logical operator
+     * Get the column map of this logical operator
      *
-     * @return The ColumnMap of this logical operator
-     */
-    public ColumnMap getColumnMap() {
-        return this.columnMap;
-    }
-
-    /**
-     * Get the column order of this logical project operator
-     *
-     * @return The column order of this logical project operator
+     * @return The column map of this logical operator
      */
     public Map<String, Integer> getColumnOrder() {
         return this.columnOrder;
+    }
+
+    /**
+     * Get the AliasMap of this logical operator
+     *
+     * @return The AliasMap of this logical operator
+     */
+    public AliasMap getAliasMap() {
+        return this.aliasMap;
     }
 
     /**

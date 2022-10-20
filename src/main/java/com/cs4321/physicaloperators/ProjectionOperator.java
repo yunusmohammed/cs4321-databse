@@ -1,6 +1,6 @@
 package com.cs4321.physicaloperators;
 
-import com.cs4321.app.ColumnMap;
+import com.cs4321.app.AliasMap;
 import com.cs4321.app.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Column;
@@ -18,32 +18,32 @@ import java.util.Map;
  */
 public class ProjectionOperator extends Operator {
 
-    private final ColumnMap columnMap;
+    private final AliasMap aliasMap;
     private final List<SelectItem> selectItems;
     private final Operator child;
-    private final Map<String, Integer> columnOrder;
 
     /**
      * Creates an Operator that will represent a SELECT statement containing the
      * selection of particular columns
      *
-     * @param columnMap   The mapping from a table's column name to the index that
+     * @param aliasMap    The mapping from a table's column name to the index that
      *                    column represents in a row
      * @param selectItems The list of columns that will be chosen from a row
      * @param child       The Operator (either Scan or Select) that will provide the
      *                    rows in a column
      */
-    public ProjectionOperator(ColumnMap columnMap, List<SelectItem> selectItems, Operator child) {
-        this.columnMap = columnMap;
+    public ProjectionOperator(AliasMap aliasMap, List<SelectItem> selectItems, Operator child) {
+        this.aliasMap = aliasMap;
         this.selectItems = selectItems;
         this.child = child;
-        this.columnOrder = new HashMap<>();
+        Map<String, Integer> columnMap = new HashMap<>();
         for (int i = 0; i < selectItems.size(); i++) {
             SelectItem item = selectItems.get(i);
             Expression exp = (((SelectExpressionItem) item).getExpression());
             Column c = (Column) exp;
-            this.columnOrder.put(c.toString(), i);
+            columnMap.put(c.toString(), i);
         }
+        this.setColumnMap(columnMap);
     }
 
     /**
@@ -67,11 +67,11 @@ public class ProjectionOperator extends Operator {
                 SelectExpressionItem expItem = (SelectExpressionItem) item;
                 Column column = (Column) expItem.getExpression();
                 String columnName = column.getColumnName();
-                int index = this.columnMap.get((Column) expItem.getExpression());
-                if (this.child instanceof JoinOperator) {
+                int index = this.aliasMap.get((Column) expItem.getExpression());
+                if (this.child instanceof TNLJoinOperator) {
                     String tableName = column.getTable().getAlias();
                     tableName = (tableName != null) ? tableName : column.getTable().getName();
-                    int offset = ((JoinOperator) this.child).getTableOffsets().get(tableName);
+                    int offset = ((TNLJoinOperator) this.child).getTableOffsets().get(tableName);
                     index += offset;
                 }
                 builder.append(row.get(index));
@@ -90,15 +90,6 @@ public class ProjectionOperator extends Operator {
     @Override
     public void reset() {
         this.child.reset();
-    }
-
-    /**
-     * Returns the new index of the column after a merge.
-     *
-     * @param column The column whose index needs to be searched.
-     */
-    public int getColumnIndex(Column column) {
-        return this.columnOrder.get(column.toString());
     }
 
     /**

@@ -1,6 +1,6 @@
 package com.cs4321.logicaloperators;
 
-import com.cs4321.app.ColumnMap;
+import com.cs4321.app.AliasMap;
 import com.cs4321.physicaloperators.JoinExpressionVisitor;
 import com.cs4321.physicaloperators.JoinExpressions;
 import com.cs4321.physicaloperators.SelectExpressionVisitor;
@@ -24,7 +24,7 @@ import java.util.Stack;
  */
 public class LogicalQueryPlan {
     private LogicalOperator root;
-    private ColumnMap columnMap;
+    private AliasMap aliasMap;
 
     /**
      * Constructs a LogicalQueryPlan from a given query
@@ -60,7 +60,7 @@ public class LogicalQueryPlan {
             Expression whereExpression = selectBody.getWhere();
             Distinct distinct = selectBody.getDistinct();
 
-            this.columnMap = new ColumnMap(fromItem, joinsList);
+            this.aliasMap = new AliasMap(fromItem, joinsList);
 
             if ("*".equals(firstSelectItem.toString()) && joinsList == null && whereExpression == null) {
                 this.root = generateLogicalScan(selectBody);
@@ -98,8 +98,7 @@ public class LogicalQueryPlan {
      */
     private LogicalScanOperator generateLogicalScan(PlainSelect selectBody) {
         Table table = (Table) selectBody.getFromItem();
-        String baseTable = columnMap.getBaseTable(table.getName());
-        return new LogicalScanOperator(baseTable);
+        return new LogicalScanOperator(table, aliasMap);
     }
 
     /**
@@ -111,7 +110,7 @@ public class LogicalQueryPlan {
     private LogicalSelectionOperator generateLogicalSelection(PlainSelect selectBody) {
         Expression whereExpression = selectBody.getWhere();
         return new LogicalSelectionOperator(whereExpression, generateLogicalScan(selectBody), new SelectExpressionVisitor(),
-                this.columnMap);
+                this.aliasMap);
     }
 
     /**
@@ -126,11 +125,11 @@ public class LogicalQueryPlan {
         List<Join> joinsList = selectBody.getJoins();
 
         if (joinsList != null) {
-            return new LogicalProjectionOperator(selectItemsList, generateLogicalJoin(selectBody), this.columnMap);
+            return new LogicalProjectionOperator(selectItemsList, generateLogicalJoin(selectBody), this.aliasMap);
         } else if (whereExpression == null) {
-            return new LogicalProjectionOperator(selectItemsList, generateLogicalScan(selectBody), this.columnMap);
+            return new LogicalProjectionOperator(selectItemsList, generateLogicalScan(selectBody), this.aliasMap);
         } else {
-            return new LogicalProjectionOperator(selectItemsList, generateLogicalSelection(selectBody), this.columnMap);
+            return new LogicalProjectionOperator(selectItemsList, generateLogicalSelection(selectBody), this.aliasMap);
         }
     }
 
@@ -141,7 +140,7 @@ public class LogicalQueryPlan {
      * @return A new logical sort operator.
      */
     private LogicalSortOperator generateLogicalSort(PlainSelect selectBody) {
-        return new LogicalSortOperator(root, LogicalQueryPlanUtils.getColumnIndex(selectBody, this.columnMap),
+        return new LogicalSortOperator(root, LogicalQueryPlanUtils.getColumnIndex(selectBody, this.aliasMap),
                 selectBody.getOrderByElements());
     }
 
@@ -165,7 +164,7 @@ public class LogicalQueryPlan {
         LogicalJoinOperator root = new LogicalJoinOperator();
         LogicalJoinOperator currentParent = root;
         List<Join> joins = new ArrayList<>(selectBody.getJoins());
-        Map<String, Integer> tableOffset = LogicalQueryPlanUtils.generateJoinTableOffsets(selectBody, this.columnMap);
+        Map<String, Integer> tableOffset = LogicalQueryPlanUtils.generateJoinTableOffsets(selectBody, this.aliasMap);
         Stack<BinaryExpression> expressions = LogicalQueryPlanUtils.getExpressions(selectBody.getWhere());
         while (joins.size() > 0) {
             Table rightChildTable = (Table) joins.remove(joins.size() - 1).getRightItem();
@@ -187,7 +186,7 @@ public class LogicalQueryPlan {
             currentParent.setJoinCondition(LogicalQueryPlanUtils.generateExpressionTree(parentExpressions));
 
             // Set ExpressionVisitor of current parent
-            JoinExpressionVisitor visitor = new JoinExpressionVisitor(this.columnMap, tableOffset,
+            JoinExpressionVisitor visitor = new JoinExpressionVisitor(this.aliasMap, tableOffset,
                     rightChildTableName);
             currentParent.setJoinExpressionVisitor(visitor);
 

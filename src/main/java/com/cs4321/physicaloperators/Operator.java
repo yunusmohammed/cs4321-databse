@@ -6,6 +6,7 @@ import com.cs4321.app.TupleWriter;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Map;
 
 /**
  * Abstract class which all operators extend.
@@ -14,6 +15,7 @@ import java.io.PrintStream;
  */
 public abstract class Operator {
     private static final Logger logger = Logger.getInstance();
+    private Map<String, Integer> columnMap;
 
     /**
      * Gets the next tuple of the operator’s output. If the operator still has some
@@ -23,6 +25,22 @@ public abstract class Operator {
      * @return The next tuple of the operator’s output
      */
     abstract Tuple getNextTuple();
+
+    /**
+     * Gets the mapping of column name to tuple index.
+     *
+     * @return The mapping of column name to tuple index
+     */
+    public Map<String, Integer> getColumnMap() {
+        return this.columnMap;
+    }
+
+    /**
+     * Sets the mapping of column name to tuple index.
+     */
+    public void setColumnMap(Map<String, Integer> columnMap) {
+        this.columnMap = columnMap;
+    }
 
     /**
      * Tells the operator to reset its state and start returning its output again
@@ -73,13 +91,15 @@ public abstract class Operator {
 
     /**
      * Builds and returns a string representation of this operator
-     * 
+     *
      * @return The string representation of this operator
      */
     @Override
     public String toString() {
         return "Operator{}";
-    };
+    }
+
+    ;
 
     /**
      * Cleanups any resources that need to be cleaned up such as BufferedReader,

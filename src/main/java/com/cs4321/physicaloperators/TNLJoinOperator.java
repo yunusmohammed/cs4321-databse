@@ -31,7 +31,7 @@ public class TNLJoinOperator extends JoinOperator {
      * @param visitor       the expression visitor of this join operator
      */
     public TNLJoinOperator(Operator leftChild, Operator rightChild, Expression joinCondition,
-            JoinExpressionVisitor visitor) {
+                           JoinExpressionVisitor visitor) {
         super(leftChild, rightChild, joinCondition, visitor);
     }
 

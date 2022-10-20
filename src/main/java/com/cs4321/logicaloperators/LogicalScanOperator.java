@@ -1,7 +1,9 @@
 package com.cs4321.logicaloperators;
 
+import com.cs4321.app.AliasMap;
 import com.cs4321.app.PhysicalPlanBuilder;
 import com.cs4321.physicaloperators.Operator;
+import net.sf.jsqlparser.schema.Table;
 
 /**
  * A Logical Scan Operator
@@ -9,15 +11,18 @@ import com.cs4321.physicaloperators.Operator;
  * @author Yunus (ymm26@cornell.edu)
  */
 public class LogicalScanOperator extends LogicalOperator {
-    private String baseTable;
+    private Table table;
+    private AliasMap aliasMap;
 
     /**
      * Constructor that initialises a ScanOperator
      *
-     * @param baseTable The table in the database the ScanOperator is scanning
+     * @param table    The table in the database the ScanOperator is scanning
+     * @param aliasMap The mapping from table names to base table names
      */
-    public LogicalScanOperator(String baseTable) {
-        this.baseTable = baseTable;
+    public LogicalScanOperator(Table table, AliasMap aliasMap) {
+        this.table = table;
+        this.aliasMap = aliasMap;
     }
 
     /**
@@ -25,8 +30,17 @@ public class LogicalScanOperator extends LogicalOperator {
      *
      * @return The table in the database the ScanOperator is scanning
      */
-    public String getBaseTable() {
-        return this.baseTable;
+    public Table getTable() {
+        return this.table;
+    }
+
+    /**
+     * Gets the alias map that the scan operator uses to detect aliases.
+     *
+     * @return The alias map
+     */
+    public AliasMap getAliasMap() {
+        return aliasMap;
     }
 
     /**

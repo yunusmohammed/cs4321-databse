@@ -1,6 +1,9 @@
 package com.cs4321.physicaloperators;
 
-import com.cs4321.app.*;
+import com.cs4321.app.AliasMap;
+import com.cs4321.app.Interpreter;
+import com.cs4321.app.Logger;
+import com.cs4321.app.PhysicalPlanBuilder;
 import com.cs4321.logicaloperators.LogicalOperator;
 import com.cs4321.logicaloperators.LogicalQueryPlan;
 import net.sf.jsqlparser.statement.Statement;
@@ -21,10 +24,29 @@ import java.nio.file.Paths;
  */
 public class QueryPlan {
     private Operator root;
+    private static final SelectExpressionVisitor visitor = new SelectExpressionVisitor();
     private static final String sep = File.separator;
     private String queryOutputName;
     private boolean humanReadable;
+    private AliasMap aliasMap;
     private final Logger logger = Logger.getInstance();
+
+    private int queryNumber;
+
+    /**
+     * Evaluates SQL query statements
+     *
+     * @param statement   The SQL statement being evaluated
+     * @param queryNumber Specifies the index of the query being processed (starting
+     *                    at 1)
+     */
+    private void evaluateQueries(Statement statement, int queryNumber) {
+        if (statement != null) {
+            LogicalQueryPlan logicalPlan = new LogicalQueryPlan(statement);
+            LogicalOperator logicalRoot = logicalPlan.getRoot();
+            this.root = PhysicalPlanBuilder.getInstance().constructPhysical(logicalRoot);
+        }
+    }
 
     /**
      * Constructor that initialises a QueryPlan
@@ -40,21 +62,6 @@ public class QueryPlan {
             setQueryOutputFileName(queryOutputName);
         }
         this.humanReadable = humanReadable;
-    }
-
-    /**
-     * Evaluates SQL query statements
-     *
-     * @param statement   The SQL statement being evaluated
-     * @param queryNumber Specifies the index of the query being processed (starting
-     *                    at 1)
-     */
-    private void evaluateQueries(Statement statement, int queryNumber) {
-        if (statement != null) {
-            LogicalQueryPlan logicalPlan = new LogicalQueryPlan(statement);
-            LogicalOperator logicalRoot = logicalPlan.getRoot();
-            this.root = PhysicalPlanBuilder.getInstance().constructPhysical(logicalRoot);
-        }
     }
 
     /**

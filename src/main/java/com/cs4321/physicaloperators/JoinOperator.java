@@ -3,7 +3,6 @@ package com.cs4321.physicaloperators;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Column;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -54,9 +53,8 @@ public abstract class JoinOperator extends Operator {
         this.rightChild = rightChild;
         this.joinCondition = joinCondition;
         this.visitor = visitor;
-        Map<String, Integer> columnMap = new HashMap<>();
+        Map<String, Integer> columnMap = leftChild.getColumnMap();
         Map<String, Integer> offset = getTableOffsets();
-        addChildrenColumnMap(leftChild, offset, columnMap);
         addChildrenColumnMap(rightChild, offset, columnMap);
         this.setColumnMap(columnMap);
     }

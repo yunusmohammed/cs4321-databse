@@ -49,6 +49,7 @@ public class TNLJoinOperator extends JoinOperator {
                 return this.leftTuple.concat(rightTuple);
             }
         }
+        System.out.println();
         return null;
     }
 

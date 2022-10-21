@@ -7,6 +7,8 @@ import com.cs4321.app.PhysicalPlanBuilder;
 import com.cs4321.logicaloperators.LogicalOperator;
 import com.cs4321.logicaloperators.LogicalQueryPlan;
 import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.Select;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -44,6 +46,8 @@ public class QueryPlan {
         if (statement != null) {
             LogicalQueryPlan logicalPlan = new LogicalQueryPlan(statement);
             LogicalOperator logicalRoot = logicalPlan.getRoot();
+            PlainSelect plainSelect = (PlainSelect) ((Select) statement).getSelectBody();
+            PhysicalPlanBuilder.setTableOrder(plainSelect.getFromItem(), plainSelect.getJoins());
             this.root = PhysicalPlanBuilder.getInstance().constructPhysical(logicalRoot);
         }
     }

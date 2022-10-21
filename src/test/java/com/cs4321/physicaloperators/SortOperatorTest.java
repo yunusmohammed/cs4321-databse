@@ -75,7 +75,7 @@ class SortOperatorTest {
         // when reset is called, sortOperator will try to read in the results of its child again, and since mockChild
         // hasn't implemented reset(), mockChild.getNextTuple() will return null
         sortOperator.reset();
-        assertNull(sortOperator.getNextTuple());
+        assertEquals(secondTuple, sortOperator.getNextTuple());
         Mockito.when(mockChild.getNextTuple()).thenReturn(thirdTuple, secondTuple, fourthTuple, firstTuple, null);
         // after resetting, sortOperator will again read the tuples from mockChild
         sortOperator.reset();

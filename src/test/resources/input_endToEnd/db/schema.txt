@@ -1,0 +1,7 @@
+Sailors A B C
+Boats D E F
+Reserves G H
+Sailors2 A B C
+Boats2 D E F
+Reserves2 G H
+Ships X Y

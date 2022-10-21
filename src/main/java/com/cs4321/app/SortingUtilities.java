@@ -15,8 +15,8 @@ public class SortingUtilities {
      * Takes in a file, sorts the tuples in memory, and then writes out a sorted
      * file.
      * 
-     * @param filename - the name of the file to sort
-     * @return - the path to the sorted file
+     * @param filename the name of the file to sort
+     * @return the path to the sorted file
      */
     public static String sortFile(String filename) {
         String outputPath = null;
@@ -50,14 +50,14 @@ public class SortingUtilities {
      * returns a positive integer if [b] should be placed before [a] in sorted
      * order, and returns 0 if [a] and [b] are equal.
      *
-     * @param a-                  the Tuple to compare [b] with
-     * @param b-                  the Tuple to compare [a] with
-     * @param orderByElementList- the list of column names in the order by clause.
-     *                            Should be null if no order by clause
-     *                            is used.
-     * @param columnMap           - a map from column names in the table to their
-     *                            associated indexes. Should be null if no order
-     *                            by clause is used.
+     * @param a                  the Tuple to compare [b] with
+     * @param b                  the Tuple to compare [a] with
+     * @param orderByElementList the list of column names in the order by clause.
+     *                           Should be null if no order by clause
+     *                           is used.
+     * @param columnMap          a map from column names in the table to their
+     *                           associated indexes. Should be null if no order
+     *                           by clause is used.
      * @return- an integer in accordance to the rules mentioned above
      */
     public static int compare(Tuple a, Tuple b, List<OrderByElement> orderByElementList,

@@ -1,5 +1,6 @@
 package com.cs4321.physicaloperators;
 
+import com.cs4321.app.SortingUtilities;
 import com.cs4321.app.Tuple;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
@@ -8,6 +9,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 
+/**
+ * Operator for handling in-memory sorting for order by clauses
+ * @author Yohanes
+ */
 public class SortOperator extends Operator {
 
     private Operator child;
@@ -42,7 +47,7 @@ public class SortOperator extends Operator {
     @Override
     public Tuple getNextTuple() {
         if (tuples == null) {
-            tuples = new PriorityQueue<>((a, b) -> compare(a, b));
+            tuples = new PriorityQueue<>((a, b) -> SortingUtilities.compare(a, b, orderByElementList, columnMap));
             Tuple nextTuple = child.getNextTuple();
             while (nextTuple != null) {
                 tuples.add(nextTuple);
@@ -52,37 +57,6 @@ public class SortOperator extends Operator {
         if (tuples.size() == 0)
             return null;
         return tuples.poll();
-    }
-
-    /**
-     * Compares Tuples [a] and [b] and returns a negative integer if [a] should be
-     * placed before [b] in sorted order,
-     * returns a positive integer if [b] should be placed before [a] in sorted
-     * order, and returns 0 if [a] and [b] are equal.
-     *
-     * @param a- the Tuple to compare [b] with
-     * @param b- the Tuple to compare [a] with
-     * @return- an integer in accordance to the rules mentioned above
-     */
-    private int compare(Tuple a, Tuple b) {
-        HashSet<Integer> seenColumns = new HashSet<>();
-        if (orderByElementList != null) {
-            for (OrderByElement o : orderByElementList) {
-                int index = columnMap.get(o.toString());
-                seenColumns.add(index);
-                int aVal = a.get(index), bVal = b.get(index);
-                if (aVal != bVal)
-                    return aVal - bVal;
-            }
-        }
-        for (int i = 0; i < a.size(); i++) {
-            if (!seenColumns.contains(i)) {
-                int aVal = a.get(i), bVal = b.get(i);
-                if (aVal != bVal)
-                    return aVal - bVal;
-            }
-        }
-        return 0;
     }
 
     /**

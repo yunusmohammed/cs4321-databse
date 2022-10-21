@@ -3,6 +3,10 @@ package com.cs4321.physicaloperators;
 import com.cs4321.app.Tuple;
 import com.cs4321.physicaloperators.Operator;
 
+/**
+ * Operator for handling distinct clauses
+ * @author Yohanes
+ */
 public class DuplicateEliminationOperator extends Operator {
 
     private Operator child;

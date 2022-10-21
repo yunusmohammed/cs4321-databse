@@ -144,8 +144,8 @@ public class PhysicalPlanBuilder {
             case MEMORY:
                 return new SortOperator(child, operator.getSortColumnMap(), operator.getOrderByElements());
             case EXTERNAL:
-                // TODO: EXTERNAL SORT
-                return null;
+                return new ExternalSortOperator(child, operator.getSortColumnMap(),
+                        operator.getOrderByElements(), Interpreter.getTempdir(), config.getSortBufferSize());
         }
         // This scenario should never happen
         return null;

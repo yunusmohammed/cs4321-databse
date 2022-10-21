@@ -4,10 +4,7 @@ import com.cs4321.app.SortingUtilities;
 import com.cs4321.app.Tuple;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
+import java.util.*;
 
 /**
  * Operator for handling in-memory sorting for order by clauses
@@ -18,7 +15,8 @@ public class SortOperator extends Operator {
     private Operator child;
     private Map<String, Integer> columnMap;
     private List<OrderByElement> orderByElementList;
-    private PriorityQueue<Tuple> tuples;
+    private List<Tuple> tuples;
+    private int index;
 
     /**
      * Creates an operator to represent an order by clause. This operator is at the
@@ -47,16 +45,17 @@ public class SortOperator extends Operator {
     @Override
     public Tuple getNextTuple() {
         if (tuples == null) {
-            tuples = new PriorityQueue<>((a, b) -> SortingUtilities.compare(a, b, orderByElementList, columnMap));
+            tuples = new ArrayList<>();
             Tuple nextTuple = child.getNextTuple();
             while (nextTuple != null) {
                 tuples.add(nextTuple);
                 nextTuple = child.getNextTuple();
             }
+            Collections.sort(tuples, (a, b) -> SortingUtilities.compare(a, b, orderByElementList, columnMap));
+            index = 0;
         }
-        if (tuples.size() == 0)
-            return null;
-        return tuples.poll();
+        if(index < tuples.size()) return tuples.get(index++);
+        return null;
     }
 
     /**
@@ -64,8 +63,16 @@ public class SortOperator extends Operator {
      */
     @Override
     public void reset() {
-        tuples = null;
+        index = 0;
         child.reset();
+    }
+
+    /**
+     * Resets the operator so that the [index]'th tuple (0 based) is returned from the next call to getNextTuple
+     * @param index - the index of the next tuple we want to read (the first tuple would be 0)
+     */
+    public void reset(int index) {
+        this.index = index;
     }
 
     /**

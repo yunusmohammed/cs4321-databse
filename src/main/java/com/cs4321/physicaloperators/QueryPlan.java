@@ -23,6 +23,7 @@ public class QueryPlan {
     private Operator root;
     private static final String sep = File.separator;
     private String queryOutputName;
+    private int queryNumber;
     private boolean humanReadable;
     private final Logger logger = Logger.getInstance();
 
@@ -34,6 +35,7 @@ public class QueryPlan {
      *                    at 1)
      */
     public QueryPlan(Statement statement, int queryNumber, boolean humanReadable) {
+        this.queryNumber = queryNumber;
         evaluateQueries(statement, queryNumber);
         if (Interpreter.getOutputdir() != null) {
             queryOutputName = Interpreter.getOutputdir() + sep + "query" + queryNumber;
@@ -77,8 +79,8 @@ public class QueryPlan {
                 root.dump(queryOutputName);
             }
             long finishTime = System.currentTimeMillis();
-            // logger.log("Elapsed time for query " + queryNumber + ": " + (finishTime -
-            // startTime) + "ms");
+             logger.log("Elapsed time for query " + queryNumber + ": " + (finishTime -
+             startTime) + "ms");
         }
     }
 

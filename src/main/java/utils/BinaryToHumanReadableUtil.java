@@ -69,16 +69,15 @@ public class BinaryToHumanReadableUtil {
         output.close();
     }
 
-
     /**
      * Sets the output file path
      *
-     * @param outputFilePath The Output File that contains the written human readable file
+     * @param outputFilePath The Output File that contains the written human
+     *                       readable file
      */
     private static void setOutputFilePath(String outputFilePath) {
         BinaryToHumanReadableUtil.outputFilePath = outputFilePath;
     }
-
 
     /**
      * Returns the input file path

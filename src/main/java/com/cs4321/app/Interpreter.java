@@ -8,6 +8,8 @@ import net.sf.jsqlparser.statement.Statement;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -23,6 +25,7 @@ public class Interpreter {
     private static final String sep = File.separator;
     private static boolean humanReadable = false;
     private static final Logger logger = Logger.getInstance();
+    private static List<Statement> statements = new ArrayList<>();
 
     /**
      * Main function that is executed to run the project
@@ -77,6 +80,7 @@ public class Interpreter {
             }
             try {
                 if (statement != null) {
+                    statements.add(statement);
                     QueryPlan queryPlan = new QueryPlan(statement, queryNumber, humanReadable);
                     queryPlan.evaluate();
                 }
@@ -174,5 +178,13 @@ public class Interpreter {
      */
     public static void setHumanReadable(boolean humanReadable) {
         Interpreter.humanReadable = humanReadable;
+    }
+
+    /**
+     * Returns all the statements from the queries.sql file that have been evaluated
+     * @return- all the statements from the queries.sql file that have been evaluated
+     */
+    public static List<Statement> getStatements() {
+        return statements;
     }
 }

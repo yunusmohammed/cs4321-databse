@@ -7,6 +7,11 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
+
+import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.select.*;
+
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -41,14 +46,25 @@ class InterpreterTest {
         Interpreter.parseQueries();
         File[] correctQueries = new File(correctOutputPath).listFiles();
         File[] outputQueries = new File(outputdir).listFiles();
-        if (correctQueries.length != outputQueries.length) System.out.println("At least one query has not been output");
+        List<Statement> statements = Interpreter.getStatements();
+        if (correctQueries.length != outputQueries.length) logger.log("At least one query has not been output");
         for (int i = 0; i < correctQueries.length; i++) {
             try {
-                boolean equal = FileUtils.contentEquals(correctQueries[i], outputQueries[i]);
-                if (!equal) System.out.println(correctQueries[i].getName() + " is incorrect");
+                boolean equal;
+                Select select = (Select) statements.get(i);
+                PlainSelect selectBody = (PlainSelect) select.getSelectBody();
+                List<OrderByElement> orderByElementsList = selectBody.getOrderByElements();
+                if(orderByElementsList == null || orderByElementsList.size() == 0) {
+                    File sortedCorrect = new File(SortingUtilities.sortFile(correctQueries[i].toString()));
+                    File sortedOutput = new File(SortingUtilities.sortFile(outputQueries[i].toString()));
+                    equal = FileUtils.contentEquals(sortedCorrect, sortedOutput);
+                }
+                else equal = FileUtils.contentEquals(correctQueries[i], outputQueries[i]);
+                if (!equal) logger.log(correctQueries[i].getName() + " is incorrect");
                 assertTrue(equal);
             } catch (Exception e) {
-                throw new Error("Issue reading output from " + correctQueries[i].getName());
+                logger.log("Issue reading output from " + correctQueries[i].getName());
+                throw new Error();
             }
         }
     }

@@ -39,7 +39,7 @@ class SortingUtilitiesTest {
             write(testTableSortedWriter, t1);
             write(testTableSortedWriter, t2);
             testTableSortedWriter.writeToFile(null, true);
-            assertTrue(FileUtils.contentEquals(new File(SortingUtilities.sortFile(testTablePath, "postSortTable")), new File(testTableSortedPath)));
+            assertTrue(FileUtils.contentEquals(new File(SortingUtilities.sortFile(testTablePath)), new File(testTableSortedPath)));
         } catch (IOException e) {
             logger.log("Unable to compare contents of files for sort file test.");
             throw new Error();

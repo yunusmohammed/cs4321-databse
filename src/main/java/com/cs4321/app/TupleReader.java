@@ -23,6 +23,12 @@ public class TupleReader {
     private int tupleNextIndex = 0;
     private List<Tuple> tupleList;
     private final int PAGE_SIZE = 4096;
+    private int i = 0;
+    private int tupleSize = 0;
+    private int pageSize = 0;
+    private int maxPageSize = 0;
+    private ArrayList pageToPageSize = new ArrayList<Integer>();
+    private int numTuplesSoFar = 0;
 
     /**
      * Initialises a Tuple Reader instance
@@ -50,15 +56,14 @@ public class TupleReader {
             return null;
         }
         buffer.clear();
-        int i = 0;
-        int tupleSize = 0;
-        int pageSize = 0;
         while (buffer.hasRemaining()) {
             if (i == 0) {
                 tupleSize = buffer.getInt();
                 i++;
             } else if (i == 1) {
                 pageSize = buffer.getInt();
+                maxPageSize = Math.max(pageSize, maxPageSize);
+                pageToPageSize.add(pageSize);
                 i++;
             } else {
                 if (tupleList.size() == pageSize) {
@@ -72,6 +77,7 @@ public class TupleReader {
                         data.append(",");
                     }
                 }
+                numTuplesSoFar++;
                 tupleList.add(new Tuple(data.toString()));
             }
         }
@@ -92,6 +98,7 @@ public class TupleReader {
     public Tuple readNextTuple() throws IOException {
         if (tupleList == null) {
             tupleList = readFromFile();
+            resetIndexToZero();
             // End of All Pages
             if (tupleList == null) {
                 return null;
@@ -99,6 +106,7 @@ public class TupleReader {
         }
         if (tupleNextIndex == tupleList.size()) {
             tupleList = readFromFile();
+            resetIndexToZero();
             if (tupleList == null) {
                 return null;
             }
@@ -134,6 +142,31 @@ public class TupleReader {
         buffer.clear();
         buffer.put(new byte[PAGE_SIZE]);
         buffer.clear();
+        numTuplesSoFar = 0;
+    }
+
+    public void resetToIndex(int index) throws IOException {
+        fc.position(index);
+        findNewPageInfo(index);
+        resetIndexToNewIndex(index);
+        resetTupleNextIndex(index);
+    }
+
+    private void findNewPageInfo(int index) {
+        int indexPage = maxPageSize % index;
+        pageSize = (int) pageToPageSize.get(indexPage);
+    }
+
+    private void resetIndexToNewIndex(int index) {
+        i = index % pageSize + 1;
+    }
+
+    private void resetTupleNextIndex(int index) {
+        tupleNextIndex = index % pageSize - 1;
+    }
+
+    private void resetIndexToZero() {
+        i = 0;
     }
 
 }

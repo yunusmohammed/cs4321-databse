@@ -53,11 +53,21 @@ class TupleReaderTest {
     void close() throws IOException {
         tupleReader.close();
         assertThrows(IOException.class, () -> tupleReader.readNextTuple());
+        tupleReader.reset();
     }
 
     @Test
     void reset() throws IOException {
         tupleReader.reset();
         assertEquals(tupleReader.readNextTuple().toString(), "12,143,196");
+    }
+
+    @Test
+    public void resetToPage() throws IOException {
+        tupleReader.reset();
+        tupleReader.readNextTuple();
+        tupleReader.readNextTuple();
+        tupleReader.resetToIndex(5);
+        System.out.println(tupleReader.readNextTuple());
     }
 }

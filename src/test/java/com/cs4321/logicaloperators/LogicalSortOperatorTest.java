@@ -24,7 +24,7 @@ public class LogicalSortOperatorTest {
     List<OrderByElement> expectedOrderByElementList = Mockito.mock(List.class);
     Map<String, Integer> expectedSortColumnMap = Mockito.mock(HashMap.class);
     LogicalSortOperator logicalSortOperator = new LogicalSortOperator(expectedChildOperator, expectedSortColumnMap,
-        expectedOrderByElementList);
+        expectedOrderByElementList, false);
     assertEquals(expectedChildOperator, logicalSortOperator.getChild());
     assertEquals(expectedSortColumnMap, logicalSortOperator.getSortColumnMap());
     assertEquals(expectedOrderByElementList, logicalSortOperator.getOrderByElements());

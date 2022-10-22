@@ -77,13 +77,13 @@ public class LogicalQueryPlan {
 
             boolean ordered = false;
             if (orderByElementsList != null && orderByElementsList.size() > 0) {
-                this.root = generateLogicalSort(selectBody);
+                this.root = generateLogicalSort(selectBody, false);
                 ordered = true;
             }
             if (distinct != null) {
                 // DuplicateEliminationOperator expects sorted child
                 if (!ordered)
-                    this.root = generateLogicalSort(selectBody);
+                    this.root = generateLogicalSort(selectBody, true);
                 this.root = generateLogicalDistinct();
             }
         }
@@ -140,9 +140,9 @@ public class LogicalQueryPlan {
      * @param selectBody The body of the select statement.
      * @return A new logical sort operator.
      */
-    private LogicalSortOperator generateLogicalSort(PlainSelect selectBody) {
+    private LogicalSortOperator generateLogicalSort(PlainSelect selectBody, boolean fromDistinct) {
         return new LogicalSortOperator(root, LogicalQueryPlanUtils.getColumnIndex(selectBody, this.columnMap),
-                selectBody.getOrderByElements());
+                selectBody.getOrderByElements(), fromDistinct);
     }
 
     /**

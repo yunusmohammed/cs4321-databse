@@ -140,12 +140,14 @@ public class PhysicalPlanBuilder {
      */
     public Operator visit(LogicalSortOperator operator) {
         Operator child = constructPhysical(operator.getChild());
+        if(operator.getFromDistinct()) return new ExternalSortOperator(child, operator.getSortColumnMap(),
+                operator.getOrderByElements(), Interpreter.getTempdir(), 10);
         switch (config.getSortType()) {
             case MEMORY:
                 return new SortOperator(child, operator.getSortColumnMap(), operator.getOrderByElements());
             case EXTERNAL:
-                // TODO: EXTERNAL SORT
-                return null;
+                return new ExternalSortOperator(child, operator.getSortColumnMap(),
+                        operator.getOrderByElements(), Interpreter.getTempdir(), config.getSortBufferSize());
         }
         // This scenario should never happen
         return null;

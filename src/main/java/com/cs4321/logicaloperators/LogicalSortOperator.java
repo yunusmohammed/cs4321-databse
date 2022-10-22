@@ -17,6 +17,7 @@ public class LogicalSortOperator extends LogicalOperator {
     private final LogicalOperator child;
     private final List<OrderByElement> orderByElementList;
     private final Map<String, Integer> sortColumnMap;
+    private final boolean fromDistinct;
 
     /**
      * Constructor of the logical sort operator
@@ -28,10 +29,11 @@ public class LogicalSortOperator extends LogicalOperator {
      *                        will sort
      */
     public LogicalSortOperator(LogicalOperator child, Map<String, Integer> sortColumnMap,
-                               List<OrderByElement> orderByElements) {
+                               List<OrderByElement> orderByElements, boolean fromDistinct) {
         this.child = child;
         this.orderByElementList = orderByElements;
         this.sortColumnMap = sortColumnMap;
+        this.fromDistinct = fromDistinct;
     }
 
     /**
@@ -53,6 +55,12 @@ public class LogicalSortOperator extends LogicalOperator {
     public List<OrderByElement> getOrderByElements() {
         return this.orderByElementList;
     }
+
+    /**
+     * Returns true if this sort operator was created from a distinct clause and false otherwise
+     * @return - true if this sort operator was created from a distinct clause and false otherwise
+     */
+    public boolean getFromDistinct() {return this.fromDistinct; }
 
     /**
      * Get the sort columb map

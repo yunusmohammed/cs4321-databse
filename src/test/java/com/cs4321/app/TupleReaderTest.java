@@ -85,6 +85,11 @@ class TupleReaderTest {
             tupleReader.readNextTuple();
         }
         tupleReader.smjReset(0);
-        assertEquals(tupleReader.readNextTuple().toString(), "12,143,196");
+        String line = reader.readLine();
+        while (line != null) {
+            Tuple l = tupleReader.readNextTuple();
+            assertEquals(l.toString(), line);
+            line = reader.readLine();
+        }
     }
 }

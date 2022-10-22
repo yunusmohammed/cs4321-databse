@@ -65,7 +65,7 @@ public class TupleReader {
                 startPostion++;
             } else if (startPostion == 1) {
                 pageSize = buffer.getInt();
-                this.maximumNumberOfTuplesOnPage = pageSize;
+                this.maximumNumberOfTuplesOnPage = Math.max(pageSize, maximumNumberOfTuplesOnPage);
                 pageToNumberOfTuplesOnPage.add(pageSize);
                 startPostion++;
             } else {
@@ -117,6 +117,7 @@ public class TupleReader {
             }
         }
         if (tupleNextIndex == tupleList.size()) {
+//            fc.position(PAGE_SIZE * numberOfPagesRead);
             numberOfPagesRead++;
             tupleList = readFromFile();
             if (tupleList == null) {
@@ -171,6 +172,7 @@ public class TupleReader {
         int numberOfTuplesOnPage = maximumNumberOfTuplesOnPage;
         if (pageIndexIsOn != 0) {
             numberOfTuplesOnPage = (int) pageToNumberOfTuplesOnPage.get(pageIndexIsOn - 1);
+
         }
 
         // Calculate number of bytes I now need to read

@@ -9,6 +9,7 @@ import com.cs4321.physicaloperators.Operator;
  * @author Yunus Mohammed (ymm26@cornell.edu)
  */
 public abstract class LogicalOperator {
+
     public Operator accept(PhysicalPlanBuilder builder) {
         return null;
     }

@@ -1,11 +1,14 @@
 package com.cs4321.physicaloperators;
 
-import com.cs4321.app.DatabaseCatalog;
-import com.cs4321.app.Logger;
-import com.cs4321.app.Tuple;
-import com.cs4321.app.TupleReader;
+import com.cs4321.app.*;
+import net.sf.jsqlparser.schema.Table;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The ScanOperator support queries that are full table scans,
@@ -22,10 +25,21 @@ public class ScanOperator extends Operator {
     /**
      * Constructor that initialises a ScanOperator
      *
-     * @param baseTable The table in the database the ScanOperator is scanning
+     * @param table    The table in the database the ScanOperator is scanning
+     * @param aliasMap The mapping from table names to base table names
      */
-    public ScanOperator(String baseTable) {
+    public ScanOperator(Table table, AliasMap aliasMap) {
+        String tableName = table.getAlias();
+        if (tableName == null) tableName = table.getName();
+        String baseTable = aliasMap.getBaseTable(tableName);
         setBaseTablePath(baseTable);
+        Map<String, Integer> columnMap = new HashMap<>();
+        for (Map.Entry<String, Integer> entry : DatabaseCatalog.getInstance().columnMap(baseTable).entrySet()) {
+            String columnName = entry.getKey();
+            Integer index = entry.getValue();
+            columnMap.put(tableName + "." + columnName, index);
+        }
+        this.setColumnMap(columnMap);
         try {
             tupleReader = new TupleReader(getBaseTablePath());
         } catch (IOException e) {
@@ -33,8 +47,8 @@ public class ScanOperator extends Operator {
         }
     }
 
-    public ScanOperator(String baseTable, boolean humanReadable) {
-        this(baseTable);
+    public ScanOperator(Table table, AliasMap aliasMap, boolean humanReadable) {
+        this(table, aliasMap);
         this.humanReadable = humanReadable;
         try {
             reader = new BufferedReader(new FileReader(getBaseTablePath()));
@@ -132,8 +146,8 @@ public class ScanOperator extends Operator {
      * Returns the string representation of the Scan Operator
      *
      * @return The string representation of the Scan Operator
-     *         Eg:
-     *         ScanOperator{baseTablePath='../src/test/resources/input_binary/db/data/Boats'}
+     * Eg:
+     * ScanOperator{baseTablePath='../src/test/resources/input_binary/db/data/Boats'}
      */
     @Override
     public String toString() {

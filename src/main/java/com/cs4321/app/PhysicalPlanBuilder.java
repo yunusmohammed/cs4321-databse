@@ -2,8 +2,17 @@ package com.cs4321.app;
 
 import com.cs4321.logicaloperators.*;
 import com.cs4321.physicaloperators.*;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
+import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
+import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.schema.Table;
+import net.sf.jsqlparser.statement.select.FromItem;
+import net.sf.jsqlparser.statement.select.Join;
+import net.sf.jsqlparser.statement.select.OrderByElement;
 
 import java.io.File;
+import java.util.*;
 
 /**
  * The PhysicalPlanBuilder is a singleton that provides information about how to
@@ -16,6 +25,7 @@ public class PhysicalPlanBuilder {
     private static BuilderConfig config;
     private static PhysicalPlanBuilder instance;
     private static boolean humanReadable;
+    private static Map<String, Integer> tableOrder;
 
     /**
      * Private constructor to follow the singleton pattern.
@@ -67,14 +77,36 @@ public class PhysicalPlanBuilder {
     }
 
     /**
+     * Sets the mapping from table name to position in `FROM` clause.
+     *
+     * @param from  First item in the `FROM` clause
+     * @param joins Potential list of tables being joined onto.
+     */
+    public static void setTableOrder(FromItem from, List<Join> joins) {
+        tableOrder = new HashMap<>();
+        Table fromTable = (Table) from;
+        String tableName = fromTable.getAlias();
+        if (tableName == null) tableName = fromTable.getName();
+        tableOrder.put(tableName, 0);
+        if (joins == null) return;
+        for (int i = 0; i < joins.size(); i++) {
+            Join join = joins.get(i);
+            Table joinTable = (Table) join.getRightItem();
+            tableName = joinTable.getAlias();
+            if (tableName == null) tableName = joinTable.getName();
+            tableOrder.put(tableName, i + 1);
+        }
+    }
+
+    /**
      * Creates a physical scan operator from the logical scan operator.
      *
      * @param operator The logical scan operator acting as a blueprint.
      * @return The physical scan operator corresponding to the logical scan
-     *         operator.
+     * operator.
      */
     public Operator visit(LogicalScanOperator operator) {
-        return new ScanOperator(operator.getBaseTable(), humanReadable);
+        return new ScanOperator(operator.getTable(), operator.getAliasMap(), humanReadable);
     }
 
     /**
@@ -82,11 +114,11 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical selection operator acting as a blueprint.
      * @return The physical selection operator corresponding to the logical
-     *         selection operator.
+     * selection operator.
      */
     public Operator visit(LogicalSelectionOperator operator) {
         ScanOperator child = (ScanOperator) constructPhysical(operator.getChild());
-        return new SelectionOperator(operator.getSelectExpressionVisitor(), operator.getColumnMap(),
+        return new SelectionOperator(operator.getSelectExpressionVisitor(), operator.getAliasMap(),
                 operator.getSelectCondition(), child);
     }
 
@@ -95,11 +127,11 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical projection operator acting as a blueprint.
      * @return The physical projection operator corresponding to the logical
-     *         projection operator.
+     * projection operator.
      */
     public Operator visit(LogicalProjectionOperator operator) {
         Operator child = constructPhysical(operator.getChild());
-        return new ProjectionOperator(operator.getColumnMap(), operator.getSelectItems(), child);
+        return new ProjectionOperator(operator.getAliasMap(), operator.getSelectItems(), child);
     }
 
     /**
@@ -109,7 +141,7 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical join operator acting as a blueprint.
      * @return The physical join operator corresponding to the logical join
-     *         operator.
+     * operator.
      */
     public Operator visit(LogicalJoinOperator operator) {
         Operator leftChild = constructPhysical(operator.getLeftChild());
@@ -122,11 +154,65 @@ public class PhysicalPlanBuilder {
                 return new BNLJoinOperator(leftChild, rightChild, operator.getJoinCondition(),
                         operator.getJoinExpressionVisitor(), config.getJoinBufferSize());
             case SMJ:
-                // TODO: SMJ
-                return null;
+                List<List<OrderByElement>> orders = getOrders(operator.getJoinCondition());
+                List<OrderByElement> leftOrder = orders.get(0);
+                List<OrderByElement> rightOrder = orders.get(1);
+                leftChild = generateSort(leftChild, leftOrder);
+                rightChild = generateSort(rightChild, rightOrder);
+                SMJOperator smjOperator = new SMJOperator((SortOperator) leftChild, (SortOperator) rightChild, operator.getJoinCondition(), operator.getJoinExpressionVisitor());
+                smjOperator.setLeftSortOrder(leftOrder);
+                smjOperator.setRightSortOrder(rightOrder);
+                return smjOperator;
         }
         // This scenario should never happen
         return null;
+    }
+
+    /**
+     * Returns a two element list; the second element is the list of columns as an OrderByElement that represent
+     * the rightmost column and the first element of the list is a list of all other columns.
+     *
+     * @param joinCondition The expression for the join node
+     * @return The two element list containing the columns as stated above
+     */
+    public List<List<OrderByElement>> getOrders(Expression joinCondition) {
+        ArrayList<List<OrderByElement>> list = new ArrayList<>();
+        List<OrderByElement> leftList = new ArrayList<>();
+        List<OrderByElement> rightList = new ArrayList<>();
+        list.add(leftList);
+        list.add(rightList);
+        Stack<Expression> stackExpression = new Stack<>();
+        stackExpression.push(joinCondition);
+        while (stackExpression.size() != 0) {
+            Expression exp = stackExpression.pop();
+            if (exp instanceof EqualsTo) {
+                Column leftColumn = (Column) ((EqualsTo) exp).getLeftExpression();
+                Column rightColumn = (Column) ((EqualsTo) exp).getRightExpression();
+                String leftTableName = leftColumn.getWholeColumnName().split("\\.")[0];
+                String rightTableName = rightColumn.getWholeColumnName().split("\\.")[0];
+
+                if (tableOrder.get(leftTableName) < tableOrder.get(rightTableName)) {
+                    OrderByElement leftOrder = new OrderByElement();
+                    leftOrder.setExpression(((EqualsTo) exp).getLeftExpression());
+                    OrderByElement rightOrder = new OrderByElement();
+                    rightOrder.setExpression(((EqualsTo) exp).getRightExpression());
+                    leftList.add(leftOrder);
+                    rightList.add(rightOrder);
+                } else {
+                    OrderByElement leftOrder = new OrderByElement();
+                    leftOrder.setExpression(((EqualsTo) exp).getLeftExpression());
+                    OrderByElement rightOrder = new OrderByElement();
+                    rightOrder.setExpression(((EqualsTo) exp).getRightExpression());
+                    leftList.add(rightOrder);
+                    rightList.add(leftOrder);
+                }
+            } else {
+                AndExpression andExp = (AndExpression) exp;
+                stackExpression.add(andExp.getRightExpression());
+                stackExpression.add(andExp.getLeftExpression());
+            }
+        }
+        return list;
     }
 
     /**
@@ -136,19 +222,11 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical sort operator acting as a blueprint.
      * @return The physical sort operator corresponding to the logical sort
-     *         operator.
+     * operator.
      */
     public Operator visit(LogicalSortOperator operator) {
         Operator child = constructPhysical(operator.getChild());
-        switch (config.getSortType()) {
-            case MEMORY:
-                return new SortOperator(child, operator.getSortColumnMap(), operator.getOrderByElements());
-            case EXTERNAL:
-                // TODO: EXTERNAL SORT
-                return null;
-        }
-        // This scenario should never happen
-        return null;
+        return generateSort(child, operator.getOrderByElements());
     }
 
     /**
@@ -158,10 +236,29 @@ public class PhysicalPlanBuilder {
      * @param operator The logical DuplicateElimination operator acting as a
      *                 blueprint.
      * @return The physical DuplicateElimination operator corresponding to the
-     *         logical DuplicateElimination operator.
+     * logical DuplicateElimination operator.
      */
     public Operator visit(LogicalDuplicateEliminationOperator operator) {
         Operator child = constructPhysical(operator.getChild());
         return new DuplicateEliminationOperator(child);
+    }
+
+    /**
+     * Returns the sort operator based on the child and order of sorting.
+     *
+     * @param child The child node for the sort operator that's being created
+     * @param order The order in which we will sort our operator
+     * @return The new sort operator
+     */
+    private Operator generateSort(Operator child, List<OrderByElement> order) {
+        switch (config.getSortType()) {
+            case MEMORY:
+                return new SortOperator(child, child.getColumnMap(), order);
+            case EXTERNAL:
+                return new ExternalSortOperator(child, child.getColumnMap(), order, Interpreter.getTempdir(),
+                        config.getSortBufferSize());
+        }
+        // This scenario should never happen
+        return null;
     }
 }

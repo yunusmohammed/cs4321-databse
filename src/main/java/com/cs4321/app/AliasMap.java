@@ -10,22 +10,22 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The ColumnMap is an abstraction that allows for Operators to easily determine the index value of a column
+ * The AliasMap is an abstraction that allows for Operators to easily determine the index value of a column
  * regardless of whether that columns is from a base table or an alias.
  *
  * @author Lenhard Thomas
  */
-public class ColumnMap {
+public class AliasMap {
     // Maps the name of every table to its corresponding base table
-    private Map<String, String> aliasMap;
+    public Map<String, String> aliasMap;
 
     /**
-     * Creates a ColumnMap that is designed to map any column to the index that column represents in a row.
+     * Creates a AliasMap that is designed to map any column to the index that column represents in a row.
      *
      * @param item      The FromItem that is listed in the 'FROM' portion of the SELECT statement
      * @param joinsList The list of joins in the SELECT statement
      */
-    public ColumnMap(FromItem item, List<Join> joinsList) {
+    public AliasMap(FromItem item, List<Join> joinsList) {
         this.aliasMap = new HashMap<>();
         this.addToMap(item);
         // Place remaining tables in the alias map

@@ -1,6 +1,6 @@
 package com.cs4321.physicaloperators;
 
-import com.cs4321.app.ColumnMap;
+import com.cs4321.app.AliasMap;
 import com.cs4321.app.Tuple;
 import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.arithmetic.*;
@@ -12,7 +12,7 @@ import net.sf.jsqlparser.statement.select.SubSelect;
 
 public class SelectExpressionVisitor implements ExpressionVisitor {
 
-    private ColumnMap columnMap;
+    private AliasMap aliasMap;
     private Tuple row;
 
     private double doubleLastValue;
@@ -22,16 +22,16 @@ public class SelectExpressionVisitor implements ExpressionVisitor {
     /**
      * Evaluates an expression to either true or false.
      *
-     * @param exp       The expression being evaluated. Requires: exp to be of the form [A op B] where A and B are either
-     *                  longs or column references, and op is one of =, !=, <, <=, >, or >= or a conjunction of other
-     *                  expressions in that form.
-     * @param columnMap The ColumnMap representing a mapping from a column to the index that column represents in a row
-     * @param row       The row for which the expression is being evaluated on.
+     * @param exp      The expression being evaluated. Requires: exp to be of the form [A op B] where A and B are either
+     *                 longs or column references, and op is one of =, !=, <, <=, >, or >= or a conjunction of other
+     *                 expressions in that form.
+     * @param aliasMap The AliasMap representing a mapping from a column to the index that column represents in a row
+     * @param row      The row for which the expression is being evaluated on.
      * @return Boolean result of evaluating the expression.
      */
-    public boolean evalExpression(Expression exp, Tuple row, ColumnMap columnMap) {
+    public boolean evalExpression(Expression exp, Tuple row, AliasMap aliasMap) {
         this.row = row;
-        this.columnMap = columnMap;
+        this.aliasMap = aliasMap;
         exp.accept(this);
         return boolLastValue;
     }
@@ -49,14 +49,14 @@ public class SelectExpressionVisitor implements ExpressionVisitor {
 
     @Override
     public void visit(AndExpression exp) {
-        boolean left = evalExpression(exp.getLeftExpression(), this.row, this.columnMap);
-        boolean right = evalExpression(exp.getRightExpression(), this.row, this.columnMap);
+        boolean left = evalExpression(exp.getLeftExpression(), this.row, this.aliasMap);
+        boolean right = evalExpression(exp.getRightExpression(), this.row, this.aliasMap);
         boolLastValue = left && right;
     }
 
     @Override
     public void visit(Column exp) {
-        int index = columnMap.get(exp);
+        int index = aliasMap.get(exp);
         doubleLastValue = row.get(index);
     }
 

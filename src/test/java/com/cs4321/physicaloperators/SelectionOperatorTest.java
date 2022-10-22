@@ -1,6 +1,6 @@
 package com.cs4321.physicaloperators;
 
-import com.cs4321.app.ColumnMap;
+import com.cs4321.app.AliasMap;
 import com.cs4321.app.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.ParseException;
@@ -19,7 +19,7 @@ class SelectionOperatorTest {
 
     ScanOperator mockScan;
     SelectExpressionVisitor mockVisitor;
-    ColumnMap mockColumnMap;
+    AliasMap mockAliasMap;
     SelectionOperator selectOperator;
 
     @BeforeEach
@@ -27,8 +27,8 @@ class SelectionOperatorTest {
         Expression mockExpression = Mockito.mock(Expression.class);
         mockScan = Mockito.mock(ScanOperator.class);
         mockVisitor = Mockito.mock(SelectExpressionVisitor.class);
-        mockColumnMap = Mockito.mock(ColumnMap.class);
-        selectOperator = new SelectionOperator(mockVisitor, mockColumnMap, mockExpression, mockScan);
+        mockAliasMap = Mockito.mock(AliasMap.class);
+        selectOperator = new SelectionOperator(mockVisitor, mockAliasMap, mockExpression, mockScan);
     }
 
     @Test
@@ -40,22 +40,22 @@ class SelectionOperatorTest {
 
         // Current row fails expression and is last row in column
         Mockito.when(mockScan.getNextTuple()).thenReturn(new Tuple("1,1,1"));
-        Mockito.when(mockVisitor.evalExpression(any(), any(), eq(mockColumnMap))).thenReturn(false);
+        Mockito.when(mockVisitor.evalExpression(any(), any(), eq(mockAliasMap))).thenReturn(false);
         Mockito.when(mockScan.getNextTuple()).thenReturn(null);
         assertNull(selectOperator.getNextTuple());
 
         // Current row fails expression but next row passes
         expectedResult = new Tuple("2,2,2");
         Mockito.when(mockScan.getNextTuple()).thenReturn(new Tuple("1,1,1"));
-        Mockito.when(mockVisitor.evalExpression(any(), any(), eq(mockColumnMap))).thenReturn(false);
+        Mockito.when(mockVisitor.evalExpression(any(), any(), eq(mockAliasMap))).thenReturn(false);
         Mockito.when(mockScan.getNextTuple()).thenReturn(expectedResult);
-        Mockito.when(mockVisitor.evalExpression(any(), any(), eq(mockColumnMap))).thenReturn(true);
+        Mockito.when(mockVisitor.evalExpression(any(), any(), eq(mockAliasMap))).thenReturn(true);
         assertEquals(expectedResult, selectOperator.getNextTuple());
 
         // Current row passes expression
         expectedResult = new Tuple("1,2,3");
         Mockito.when(mockScan.getNextTuple()).thenReturn(expectedResult);
-        Mockito.when(mockVisitor.evalExpression(any(), any(), eq(mockColumnMap))).thenReturn(true);
+        Mockito.when(mockVisitor.evalExpression(any(), any(), eq(mockAliasMap))).thenReturn(true);
         assertEquals(expectedResult, selectOperator.getNextTuple());
     }
 
@@ -67,13 +67,13 @@ class SelectionOperatorTest {
         // Simple expression
         exp = Utils.getExpression("Sailors", "1 < 2");
         Mockito.when(mockScan.toString()).thenReturn("ScanOperator{}");
-        selectionOperator = new SelectionOperator(mockVisitor, mockColumnMap, exp, mockScan);
+        selectionOperator = new SelectionOperator(mockVisitor, mockAliasMap, exp, mockScan);
         assertEquals("SelectionOperator{ScanOperator{}, 1 < 2}", selectionOperator.toString());
 
         // Complex expression
         exp = Utils.getExpression("Sailors", "1 < 2 AND R.A = R.B AND R.C > R.A");
         Mockito.when(mockScan.toString()).thenReturn("ScanOperator{}");
-        selectionOperator = new SelectionOperator(mockVisitor, mockColumnMap, exp, mockScan);
+        selectionOperator = new SelectionOperator(mockVisitor, mockAliasMap, exp, mockScan);
         assertEquals("SelectionOperator{ScanOperator{}, 1 < 2 AND R.A = R.B AND R.C > R.A}", selectionOperator.toString());
     }
 

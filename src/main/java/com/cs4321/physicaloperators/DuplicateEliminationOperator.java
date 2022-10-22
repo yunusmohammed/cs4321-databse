@@ -1,7 +1,6 @@
 package com.cs4321.physicaloperators;
 
 import com.cs4321.app.Tuple;
-import com.cs4321.physicaloperators.Operator;
 
 /**
  * Operator for handling distinct clauses
@@ -15,17 +14,18 @@ public class DuplicateEliminationOperator extends Operator {
     /**
      * Constructs an operator to represent a distinct clause. This operator is
      * always at the root of the query plan.
-     * 
+     *
      * @param child- the rest of the query plan.
      */
     public DuplicateEliminationOperator(Operator child) {
         this.child = child;
+        this.setColumnMap(child.getColumnMap());
     }
 
     /**
      * Returns the next unique tuple. Assumes the child returns tuples in sorted
      * order.
-     * 
+     *
      * @return- the next unique tuple.
      */
     @Override
@@ -49,6 +49,7 @@ public class DuplicateEliminationOperator extends Operator {
 
     /**
      * Returns a string representation of the duplicate elimination operator and its children.
+     *
      * @return - a string representation of the duplicate elimination operator.
      */
     @Override

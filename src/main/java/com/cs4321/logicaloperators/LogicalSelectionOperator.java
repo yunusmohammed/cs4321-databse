@@ -1,6 +1,6 @@
 package com.cs4321.logicaloperators;
 
-import com.cs4321.app.ColumnMap;
+import com.cs4321.app.AliasMap;
 import com.cs4321.app.PhysicalPlanBuilder;
 import com.cs4321.physicaloperators.Operator;
 import com.cs4321.physicaloperators.SelectExpressionVisitor;
@@ -15,7 +15,7 @@ public class LogicalSelectionOperator extends LogicalOperator {
     private final Expression selectCondition;
     private final LogicalScanOperator child;
     private final SelectExpressionVisitor visitor;
-    private final ColumnMap columnMap;
+    private final AliasMap aliasMap;
 
     /**
      * Creates a logical select operator
@@ -25,15 +25,14 @@ public class LogicalSelectionOperator extends LogicalOperator {
      *                        operator
      * @param visitor         The ExpressionVisitor that will be used to determine
      *                        whether a row passes a condition
-     * @param columnMap       The ColumnMap representing a mapping from a column to
-     *                        the index that column represents in a row
+     * @param aliasMap        A AliasMap instance for alias resolution
      */
     public LogicalSelectionOperator(Expression selectCondition, LogicalScanOperator child,
-                                    SelectExpressionVisitor visitor, ColumnMap columnMap) {
+                                    SelectExpressionVisitor visitor, AliasMap aliasMap) {
         this.selectCondition = selectCondition;
         this.child = child;
         this.visitor = visitor;
-        this.columnMap = columnMap;
+        this.aliasMap = aliasMap;
     }
 
     /**
@@ -64,12 +63,12 @@ public class LogicalSelectionOperator extends LogicalOperator {
     }
 
     /**
-     * Get the ColumnMap of the logical select operator
+     * Get the AliasMap of the logical select operator
      *
-     * @return The ColumnMap of the logical select operator
+     * @return The AliasMap of the logical select operator
      */
-    public ColumnMap getColumnMap() {
-        return this.columnMap;
+    public AliasMap getAliasMap() {
+        return this.aliasMap;
     }
 
     /**

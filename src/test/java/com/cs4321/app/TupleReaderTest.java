@@ -78,7 +78,7 @@ class TupleReaderTest {
         tupleReader.readNextTuple();
         tupleReader.readNextTuple();
         tupleReader.resetToIndex(5);
-        System.out.println(tupleReader.readNextTuple());
+        assertEquals(tupleReader.readNextTuple().toString(), "61,58,36");
     }
 
     @Test
@@ -87,15 +87,15 @@ class TupleReaderTest {
         for (int i = 0; i < 400; i++) {
             tupleReader.readNextTuple();
         }
-        System.out.println(tupleReader.readNextTuple());
+        assertEquals(tupleReader.readNextTuple().toString(), "93,146,184");
         tupleReader.resetToIndex(5);
-        System.out.println(tupleReader.readNextTuple());
+        assertEquals(tupleReader.readNextTuple().toString(), "61,58,36");
         tupleReader.reset();
         for (int i = 0; i < 700; i++) {
             tupleReader.readNextTuple();
         }
-        System.out.println(tupleReader.readNextTuple());
+        assertEquals(tupleReader.readNextTuple().toString(), "173,94,10");
         tupleReader.resetToIndex(5);
-        System.out.println(tupleReader.readNextTuple());
+        assertEquals(tupleReader.readNextTuple().toString(), "61,58,36");
     }
 }

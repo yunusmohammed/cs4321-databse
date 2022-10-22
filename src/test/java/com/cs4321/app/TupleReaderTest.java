@@ -67,6 +67,34 @@ class TupleReaderTest {
         tupleReader.reset();
         tupleReader.readNextTuple();
         tupleReader.readNextTuple();
+        tupleReader.readNextTuple();
+        tupleReader.readNextTuple();
+        tupleReader.readNextTuple();
+        tupleReader.readNextTuple();
+        tupleReader.readNextTuple();
+        tupleReader.readNextTuple();
+        tupleReader.readNextTuple();
+        tupleReader.readNextTuple();
+        tupleReader.readNextTuple();
+        tupleReader.readNextTuple();
+        tupleReader.resetToIndex(5);
+        System.out.println(tupleReader.readNextTuple());
+    }
+
+    @Test
+    public void anotherResetToPage() throws IOException {
+        tupleReader.reset();
+        for (int i = 0; i < 400; i++) {
+            tupleReader.readNextTuple();
+        }
+        System.out.println(tupleReader.readNextTuple());
+        tupleReader.resetToIndex(5);
+        System.out.println(tupleReader.readNextTuple());
+        tupleReader.reset();
+        for (int i = 0; i < 700; i++) {
+            tupleReader.readNextTuple();
+        }
+        System.out.println(tupleReader.readNextTuple());
         tupleReader.resetToIndex(5);
         System.out.println(tupleReader.readNextTuple());
     }

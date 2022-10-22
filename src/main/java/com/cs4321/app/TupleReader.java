@@ -66,7 +66,7 @@ public class TupleReader {
                 pageToPageSize.add(pageSize);
                 i++;
             } else {
-                if (tupleList.size() == pageSize) {
+                if (numTuplesSoFar == pageSize) {
                     break;
                 }
                 StringBuilder data = new StringBuilder();
@@ -82,6 +82,7 @@ public class TupleReader {
             }
         }
         numberOfPages++;
+        numTuplesSoFar = 0;
         // Reference: https://stackoverflow.com/a/14937929/13636444
         buffer.clear();
         buffer.put(new byte[PAGE_SIZE]);
@@ -97,16 +98,16 @@ public class TupleReader {
      */
     public Tuple readNextTuple() throws IOException {
         if (tupleList == null) {
-            tupleList = readFromFile();
             resetIndexToZero();
+            tupleList = readFromFile();
             // End of All Pages
             if (tupleList == null) {
                 return null;
             }
         }
         if (tupleNextIndex == tupleList.size()) {
-            tupleList = readFromFile();
             resetIndexToZero();
+            tupleList = readFromFile();
             if (tupleList == null) {
                 return null;
             }
@@ -146,10 +147,12 @@ public class TupleReader {
     }
 
     public void resetToIndex(int index) throws IOException {
-        fc.position(index);
+        fc.position(8);
         findNewPageInfo(index);
         resetIndexToNewIndex(index);
         resetTupleNextIndex(index);
+        numTuplesSoFar = tupleNextIndex;
+        resetTupleList();
     }
 
     private void findNewPageInfo(int index) {
@@ -158,11 +161,15 @@ public class TupleReader {
     }
 
     private void resetIndexToNewIndex(int index) {
-        i = index % pageSize + 1;
+        i = (index % pageSize) + 1;
     }
 
     private void resetTupleNextIndex(int index) {
-        tupleNextIndex = index % pageSize - 1;
+        tupleNextIndex = (index % pageSize) - 1;
+    }
+
+    private void resetTupleList() throws IOException {
+        tupleList = readFromFile();
     }
 
     private void resetIndexToZero() {

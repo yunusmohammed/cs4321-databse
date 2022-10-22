@@ -50,7 +50,7 @@ public class TupleReader {
      * @return a list of all Tuples on the current page
      * @throws IOException
      */
-    private List<Tuple> readFromFile(int startPostion, int pageSize, int tupleSize, boolean resetCall, int fcPos) throws IOException {
+    private List<Tuple> readFromFile(int startPostion, int pageSize, int tupleSize) throws IOException {
         List<Tuple> tupleList = new ArrayList<>();
         int checkEndOfFile = fc.read(buffer);
         if (checkEndOfFile == -1) {
@@ -97,7 +97,7 @@ public class TupleReader {
      * @throws IOException
      */
     private List<Tuple> readFromFile() throws IOException {
-        return readFromFile(0, 0, 0, false, 0);
+        return readFromFile(0, 0, 0);
     }
 
     /**
@@ -189,9 +189,7 @@ public class TupleReader {
         tupleList = readFromFile(
                 numberOfTuplesFromPageStart + 2,
                 numberOfTuplesOnPage - numberOfTuplesFromPageStart,
-                tupleSize,
-                true,
-                pageIndexIsOn * PAGE_SIZE);
+                tupleSize);
     }
 
 }

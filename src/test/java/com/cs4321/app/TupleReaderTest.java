@@ -60,4 +60,31 @@ class TupleReaderTest {
         tupleReader.reset();
         assertEquals(tupleReader.readNextTuple().toString(), "12,143,196");
     }
+
+    @Test
+    public void smjReset() throws IOException {
+        for (int i = 0; i < 640; i++) {
+            tupleReader.readNextTuple();
+        }
+        tupleReader.smjReset(500);
+        assertEquals(tupleReader.readNextTuple().toString(), "86,180,110");
+    }
+
+    @Test
+    public void smjResetAnother() throws IOException {
+        for (int i = 0; i < 900; i++) {
+            tupleReader.readNextTuple();
+        }
+        tupleReader.smjReset(500);
+        assertEquals(tupleReader.readNextTuple().toString(), "86,180,110");
+    }
+
+    @Test
+    public void yetAnotherSmjReset() throws IOException {
+        for (int i = 0; i < 900; i++) {
+            tupleReader.readNextTuple();
+        }
+        tupleReader.smjReset(0);
+        assertEquals(tupleReader.readNextTuple().toString(), "12,143,196");
+    }
 }

@@ -18,11 +18,14 @@ public class TupleReader {
     private FileChannel fc;
     private ByteBuffer buffer;
     private final String filename;
-    private int numberOfPages = 0;
-    private int currentPage = 0;
     private int tupleNextIndex = 0;
     private List<Tuple> tupleList;
     private final int PAGE_SIZE = 4096;
+    private final int SIZE_OF_AN_INTEGER = 4;
+    private List pageToNumberOfTuplesOnPage;
+    private int maximumNumberOfTuplesOnPage;
+    private int tupleSize;
+    private int numberOfPagesRead;
 
     /**
      * Initialises a Tuple Reader instance
@@ -35,6 +38,56 @@ public class TupleReader {
         this.fc = fin.getChannel();
         this.buffer = ByteBuffer.allocate(PAGE_SIZE);
         this.filename = filename;
+        this.pageToNumberOfTuplesOnPage = new ArrayList<>();
+        this.maximumNumberOfTuplesOnPage = 0;
+        this.tupleSize = 0;
+        this.numberOfPagesRead = 0;
+    }
+
+    /**
+     * Returns a list of all Tuples on the current page
+     *
+     * @return a list of all Tuples on the current page
+     * @throws IOException
+     */
+    private List<Tuple> readFromFile(int startPostion, int pageSize, int tupleSize, boolean resetCall, int fcPos) throws IOException {
+        List<Tuple> tupleList = new ArrayList<>();
+        int checkEndOfFile = fc.read(buffer);
+        if (checkEndOfFile == -1) {
+            return null;
+        }
+        fc.position(numberOfPagesRead * PAGE_SIZE);
+        buffer.clear();
+        while (buffer.hasRemaining()) {
+            if (startPostion == 0) {
+                tupleSize = buffer.getInt();
+                this.tupleSize = tupleSize;
+                startPostion++;
+            } else if (startPostion == 1) {
+                pageSize = buffer.getInt();
+                this.maximumNumberOfTuplesOnPage = pageSize;
+                pageToNumberOfTuplesOnPage.add(pageSize);
+                startPostion++;
+            } else {
+                if (tupleList.size() == pageSize) {
+                    break;
+                }
+                StringBuilder data = new StringBuilder();
+                for (int idx = 0; idx < tupleSize; idx++) {
+                    data.append(buffer.getInt());
+                    startPostion++;
+                    if (idx != tupleSize - 1) {
+                        data.append(",");
+                    }
+                }
+                tupleList.add(new Tuple(data.toString()));
+            }
+        }
+        // Reference: https://stackoverflow.com/a/14937929/13636444
+        buffer.clear();
+        buffer.put(new byte[PAGE_SIZE]);
+        buffer.clear();
+        return tupleList;
     }
 
     /**
@@ -44,43 +97,7 @@ public class TupleReader {
      * @throws IOException
      */
     private List<Tuple> readFromFile() throws IOException {
-        List<Tuple> tupleList = new ArrayList<>();
-        int checkEndOfFile = fc.read(buffer);
-        if (checkEndOfFile == -1) {
-            return null;
-        }
-        buffer.clear();
-        int i = 0;
-        int tupleSize = 0;
-        int pageSize = 0;
-        while (buffer.hasRemaining()) {
-            if (i == 0) {
-                tupleSize = buffer.getInt();
-                i++;
-            } else if (i == 1) {
-                pageSize = buffer.getInt();
-                i++;
-            } else {
-                if (tupleList.size() == pageSize) {
-                    break;
-                }
-                StringBuilder data = new StringBuilder();
-                for (int idx = 0; idx < tupleSize; idx++) {
-                    data.append(buffer.getInt());
-                    i++;
-                    if (idx != tupleSize - 1) {
-                        data.append(",");
-                    }
-                }
-                tupleList.add(new Tuple(data.toString()));
-            }
-        }
-        numberOfPages++;
-        // Reference: https://stackoverflow.com/a/14937929/13636444
-        buffer.clear();
-        buffer.put(new byte[PAGE_SIZE]);
-        buffer.clear();
-        return tupleList;
+        return readFromFile(0, 0, 0, false, 0);
     }
 
     /**
@@ -91,18 +108,20 @@ public class TupleReader {
      */
     public Tuple readNextTuple() throws IOException {
         if (tupleList == null) {
+            numberOfPagesRead++;
             tupleList = readFromFile();
+            tupleNextIndex = 0;
             // End of All Pages
             if (tupleList == null) {
                 return null;
             }
         }
         if (tupleNextIndex == tupleList.size()) {
+            numberOfPagesRead++;
             tupleList = readFromFile();
             if (tupleList == null) {
                 return null;
             }
-            currentPage++;
             tupleNextIndex = 0;
         }
         tupleNextIndex++;
@@ -124,8 +143,6 @@ public class TupleReader {
      * @throws FileNotFoundException
      */
     public void reset() throws FileNotFoundException {
-        numberOfPages = 0;
-        currentPage = 0;
         tupleNextIndex = 0;
         tupleList = null;
         buffer.clear();
@@ -134,6 +151,47 @@ public class TupleReader {
         buffer.clear();
         buffer.put(new byte[PAGE_SIZE]);
         buffer.clear();
+        numberOfPagesRead = 0;
+        pageToNumberOfTuplesOnPage = new ArrayList<>();
+        maximumNumberOfTuplesOnPage = 0;
+        tupleSize = 0;
+        numberOfPagesRead = 0;
+    }
+
+    /**
+     * Resets the tuple reader to start reading tuples from the tupleRow specified
+     * Implementation assumes that the tupleRow has already previously been accessed
+     *
+     * @param tupleRow 0 indexed tupleRow to set tuple reader to
+     * @throws IOException
+     */
+    public void smjReset(int tupleRow) throws IOException {
+        // Figure out what page this index is supposed to be on
+        int pageIndexIsOn = tupleRow / maximumNumberOfTuplesOnPage;
+        int numberOfTuplesOnPage = maximumNumberOfTuplesOnPage;
+        if (pageIndexIsOn != 0) {
+            numberOfTuplesOnPage = (int) pageToNumberOfTuplesOnPage.get(pageIndexIsOn - 1);
+        }
+
+        // Calculate number of bytes I now need to read
+        int numberOfTuplesFromPageStart = (tupleRow) % numberOfTuplesOnPage;
+        int numberOfBytesTillTuple = (SIZE_OF_AN_INTEGER * 2) + (PAGE_SIZE * pageIndexIsOn) + (SIZE_OF_AN_INTEGER * numberOfTuplesFromPageStart * tupleSize);
+
+        // Set file channel
+        fc.position(numberOfBytesTillTuple);
+
+        // Set buffer
+        buffer = ByteBuffer.allocate(PAGE_SIZE);
+
+        // Read tuples
+        tupleNextIndex = 0;
+        numberOfPagesRead = pageIndexIsOn + 1;
+        tupleList = readFromFile(
+                numberOfTuplesFromPageStart + 2,
+                numberOfTuplesOnPage - numberOfTuplesFromPageStart,
+                tupleSize,
+                true,
+                pageIndexIsOn * PAGE_SIZE);
     }
 
 }

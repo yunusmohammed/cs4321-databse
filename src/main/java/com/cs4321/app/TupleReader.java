@@ -47,10 +47,13 @@ public class TupleReader {
     /**
      * Returns a list of all Tuples on the current page
      *
+     * @param startPostion The position at which the first byte is read
+     * @param numberOfTuplesOnPage The number of tuples on the current page
+     * @param tupleSize The number of integers a tuple has
      * @return a list of all Tuples on the current page
      * @throws IOException
      */
-    private List<Tuple> readFromFile(int startPostion, int pageSize, int tupleSize) throws IOException {
+    private List<Tuple> readFromFile(int startPostion, int numberOfTuplesOnPage, int tupleSize) throws IOException {
         List<Tuple> tupleList = new ArrayList<>();
         int checkEndOfFile = fc.read(buffer);
         if (checkEndOfFile == -1) {
@@ -64,12 +67,12 @@ public class TupleReader {
                 this.tupleSize = tupleSize;
                 startPostion++;
             } else if (startPostion == 1) {
-                pageSize = buffer.getInt();
-                this.maximumNumberOfTuplesOnPage = Math.max(pageSize, maximumNumberOfTuplesOnPage);
-                pageToNumberOfTuplesOnPage.add(pageSize);
+                numberOfTuplesOnPage = buffer.getInt();
+                this.maximumNumberOfTuplesOnPage = Math.max(numberOfTuplesOnPage, maximumNumberOfTuplesOnPage);
+                pageToNumberOfTuplesOnPage.add(numberOfTuplesOnPage);
                 startPostion++;
             } else {
-                if (tupleList.size() == pageSize) {
+                if (tupleList.size() == numberOfTuplesOnPage) {
                     break;
                 }
                 StringBuilder data = new StringBuilder();
@@ -117,7 +120,6 @@ public class TupleReader {
             }
         }
         if (tupleNextIndex == tupleList.size()) {
-//            fc.position(PAGE_SIZE * numberOfPagesRead);
             numberOfPagesRead++;
             tupleList = readFromFile();
             if (tupleList == null) {

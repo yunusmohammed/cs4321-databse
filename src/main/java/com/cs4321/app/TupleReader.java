@@ -22,7 +22,7 @@ public class TupleReader {
     private List<Tuple> tupleList;
     private final int PAGE_SIZE = 4096;
     private final int SIZE_OF_AN_INTEGER = 4;
-    private List pageToNumberOfTuplesOnPage;
+    private List<Integer> pageToNumberOfTuplesOnPage;
     private int maximumNumberOfTuplesOnPage;
     private int tupleSize;
     private int numberOfPagesRead;
@@ -56,7 +56,7 @@ public class TupleReader {
         if (checkEndOfFile == -1) {
             return null;
         }
-        fc.position(numberOfPagesRead * PAGE_SIZE);
+        fc.position((long) numberOfPagesRead * PAGE_SIZE);
         buffer.clear();
         while (buffer.hasRemaining()) {
             if (startPostion == 0) {
@@ -156,7 +156,6 @@ public class TupleReader {
         pageToNumberOfTuplesOnPage = new ArrayList<>();
         maximumNumberOfTuplesOnPage = 0;
         tupleSize = 0;
-        numberOfPagesRead = 0;
     }
 
     /**
@@ -167,13 +166,9 @@ public class TupleReader {
      * @throws IOException
      */
     public void smjReset(int tupleRow) throws IOException {
-        // Figure out what page this index is supposed to be on
+        // Figure out what page  this index is supposed to be on
         int pageIndexIsOn = tupleRow / maximumNumberOfTuplesOnPage;
-        int numberOfTuplesOnPage = maximumNumberOfTuplesOnPage;
-        if (pageIndexIsOn != 0) {
-            numberOfTuplesOnPage = (int) pageToNumberOfTuplesOnPage.get(pageIndexIsOn - 1);
-
-        }
+        int numberOfTuplesOnPage = pageToNumberOfTuplesOnPage.get(pageIndexIsOn);
 
         // Calculate number of bytes I now need to read
         int numberOfTuplesFromPageStart = (tupleRow) % numberOfTuplesOnPage;

@@ -62,7 +62,7 @@ class TupleReaderTest {
     }
 
     @Test
-    public void smjReset() throws IOException {
+    public void smjResetAfterReadingPage2() throws IOException {
         for (int i = 0; i < 640; i++) {
             tupleReader.readNextTuple();
         }
@@ -71,7 +71,7 @@ class TupleReaderTest {
     }
 
     @Test
-    public void smjResetAnother() throws IOException {
+    public void smjResetAfterReadingPage3() throws IOException {
         for (int i = 0; i < 900; i++) {
             tupleReader.readNextTuple();
         }
@@ -80,7 +80,7 @@ class TupleReaderTest {
     }
 
     @Test
-    public void yetAnotherSmjReset() throws IOException {
+    public void smjResetToFileStart() throws IOException {
         for (int i = 0; i < 900; i++) {
             tupleReader.readNextTuple();
         }

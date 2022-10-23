@@ -43,6 +43,7 @@ public class QueryPlan {
      *                    at 1)
      */
     private void evaluateQueries(Statement statement, int queryNumber) {
+        this.queryNumber = queryNumber;
         if (statement != null) {
             LogicalQueryPlan logicalPlan = new LogicalQueryPlan(statement);
             LogicalOperator logicalRoot = logicalPlan.getRoot();
@@ -88,8 +89,8 @@ public class QueryPlan {
                 root.dump(queryOutputName);
             }
             long finishTime = System.currentTimeMillis();
-            // logger.log("Elapsed time for query " + queryNumber + ": " + (finishTime -
-            // startTime) + "ms");
+            logger.log("Elapsed time for query " + queryNumber + ": " + (finishTime -
+                    startTime) + "ms");
         }
     }
 

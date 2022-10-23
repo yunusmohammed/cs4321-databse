@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.Test;
  * 
  * @author Yunus (ymm26@cornell.edu)
  */
+@Disabled("Disabled until tests can be isolated")
 public class LoggerTest {
   static Logger logger = Logger.getInstance();
 

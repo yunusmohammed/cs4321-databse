@@ -223,8 +223,7 @@ public class PhysicalPlanBuilder {
                 List<OrderByElement> rightOrder = orders.get(1);
                 leftChild = generateSort(leftChild, leftOrder);
                 rightChild = generateSort(rightChild, rightOrder);
-                SMJOperator smjOperator = new SMJOperator((SortOperator) leftChild, (SortOperator) rightChild,
-                        operator.getJoinCondition(), operator.getJoinExpressionVisitor());
+                SMJOperator smjOperator = new SMJOperator(leftChild, rightChild, operator.getJoinCondition(), operator.getJoinExpressionVisitor());
                 smjOperator.setLeftSortOrder(leftOrder);
                 smjOperator.setRightSortOrder(rightOrder);
                 return smjOperator;

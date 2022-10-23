@@ -92,4 +92,40 @@ class TupleReaderTest {
             line = reader.readLine();
         }
     }
+
+    @Test
+    public void smjResetToRandom() throws IOException {
+        for (int i = 0; i < 900; i++) {
+            tupleReader.readNextTuple();
+        }
+        tupleReader.smjReset(789);
+        assertEquals(tupleReader.readNextTuple().toString(), "179,172,49");
+    }
+
+    @Test
+    public void smjResetToRandom2() throws IOException {
+        for (int i = 0; i < 900; i++) {
+            tupleReader.readNextTuple();
+        }
+        tupleReader.smjReset(828);
+        assertEquals(tupleReader.readNextTuple().toString(), "198,4,117");
+    }
+
+    @Test
+    public void smjResetToRandom3() throws IOException {
+        for (int i = 0; i < 340; i++) {
+            tupleReader.readNextTuple();
+        }
+        tupleReader.smjReset(8);
+        assertEquals(tupleReader.readNextTuple().toString(), "1,146,192");
+    }
+
+    @Test
+    public void smjResetToRandom4() throws IOException {
+        for (int i = 0; i < 1000; i++) {
+            tupleReader.readNextTuple();
+        }
+        tupleReader.smjReset(999);
+        assertEquals(tupleReader.readNextTuple().toString(), "44,39,136");
+    }
 }

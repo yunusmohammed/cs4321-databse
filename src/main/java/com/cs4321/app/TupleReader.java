@@ -69,7 +69,7 @@ public class TupleReader {
             } else if (startPostion == 1) {
                 numberOfTuplesOnPage = buffer.getInt();
                 this.maximumNumberOfTuplesOnPage = Math.max(numberOfTuplesOnPage, maximumNumberOfTuplesOnPage);
-                pageToNumberOfTuplesOnPage.add(numberOfTuplesOnPage);
+                pageToNumberOfTuplesOnPage.add(numberOfPagesRead - 1, numberOfTuplesOnPage);
                 startPostion++;
             } else {
                 if (tupleList.size() == numberOfTuplesOnPage) {
@@ -170,10 +170,9 @@ public class TupleReader {
     public void smjReset(int tupleRow) throws IOException {
         // Figure out what page  this index is supposed to be on
         int pageIndexIsOn = tupleRow / maximumNumberOfTuplesOnPage;
-        int numberOfTuplesOnPage = pageToNumberOfTuplesOnPage.get(pageIndexIsOn);
 
         // Calculate number of bytes I now need to read
-        int numberOfTuplesFromPageStart = (tupleRow) % numberOfTuplesOnPage;
+        int numberOfTuplesFromPageStart = (tupleRow) % maximumNumberOfTuplesOnPage;
         int numberOfBytesTillTuple = (SIZE_OF_AN_INTEGER * 2) + (PAGE_SIZE * pageIndexIsOn) + (SIZE_OF_AN_INTEGER * numberOfTuplesFromPageStart * tupleSize);
 
         // Set file channel
@@ -187,7 +186,7 @@ public class TupleReader {
         numberOfPagesRead = pageIndexIsOn + 1;
         tupleList = readFromFile(
                 numberOfTuplesFromPageStart + 2,
-                numberOfTuplesOnPage - numberOfTuplesFromPageStart,
+                maximumNumberOfTuplesOnPage - numberOfTuplesFromPageStart,
                 tupleSize);
     }
 

@@ -88,8 +88,8 @@ public class QueryPlan {
                 root.dump(queryOutputName);
             }
             long finishTime = System.currentTimeMillis();
-            // logger.log("Elapsed time for query " + queryNumber + ": " + (finishTime -
-            // startTime) + "ms");
+            logger.log("Elapsed time for query " + queryNumber + ": " + (finishTime -
+                    startTime) + "ms");
         }
     }
 

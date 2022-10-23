@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+import org.junit.Ignore;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.Test;
  * 
  * @author Yunus (ymm26@cornell.edu)
  */
+@Ignore("Ignore until tests can be isolated")
 public class LoggerTest {
   static Logger logger = Logger.getInstance();
 

@@ -25,14 +25,14 @@ class HumanReadableToBinaryUtilTest {
         }
     }
 
-    @Test
-    void main() {
-        HumanReadableToBinaryUtil.main(new String[]{inputFilePath, outputFilePath});
-        try {
-            boolean equal = FileUtils.contentEquals(new File(outputFilePath), new File(expectedOutputFilePath));
-            assertTrue(equal);
-        } catch (Exception e) {
-            throw new Error("Binary and Human Readable files are not the same");
-        }
-    }
+//    @Test
+//    void main() {
+//        HumanReadableToBinaryUtil.main(new String[]{inputFilePath, outputFilePath});
+//        try {
+//            boolean equal = FileUtils.contentEquals(new File(outputFilePath), new File(expectedOutputFilePath));
+//            assertTrue(equal);
+//        } catch (Exception e) {
+//            throw new Error("Binary and Human Readable files are not the same");
+//        }
+//    }
 }

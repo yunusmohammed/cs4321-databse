@@ -43,6 +43,7 @@ public class QueryPlan {
      *                    at 1)
      */
     private void evaluateQueries(Statement statement, int queryNumber) {
+        this.queryNumber = queryNumber;
         if (statement != null) {
             LogicalQueryPlan logicalPlan = new LogicalQueryPlan(statement);
             LogicalOperator logicalRoot = logicalPlan.getRoot();

@@ -60,4 +60,81 @@ class TupleReaderTest {
         tupleReader.reset();
         assertEquals(tupleReader.readNextTuple().toString(), "12,143,196");
     }
+
+    @Test
+    public void smjResetAfterReadingPage2() throws IOException {
+        for (int i = 0; i < 640; i++) {
+            tupleReader.readNextTuple();
+        }
+        tupleReader.smjReset(500);
+        assertEquals(tupleReader.readNextTuple().toString(), "86,180,110");
+    }
+
+    @Test
+    public void smjResetAfterReadingPage3() throws IOException {
+        for (int i = 0; i < 900; i++) {
+            tupleReader.readNextTuple();
+        }
+        tupleReader.smjReset(500);
+        assertEquals(tupleReader.readNextTuple().toString(), "86,180,110");
+    }
+
+    @Test
+    public void smjResetToFileStart() throws IOException {
+        for (int i = 0; i < 900; i++) {
+            tupleReader.readNextTuple();
+        }
+        tupleReader.smjReset(0);
+        String line = reader.readLine();
+        while (line != null) {
+            Tuple l = tupleReader.readNextTuple();
+            assertEquals(l.toString(), line);
+            line = reader.readLine();
+        }
+    }
+
+    @Test
+    public void smjResetToRandom() throws IOException {
+        for (int i = 0; i < 900; i++) {
+            tupleReader.readNextTuple();
+        }
+        tupleReader.smjReset(789);
+        assertEquals(tupleReader.readNextTuple().toString(), "179,172,49");
+    }
+
+    @Test
+    public void smjResetToRandom2() throws IOException {
+        for (int i = 0; i < 900; i++) {
+            tupleReader.readNextTuple();
+        }
+        tupleReader.smjReset(828);
+        assertEquals(tupleReader.readNextTuple().toString(), "198,4,117");
+    }
+
+    @Test
+    public void smjResetToRandom3() throws IOException {
+        for (int i = 0; i < 340; i++) {
+            tupleReader.readNextTuple();
+        }
+        tupleReader.smjReset(8);
+        assertEquals(tupleReader.readNextTuple().toString(), "1,146,192");
+    }
+
+    @Test
+    public void smjResetToRandom4() throws IOException {
+        for (int i = 0; i < 1000; i++) {
+            tupleReader.readNextTuple();
+        }
+        tupleReader.smjReset(999);
+        assertEquals(tupleReader.readNextTuple().toString(), "44,39,136");
+    }
+
+    @Test
+    public void smjResetToRandom5() throws IOException {
+        for (int i = 0; i < 1000; i++) {
+            tupleReader.readNextTuple();
+        }
+        tupleReader.smjReset(1000);
+        assertEquals(tupleReader.readNextTuple(), null);
+    }
 }

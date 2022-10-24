@@ -33,9 +33,7 @@ public class TupleWriter {
         this.filename = filename;
         int a = buffer.remaining();
         this.buffer.putInt(0);
-        a = buffer.remaining();
         this.buffer.putInt(0);
-        a = buffer.remaining();
     }
 
     /**
@@ -60,7 +58,6 @@ public class TupleWriter {
             for (String s : tupleArr) {
                 buffer.putInt(Integer.parseInt(s));
             }
-            int a = buffer.remaining();
             numberOfTuplesSoFar++;
         }
 

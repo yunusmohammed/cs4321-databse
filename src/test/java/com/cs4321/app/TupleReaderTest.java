@@ -128,4 +128,13 @@ class TupleReaderTest {
         tupleReader.smjReset(999);
         assertEquals(tupleReader.readNextTuple().toString(), "44,39,136");
     }
+
+    @Test
+    public void smjResetToRandom5() throws IOException {
+        for (int i = 0; i < 1000; i++) {
+            tupleReader.readNextTuple();
+        }
+        tupleReader.smjReset(1000);
+        assertEquals(tupleReader.readNextTuple(), null);
+    }
 }

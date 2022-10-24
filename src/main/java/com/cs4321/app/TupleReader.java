@@ -119,7 +119,7 @@ public class TupleReader {
                 return null;
             }
         }
-        if (tupleNextIndex == tupleList.size()) {
+        if (tupleNextIndex == Math.min(tupleList.size(), pageToNumberOfTuplesOnPage.get(numberOfPagesRead - 1))) {
             numberOfPagesRead++;
             tupleList = readFromFile();
             if (tupleList == null) {

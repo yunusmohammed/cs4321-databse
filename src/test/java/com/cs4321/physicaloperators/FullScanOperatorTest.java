@@ -52,7 +52,7 @@ class FullScanOperatorTest {
 
     @Test
     void toStringTest() {
-        String s = String.format("ScanOperator{baseTablePath='%s'}", dbc.tablePath("Boats"));
+        String s = String.format("FullScanOperator{baseTablePath='%s'}", dbc.tablePath("Boats"));
         assertEquals(s, scanOperator.toString());
     }
 

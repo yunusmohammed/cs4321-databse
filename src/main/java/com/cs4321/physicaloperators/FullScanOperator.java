@@ -7,19 +7,13 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * The ScanOperator support queries that are full table scans,
  * e.g. SELECT * FROM SomeTable
  */
-public class FullScanOperator extends Operator {
-    private final DatabaseCatalog dbc = DatabaseCatalog.getInstance();
-    private String baseTablePath;
-    private BufferedReader reader;
-    private TupleReader tupleReader;
-    private static final Logger logger = Logger.getInstance();
+public class FullScanOperator extends ScanOperator {
+
     private boolean humanReadable = false;
 
     /**
@@ -29,27 +23,11 @@ public class FullScanOperator extends Operator {
      * @param aliasMap The mapping from table names to base table names
      */
     public FullScanOperator(Table table, AliasMap aliasMap) {
-        String tableName = table.getAlias();
-        if (tableName == null)
-            tableName = table.getName();
-        String baseTable = aliasMap.getBaseTable(tableName);
-        setBaseTablePath(baseTable);
-        Map<String, Integer> columnMap = new HashMap<>();
-        for (Map.Entry<String, Integer> entry : DatabaseCatalog.getInstance().columnMap(baseTable).entrySet()) {
-            String columnName = entry.getKey();
-            Integer index = entry.getValue();
-            columnMap.put(tableName + "." + columnName, index);
-        }
-        this.setColumnMap(columnMap);
-        try {
-            tupleReader = new TupleReader(getBaseTablePath());
-        } catch (IOException e) {
-            logger.log(e.getMessage());
-        }
+        super(table, aliasMap);
     }
 
     public FullScanOperator(Table table, AliasMap aliasMap, boolean humanReadable) {
-        this(table, aliasMap);
+        super(table, aliasMap);
         this.humanReadable = humanReadable;
         try {
             reader = new BufferedReader(new FileReader(getBaseTablePath()));
@@ -113,46 +91,23 @@ public class FullScanOperator extends Operator {
     }
 
     /**
-     * Returns the baseTablePath
-     *
-     * @return The path to table in the database the ScanOperator is scanning
-     */
-    private String getBaseTablePath() {
-        return baseTablePath;
-    }
-
-    /**
-     * Populates the baseTablePath field
-     *
-     * @param baseTable The table in the database the ScanOperator is scanning
-     */
-    private void setBaseTablePath(String baseTable) {
-        this.baseTablePath = dbc.tablePath(baseTable);
-    }
-
-    /**
      * Closes the initialised BufferedReader
      */
     @Override
     public void finalize() {
-        try {
-            tupleReader.close();
-            reader.close();
-        } catch (IOException e) {
-            logger.log(e.getMessage());
-        }
+        super.finalize();
     }
 
     /**
-     * Returns the string representation of the Scan Operator
+     * Returns the string representation of the Full Scan Operator
      *
      * @return The string representation of the Scan Operator
      *         Eg:
-     *         ScanOperator{baseTablePath='../src/test/resources/input_binary/db/data/Boats'}
+     *         FullScanOperator{baseTablePath='../src/test/resources/input_binary/db/data/Boats'}
      */
     @Override
     public String toString() {
-        return "ScanOperator{" +
+        return "FullScanOperator{" +
                 "baseTablePath='" + baseTablePath + '\'' +
                 '}';
     }

@@ -14,7 +14,7 @@ import java.util.Map;
  * The ScanOperator support queries that are full table scans,
  * e.g. SELECT * FROM SomeTable
  */
-public class ScanOperator extends Operator {
+public class FullScanOperator extends Operator {
     private final DatabaseCatalog dbc = DatabaseCatalog.getInstance();
     private String baseTablePath;
     private BufferedReader reader;
@@ -28,9 +28,10 @@ public class ScanOperator extends Operator {
      * @param table    The table in the database the ScanOperator is scanning
      * @param aliasMap The mapping from table names to base table names
      */
-    public ScanOperator(Table table, AliasMap aliasMap) {
+    public FullScanOperator(Table table, AliasMap aliasMap) {
         String tableName = table.getAlias();
-        if (tableName == null) tableName = table.getName();
+        if (tableName == null)
+            tableName = table.getName();
         String baseTable = aliasMap.getBaseTable(tableName);
         setBaseTablePath(baseTable);
         Map<String, Integer> columnMap = new HashMap<>();
@@ -47,7 +48,7 @@ public class ScanOperator extends Operator {
         }
     }
 
-    public ScanOperator(Table table, AliasMap aliasMap, boolean humanReadable) {
+    public FullScanOperator(Table table, AliasMap aliasMap, boolean humanReadable) {
         this(table, aliasMap);
         this.humanReadable = humanReadable;
         try {
@@ -146,8 +147,8 @@ public class ScanOperator extends Operator {
      * Returns the string representation of the Scan Operator
      *
      * @return The string representation of the Scan Operator
-     * Eg:
-     * ScanOperator{baseTablePath='../src/test/resources/input_binary/db/data/Boats'}
+     *         Eg:
+     *         ScanOperator{baseTablePath='../src/test/resources/input_binary/db/data/Boats'}
      */
     @Override
     public String toString() {

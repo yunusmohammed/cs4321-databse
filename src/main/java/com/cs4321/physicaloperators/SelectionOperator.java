@@ -8,7 +8,7 @@ public class SelectionOperator extends Operator {
     private final SelectExpressionVisitor visitor;
     private final AliasMap aliasMap;
     private final Expression exp;
-    private final ScanOperator child;
+    private final FullScanOperator child;
 
     /**
      * Creates an Operator that will represent a particular SELECT statement
@@ -21,7 +21,8 @@ public class SelectionOperator extends Operator {
      * @param exp      The expression that is used to validate a row
      * @param child    The Scan Operator that will provide the rows in a column
      */
-    public SelectionOperator(SelectExpressionVisitor visitor, AliasMap aliasMap, Expression exp, ScanOperator child) {
+    public SelectionOperator(SelectExpressionVisitor visitor, AliasMap aliasMap, Expression exp,
+            FullScanOperator child) {
         this.visitor = visitor;
         this.aliasMap = aliasMap;
         this.exp = exp;
@@ -33,7 +34,7 @@ public class SelectionOperator extends Operator {
      * If possible, gets the next Tuple in its column
      *
      * @return The next Tuple in the column that passes the statement's expression;
-     * null if no such Tuple exists
+     *         null if no such Tuple exists
      */
     @Override
     public Tuple getNextTuple() {
@@ -54,7 +55,8 @@ public class SelectionOperator extends Operator {
     }
 
     /**
-     * Returns the string representation of the Selection Operator formatted as SelectionOperator{child, condition}
+     * Returns the string representation of the Selection Operator formatted as
+     * SelectionOperator{child, condition}
      *
      * @return The string representation of the Selection Operator
      */

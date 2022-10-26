@@ -14,9 +14,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 
 class ScanOperatorTest {
-    private static ScanOperator scanOperator;
+    private static FullScanOperator scanOperator;
     private static final String sep = File.separator;
-    private static final String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_binary";
+    private static final String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep
+            + "resources" + sep + "input_binary";
     private final DatabaseCatalog dbc = DatabaseCatalog.getInstance();
 
     @BeforeAll
@@ -26,9 +27,8 @@ class ScanOperatorTest {
         table.setName("Boats");
         AliasMap mockMap = Mockito.mock(AliasMap.class);
         Mockito.when(mockMap.getBaseTable(any())).thenReturn("Boats");
-        scanOperator = new ScanOperator(table, mockMap);
+        scanOperator = new FullScanOperator(table, mockMap);
     }
-
 
     @Test
     void getNextTuple() {
@@ -42,7 +42,6 @@ class ScanOperatorTest {
         Tuple tuple3 = new Tuple("57,24,130");
         assertEquals(tuple3, scanOperator.getNextTuple());
     }
-
 
     @Test
     void reset() {

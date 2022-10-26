@@ -17,7 +17,7 @@ import static org.mockito.Mockito.doNothing;
 
 class SelectionOperatorTest {
 
-    ScanOperator mockScan;
+    FullScanOperator mockScan;
     SelectExpressionVisitor mockVisitor;
     AliasMap mockAliasMap;
     SelectionOperator selectOperator;
@@ -25,7 +25,7 @@ class SelectionOperatorTest {
     @BeforeEach
     void setUp() throws Exception {
         Expression mockExpression = Mockito.mock(Expression.class);
-        mockScan = Mockito.mock(ScanOperator.class);
+        mockScan = Mockito.mock(FullScanOperator.class);
         mockVisitor = Mockito.mock(SelectExpressionVisitor.class);
         mockAliasMap = Mockito.mock(AliasMap.class);
         selectOperator = new SelectionOperator(mockVisitor, mockAliasMap, mockExpression, mockScan);

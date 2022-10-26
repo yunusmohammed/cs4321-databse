@@ -13,7 +13,7 @@ import java.io.File;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 
-class ScanOperatorTest {
+class FullScanOperatorTest {
     private static FullScanOperator scanOperator;
     private static final String sep = File.separator;
     private static final String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep

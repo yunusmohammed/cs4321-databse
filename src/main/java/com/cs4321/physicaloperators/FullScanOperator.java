@@ -24,6 +24,11 @@ public class FullScanOperator extends ScanOperator {
      */
     public FullScanOperator(Table table, AliasMap aliasMap) {
         super(table, aliasMap);
+        try {
+            tupleReader = new TupleReader(getBaseTablePath());
+        } catch (IOException e) {
+            logger.log(e.getMessage());
+        }
     }
 
     public FullScanOperator(Table table, AliasMap aliasMap, boolean humanReadable) {

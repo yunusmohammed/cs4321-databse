@@ -37,12 +37,6 @@ public abstract class ScanOperator extends Operator {
       columnMap.put(tableName + "." + columnName, index);
     }
     this.setColumnMap(columnMap);
-    try {
-      tupleReader = new TupleReader(getBaseTablePath());
-    } catch (IOException e) {
-      logger.log(e.getMessage());
-    }
-
   }
 
   /**

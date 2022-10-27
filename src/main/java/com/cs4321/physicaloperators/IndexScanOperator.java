@@ -8,19 +8,34 @@ import net.sf.jsqlparser.schema.Table;
 public class IndexScanOperator extends ScanOperator {
 
   /**
-   * Constructor that initialises a IndexScanOperator
+   * Constructor that initialises a IndexScanOperator to get tuples from lowKey to
+   * highKey from a prebuilt B+ tree index. The tuples produced by this operator
+   * are those whose key attribute values >= lowKey and <= highKey
    *
-   * @param table    The table in the database the IndexScanOperator is scanning
-   * @param aliasMap The mapping from table names to base table names
+   * @param table            The table in the database the IndexScanOperator is
+   *                         scanning
+   * @param aliasMap         The mapping from table names to base table names
+   * @param indexFileName    The filename of a serialized B+ tree index on some
+   *                         key
+   *                         (single attribute)
+   * @param lowKey           The lowest key value such that all produced tuples
+   *                         have
+   *                         key attribute value of at least this key
+   * @param highKey          The highest key value such that all produced tuples
+   *                         have
+   *                         key attribute value of at most this key
+   * @param indexIsClustered True if and only if the index pointed to by
+   *                         indexFileName is clustered
    */
-  public IndexScanOperator(Table table, AliasMap aliasMap) {
+  public IndexScanOperator(Table table, AliasMap aliasMap, String indexFileName, Integer lowKey, Integer highKey,
+      boolean indexIsClustered) {
     super(table, aliasMap);
   }
 
   /**
-   * Gets the next tuple of the ScanOperator’s output
+   * Gets the next tuple of the IndexScanOperator’s output
    *
-   * @return The next tuple of the ScanOperator’s output
+   * @return The next tuple of the IndexScanOperator’s output
    */
   @Override
   public Tuple getNextTuple() {

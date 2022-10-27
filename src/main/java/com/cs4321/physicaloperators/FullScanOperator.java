@@ -24,15 +24,10 @@ public class FullScanOperator extends ScanOperator {
      */
     public FullScanOperator(Table table, AliasMap aliasMap) {
         super(table, aliasMap);
-        try {
-            tupleReader = new TupleReader(getBaseTablePath());
-        } catch (IOException e) {
-            logger.log(e.getMessage());
-        }
     }
 
     public FullScanOperator(Table table, AliasMap aliasMap, boolean humanReadable) {
-        super(table, aliasMap);
+        this(table, aliasMap);
         this.humanReadable = humanReadable;
         try {
             reader = new BufferedReader(new FileReader(getBaseTablePath()));
@@ -100,15 +95,20 @@ public class FullScanOperator extends ScanOperator {
      */
     @Override
     public void finalize() {
-        super.finalize();
+        try {
+            tupleReader.close();
+            reader.close();
+        } catch (IOException e) {
+            logger.log(e.getMessage());
+        }
     }
 
     /**
-     * Returns the string representation of the Full Scan Operator
+     * Returns the string representation of the Scan Operator
      *
      * @return The string representation of the Scan Operator
      *         Eg:
-     *         FullScanOperator{baseTablePath='../src/test/resources/input_binary/db/data/Boats'}
+     *         ScanOperator{baseTablePath='../src/test/resources/input_binary/db/data/Boats'}
      */
     @Override
     public String toString() {

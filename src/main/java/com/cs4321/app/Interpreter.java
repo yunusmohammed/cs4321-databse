@@ -26,6 +26,7 @@ public class Interpreter {
     private static boolean humanReadable = false;
     private static final Logger logger = Logger.getInstance();
     private static List<Statement> statements = new ArrayList<>();
+    private static InterpreterConfig interpreterConfig;
 
     /**
      * Main function that is executed to run the project
@@ -38,20 +39,29 @@ public class Interpreter {
      *             args[3]: optional -h parameter to specify human-readable files
      */
     public static void main(String[] args) {
-        if (args.length < 3) {
-            System.out.println("Incorrect input format");
+        if (args.length < 1) {
+            Logger.getInstance().log("Incorrect input format");
             return;
         }
-        setInputdir(args[0]);
-        setOutputdir(args[1]);
-        setTempdir(args[2]);
-        if (args.length > 3) {
-            humanReadable = "-h".equals(args[3]);
+        try {
+            interpreterConfig = new InterpreterConfig(args[0]);
+        } catch (Exception e) {
+            Logger.getInstance().log(e.getMessage());
+            return;
         }
+        setInputdir(interpreterConfig.getInputdir());
+        setOutputdir(interpreterConfig.getOutputdir());
+        setTempdir(interpreterConfig.getTempdir());
+        setHumanReadable(interpreterConfig.isHumanReadable());
         DatabaseCatalog.setInputDir(getInputdir());
         PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
         PhysicalPlanBuilder.setHumanReadable(humanReadable);
-        parseQueries();
+        if (interpreterConfig.shouldEvaluateQueries()) {
+            parseQueries();
+        }
+        if (interpreterConfig.shouldBuildIndexes()) {
+            // TODO Yunus, Lenhard
+        }
     }
 
     /**

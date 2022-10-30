@@ -26,7 +26,7 @@ class ProjectionOperatorTest {
 
     @BeforeEach
     void setUp() {
-        mockChild = Mockito.mock(ScanOperator.class);
+        mockChild = Mockito.mock(FullScanOperator.class);
         mockAliasMap = Mockito.mock(AliasMap.class);
         aliasMap = Mockito.mock(AliasMap.class);
         Mockito.when(aliasMap.get(argThat(a -> a != null && a.getColumnName().equals("A")))).thenReturn(0);

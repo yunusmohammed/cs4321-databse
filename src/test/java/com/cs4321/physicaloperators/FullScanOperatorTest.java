@@ -13,10 +13,11 @@ import java.io.File;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 
-class ScanOperatorTest {
-    private static ScanOperator scanOperator;
+class FullScanOperatorTest {
+    private static FullScanOperator scanOperator;
     private static final String sep = File.separator;
-    private static final String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_binary";
+    private static final String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep
+            + "resources" + sep + "input_binary";
     private final DatabaseCatalog dbc = DatabaseCatalog.getInstance();
 
     @BeforeAll
@@ -26,9 +27,8 @@ class ScanOperatorTest {
         table.setName("Boats");
         AliasMap mockMap = Mockito.mock(AliasMap.class);
         Mockito.when(mockMap.getBaseTable(any())).thenReturn("Boats");
-        scanOperator = new ScanOperator(table, mockMap);
+        scanOperator = new FullScanOperator(table, mockMap);
     }
-
 
     @Test
     void getNextTuple() {
@@ -43,7 +43,6 @@ class ScanOperatorTest {
         assertEquals(tuple3, scanOperator.getNextTuple());
     }
 
-
     @Test
     void reset() {
         scanOperator.reset();
@@ -53,7 +52,7 @@ class ScanOperatorTest {
 
     @Test
     void toStringTest() {
-        String s = String.format("ScanOperator{baseTablePath='%s'}", dbc.tablePath("Boats"));
+        String s = String.format("FullScanOperator{baseTablePath='%s'}", dbc.tablePath("Boats"));
         assertEquals(s, scanOperator.toString());
     }
 

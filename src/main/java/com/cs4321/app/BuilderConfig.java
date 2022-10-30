@@ -22,6 +22,8 @@ public class BuilderConfig {
     private Join joinType;
     private int joinBufferSize;
 
+    private boolean useIndexForSelection;
+
     /**
      * Extracts the config info from the file at `filePath`.
      *
@@ -50,6 +52,8 @@ public class BuilderConfig {
                 sortType = Sort.EXTERNAL;
                 sortBufferSize = Integer.parseInt(sort_configs[1]);
             }
+            //Extract index for selection flag
+            this.useIndexForSelection = Integer.parseInt(configLines.get(2)) == 1;
         } catch (IOException e) {
             Logger.getInstance().log("Invalid file path for config.");
         }
@@ -89,5 +93,13 @@ public class BuilderConfig {
      */
     public int getJoinBufferSize() {
         return joinBufferSize;
+    }
+
+    public boolean shouldUseIndexForSelection() {
+        return useIndexForSelection;
+    }
+
+    public void setUseIndexForSelection(boolean useIndexForSelection) {
+        this.useIndexForSelection = useIndexForSelection;
     }
 }

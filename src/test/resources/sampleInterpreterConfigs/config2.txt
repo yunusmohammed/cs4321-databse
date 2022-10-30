@@ -1,0 +1,5 @@
+src/test/resources/input_binary
+src/test/resources/output
+src/test/resources/output
+1
+0

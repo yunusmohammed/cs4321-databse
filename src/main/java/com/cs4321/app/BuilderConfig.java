@@ -95,11 +95,14 @@ public class BuilderConfig {
         return joinBufferSize;
     }
 
+    /**
+     * Returns true when using indexes for selection and false when ignoring the indexes
+     * and using only the full-scan-based implementation
+     *
+     * @return true when using indexes for selection and false when ignoring the indexes
+     *       and using only the full-scan-based implementation
+     */
     public boolean shouldUseIndexForSelection() {
         return useIndexForSelection;
-    }
-
-    public void setUseIndexForSelection(boolean useIndexForSelection) {
-        this.useIndexForSelection = useIndexForSelection;
     }
 }

@@ -1,15 +1,22 @@
 package com.cs4321.app;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author Jessica Tweneboah
+ */
 public class IndexInfoConfig {
     List<IndexInfo> indexInfoList;
 
+    /**
+     * Initialises an IndexInfoConfig Object
+     *
+     * @param indexInfofilePath The path to the Index Info Config File
+     */
     public IndexInfoConfig(String indexInfofilePath) {
         indexInfoList = new ArrayList<>();
         try {
@@ -28,6 +35,11 @@ public class IndexInfoConfig {
         }
     }
 
+    /**
+     * Returns a list of IndexInfo Objects that store information that specifies how indexes are built
+     *
+     * @return A list of IndexInfo Objects that store information that specifies how indexes are built
+     */
     public List<IndexInfo> getIndexInfoList() {
         return indexInfoList;
     }

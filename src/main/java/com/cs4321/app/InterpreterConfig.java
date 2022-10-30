@@ -4,6 +4,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+/**
+ * @author Jessica Tweneboah
+ */
 public class InterpreterConfig {
     private String inputdir;
     private String outputdir;
@@ -99,20 +102,24 @@ public class InterpreterConfig {
         this.tempdir = tempdir;
     }
 
+    /**
+     * Returns a flag to indicate whether the interpreter should actually evaluate the SQL queries
+     * (false = no, true = yes)
+     *
+     * @return a flag to indicate whether the interpreter should actually evaluate the SQL queries
+     * (false = no, true = yes)
+     */
     public boolean shouldEvaluateQueries() {
         return evaluateQueries;
     }
 
-    public void setEvaluateQueries(boolean evaluateQueries) {
-        this.evaluateQueries = evaluateQueries;
-    }
-
+    /**
+     * Returns a flag to indicate whether the interpreter should build indexes (false = no, true = yes)
+     *
+     * @return a flag to indicate whether the interpreter should build indexes (false = no, true = yes)
+     */
     public boolean shouldBuildIndexes() {
         return buildIndexes;
-    }
-
-    public void setBuildIndexes(boolean buildIndexes) {
-        this.buildIndexes = buildIndexes;
     }
 
     /**

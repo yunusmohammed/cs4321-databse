@@ -15,18 +15,14 @@ public class LeafNode extends Node {
         return numberOfDataEntires;
     }
 
-    public void setNumberOfDataEntires(int numberOfDataEntires) {
-        this.numberOfDataEntires = numberOfDataEntires;
-    }
-
     public List<DataEntry> getDataEntries() {
         return dataEntries;
     }
 
-    public void setDataEntries(List<DataEntry> dataEntries) {
-        this.dataEntries = dataEntries;
+    public void addDataEntry(DataEntry dataEntry) {
+        dataEntries.add(dataEntry);
+        numberOfDataEntires++;
     }
-
 
 
     public class DataEntry {
@@ -43,24 +39,13 @@ public class LeafNode extends Node {
             this.rids = rids;
         }
 
-        void addRid(Rid rid) {
-            this.rids.add(rid);
-        }
-
-        public int getKey() {
-            return key;
-        }
-
-        public List<Rid> getRids() {
-            return rids;
-        }
-
         public int getNumberOfRids() {
             return numberOfRids;
         }
 
-        public void setNumberOfRids(int numberOfRids) {
-            this.numberOfRids = numberOfRids;
+        public void addRid(Rid rid) {
+            this.rids.add(rid);
+            numberOfRids++;
         }
     }
 

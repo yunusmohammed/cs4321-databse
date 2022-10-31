@@ -25,6 +25,11 @@ public class LeafNode extends Node {
     }
 
 
+    /**
+     * Leaf nodes contain data entries of the form < key, list >
+     * where key is the (integer) search key for the index and
+     * list is a list of record ids (rids).
+     */
     public class DataEntry {
         List<Rid> rids = new ArrayList<>();
         int key;
@@ -49,6 +54,12 @@ public class LeafNode extends Node {
         }
     }
 
+    /**
+     * A rid is a tuple identifier and has the form (pageid, tupleid) where pageid is the
+     * number of the page the tuple is on, and tupleid is the number of the tuple on the
+     * page numbered pageid. For the purpose of rids, we number both pages and tuples
+     * within pages starting at 0.
+     */
     public class Rid {
         int pageId;
         int tupleId;

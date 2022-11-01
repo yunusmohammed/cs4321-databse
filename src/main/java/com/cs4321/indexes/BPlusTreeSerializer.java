@@ -33,8 +33,10 @@ public class BPlusTreeSerializer {
     /**
      * Writes the header page
      *
-     * @param rootAddress          the address of the root, stored at offset 0 on the header page.
-     *                             The address of a node is the number of the page it is serialized on.
+     * @param rootAddress          the address of the root, stored at offset 0 on
+     *                             the header page.
+     *                             The address of a node is the number of the page
+     *                             it is serialized on.
      * @param numberOfLeavesInTree the number of leaves in the tree, at offset 4
      * @param order                the order of the tree, at offset 8
      * @throws IOException
@@ -50,17 +52,18 @@ public class BPlusTreeSerializer {
     /**
      * Writes a leaf node to a page.
      *
-     * @param leafNode the leaf Node to be written to the page. We assume every node will fit
+     * @param leafNode the leaf Node to be written to the page. We assume every node
+     *                 will fit
      *                 in a 4096-byte page.
      * @throws IOException
      */
     public void writeLeafNodeToPage(LeafNode leafNode) throws IOException {
         buffer.putInt(leafNode.getNodeFlag());
         buffer.putInt(leafNode.getNumberOfDataEntries());
-        for (LeafNode.DataEntry dataEntry : leafNode.getDataEntries()) {
+        for (DataEntry dataEntry : leafNode.getDataEntries()) {
             buffer.putInt(dataEntry.key);
             buffer.putInt(dataEntry.getNumberOfRids());
-            for (LeafNode.Rid rid : dataEntry.rids) {
+            for (Rid rid : dataEntry.rids) {
                 buffer.putInt(rid.pageId);
                 buffer.putInt(rid.tupleId);
             }
@@ -72,7 +75,8 @@ public class BPlusTreeSerializer {
     /**
      * Writes an index node to a page.
      *
-     * @param indexNode the index Node to be written to the page. We assume every node will fit
+     * @param indexNode the index Node to be written to the page. We assume every
+     *                  node will fit
      *                  in a 4096-byte page.
      * @throws IOException
      */

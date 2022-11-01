@@ -47,9 +47,9 @@ public class TupleReader {
     /**
      * Returns a list of all Tuples on the current page
      *
-     * @param startPostion The position at which the first byte is read
+     * @param startPostion         The position at which the first byte is read
      * @param numberOfTuplesOnPage The number of tuples on the current page
-     * @param tupleSize The number of integers a tuple has
+     * @param tupleSize            The number of integers a tuple has
      * @return a list of all Tuples on the current page
      * @throws IOException
      */
@@ -132,6 +132,17 @@ public class TupleReader {
     }
 
     /**
+     * Returns the next Tuple to be read
+     *
+     * @return the next Tuple to be read
+     * @throws IOException
+     */
+    public Tuple getTuple(int pageId, int tupleId) {
+        // TODO: Jessica Implement
+        return new Tuple("1 1");
+    }
+
+    /**
      * Removes all opened and unused resources
      *
      * @throws IOException
@@ -168,13 +179,14 @@ public class TupleReader {
      * @throws IOException
      */
     public void smjReset(int tupleRow) throws IOException {
-        // Figure out what page  this index is supposed to be on
+        // Figure out what page this index is supposed to be on
         int pageIndexIsOn = tupleRow / maximumNumberOfTuplesOnPage;
         int numberOfTuplesOnPage = pageToNumberOfTuplesOnPage.get(pageIndexIsOn);
 
         // Calculate number of bytes I now need to read
         int numberOfTuplesFromPageStart = (tupleRow) % maximumNumberOfTuplesOnPage;
-        int numberOfBytesTillTuple = (SIZE_OF_AN_INTEGER * 2) + (PAGE_SIZE * pageIndexIsOn) + (SIZE_OF_AN_INTEGER * numberOfTuplesFromPageStart * tupleSize);
+        int numberOfBytesTillTuple = (SIZE_OF_AN_INTEGER * 2) + (PAGE_SIZE * pageIndexIsOn)
+                + (SIZE_OF_AN_INTEGER * numberOfTuplesFromPageStart * tupleSize);
 
         // Set file channel
         fc.position(numberOfBytesTillTuple);

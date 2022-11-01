@@ -8,7 +8,7 @@ import java.util.List;
  */
 public class LeafNode extends Node {
     List<DataEntry> dataEntries;
-    int numberOfDataEntires;
+    int numberOfDataEntries;
 
     /**
      * Sets the node flag to 0 representing a leaf node
@@ -22,8 +22,8 @@ public class LeafNode extends Node {
      *
      * @return the number of data entries in the node
      */
-    public int getNumberOfDataEntires() {
-        return numberOfDataEntires;
+    public int getNumberOfDataEntries() {
+        return numberOfDataEntries;
     }
 
     /**
@@ -42,7 +42,7 @@ public class LeafNode extends Node {
      */
     public void addDataEntry(DataEntry dataEntry) {
         dataEntries.add(dataEntry);
-        numberOfDataEntires++;
+        numberOfDataEntries++;
     }
 
     /**
@@ -54,7 +54,7 @@ public class LeafNode extends Node {
     public String toString() {
         return "LeafNode{" +
                 "dataEntries=" + dataEntries +
-                ", numberOfDataEntires=" + numberOfDataEntires +
+                ", numberOfDataEntries=" + numberOfDataEntries +
                 ", nodeFlag=" + nodeFlag +
                 '}';
     }

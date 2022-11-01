@@ -45,6 +45,15 @@ public class LeafNode extends Node {
         numberOfDataEntires++;
     }
 
+    @Override
+    public String toString() {
+        return "LeafNode{" +
+                "dataEntries=" + dataEntries +
+                ", numberOfDataEntires=" + numberOfDataEntires +
+                ", nodeFlag=" + nodeFlag +
+                '}';
+    }
+
 
     /**
      * Leaf nodes contain data entries of the form < key, list >

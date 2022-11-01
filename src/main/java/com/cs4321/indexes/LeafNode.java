@@ -45,6 +45,11 @@ public class LeafNode extends Node {
         numberOfDataEntires++;
     }
 
+    /**
+     * Returns the string representation of the LeafNode
+     *
+     * @return The string representation of the LeafNode
+     */
     @Override
     public String toString() {
         return "LeafNode{" +
@@ -103,6 +108,20 @@ public class LeafNode extends Node {
             this.rids.add(rid);
             numberOfRids++;
         }
+
+        /**
+         * Returns the string representation of the DataEntry
+         *
+         * @return The string representation of the DataEntry
+         */
+        @Override
+        public String toString() {
+            return "DataEntry{" +
+                    "rids=" + rids +
+                    ", key=" + key +
+                    ", numberOfRids=" + numberOfRids +
+                    '}';
+        }
     }
 
     /**
@@ -124,6 +143,19 @@ public class LeafNode extends Node {
         Rid(int pageId, int tupleId) {
             this.pageId = pageId;
             this.tupleId = tupleId;
+        }
+
+        /**
+         * Returns the string representation of the Rid
+         *
+         * @return The string representation of the Rid
+         */
+        @Override
+        public String toString() {
+            return "Rid{" +
+                    "pageId=" + pageId +
+                    ", tupleId=" + tupleId +
+                    '}';
         }
     }
 }

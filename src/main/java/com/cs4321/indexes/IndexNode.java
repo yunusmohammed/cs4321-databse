@@ -45,6 +45,11 @@ public class IndexNode extends Node {
         addressList.add(address);
     }
 
+    /**
+     * Returns the string representation of the IndexNode
+     *
+     * @return The string representation of the IndexNode
+     */
     @Override
     public String toString() {
         return "IndexNode{" +

@@ -1,9 +1,9 @@
 package com.cs4321.indexes;
 
-import com.cs4321.app.BuilderConfig;
 import com.cs4321.app.DatabaseCatalog;
 import com.cs4321.app.IndexInfo;
 import com.cs4321.app.IndexInfoConfig;
+import com.cs4321.app.Logger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -23,16 +23,17 @@ public class BPlusTree {
 
     /**
      * Initialises a new B+ Tree object
+     *
      * @param filename The file in which the B+ tree is going to be serialized to
      */
     public BPlusTree(String filename, String relationName) {
         try {
             this.bPlusTreeSerializer = new BPlusTreeSerializer(filename);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            Logger.getInstance().log(e.getMessage());
         }
         IndexInfoConfig indexInfoConfig = new IndexInfoConfig(DatabaseCatalog.getInputdir()
-                    + File.separator + "db" + File.separator + "index_info.txt");
+                + File.separator + "db" + File.separator + "index_info.txt");
         List<IndexInfo> indexInfoConfigList = indexInfoConfig.getIndexInfoList();
         for (IndexInfo indexInfo : indexInfoConfigList) {
             if (indexInfo.getRelationName().equals(relationName)) {
@@ -54,7 +55,7 @@ public class BPlusTree {
         try {
             bPlusTreeSerializer.writeLeafNodeToPage(null);
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.getInstance().log(e.getMessage());
         }
     }
 
@@ -63,7 +64,7 @@ public class BPlusTree {
         try {
             bPlusTreeSerializer.writeIndexNodeToPage(null);
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.getInstance().log(e.getMessage());
         }
     }
 
@@ -76,7 +77,7 @@ public class BPlusTree {
         try {
             bPlusTreeSerializer.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.getInstance().log(e.getMessage());
         }
     }
 

@@ -1,6 +1,5 @@
 package com.cs4321.indexes;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -60,102 +59,4 @@ public class LeafNode extends Node {
     }
 
 
-    /**
-     * Leaf nodes contain data entries of the form < key, list >
-     * where key is the (integer) search key for the index and
-     * list is a list of record ids (rids).
-     */
-    public class DataEntry {
-        List<Rid> rids = new ArrayList<>();
-        int key;
-        int numberOfRids;
-
-        /**
-         * Initialises a new DataEntry object
-         *
-         * @param key is the (integer) search key for the index
-         */
-        DataEntry(int key) {
-            this.key = key;
-        }
-
-        /**
-         * Initialises a new DataEntry object
-         *
-         * @param key  is the (integer) search key for the index
-         * @param rids is a list of record ids (rids)
-         */
-        DataEntry(int key, List<Rid> rids) {
-            this(key);
-            this.rids = rids;
-        }
-
-        /**
-         * Returns the number of record ids in this DataEntry
-         *
-         * @return the number of record ids in this DataEntry
-         */
-        public int getNumberOfRids() {
-            return numberOfRids;
-        }
-
-        /**
-         * Adds rid to the list of record ids
-         *
-         * @param rid is a record id
-         */
-        public void addRid(Rid rid) {
-            this.rids.add(rid);
-            numberOfRids++;
-        }
-
-        /**
-         * Returns the string representation of the DataEntry
-         *
-         * @return The string representation of the DataEntry
-         */
-        @Override
-        public String toString() {
-            return "DataEntry{" +
-                    "rids=" + rids +
-                    ", key=" + key +
-                    ", numberOfRids=" + numberOfRids +
-                    '}';
-        }
-    }
-
-    /**
-     * A rid is a tuple identifier and has the form (pageid, tupleid) where pageid is the
-     * number of the page the tuple is on, and tupleid is the number of the tuple on the
-     * page numbered pageid. For the purpose of rids, we number both pages and tuples
-     * within pages starting at 0.
-     */
-    public class Rid {
-        int pageId;
-        int tupleId;
-
-        /**
-         * Initialises a new Rid object
-         *
-         * @param pageId  is the number of the page the tuple is on
-         * @param tupleId is the number of the tuple on the page numbered pageid
-         */
-        Rid(int pageId, int tupleId) {
-            this.pageId = pageId;
-            this.tupleId = tupleId;
-        }
-
-        /**
-         * Returns the string representation of the Rid
-         *
-         * @return The string representation of the Rid
-         */
-        @Override
-        public String toString() {
-            return "Rid{" +
-                    "pageId=" + pageId +
-                    ", tupleId=" + tupleId +
-                    '}';
-        }
-    }
 }

@@ -57,10 +57,10 @@ public class BPlusTreeSerializer {
     public void writeLeafNodeToPage(LeafNode leafNode) throws IOException {
         buffer.putInt(leafNode.getNodeFlag());
         buffer.putInt(leafNode.getNumberOfDataEntries());
-        for (LeafNode.DataEntry dataEntry : leafNode.getDataEntries()) {
+        for (DataEntry dataEntry : leafNode.getDataEntries()) {
             buffer.putInt(dataEntry.key);
             buffer.putInt(dataEntry.getNumberOfRids());
-            for (LeafNode.Rid rid : dataEntry.rids) {
+            for (Rid rid : dataEntry.rids) {
                 buffer.putInt(rid.pageId);
                 buffer.putInt(rid.tupleId);
             }

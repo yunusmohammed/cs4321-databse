@@ -1,6 +1,5 @@
 package com.cs4321.indexes;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**

@@ -43,24 +43,6 @@ public class DataEntry {
   }
 
   /**
-   * Get the key of this DataEntry
-   * 
-   * @return the key of this DataEntry
-   */
-  public int getKey() {
-    return this.key;
-  }
-
-  /**
-   * Get the rids of this DataEntry
-   * 
-   * @return the rids of this DataEntry
-   */
-  public List<Rid> getRids() {
-    return this.rids;
-  }
-
-  /**
    * Adds rid to the list of record ids
    *
    * @param rid is a record id
@@ -68,6 +50,24 @@ public class DataEntry {
   public void addRid(Rid rid) {
     this.rids.add(rid);
     numberOfRids++;
+  }
+
+  /**
+   * Returns the list of record ids
+   *
+   * @return the list of record ids
+   */
+  public List<Rid> getRids() {
+    return rids;
+  }
+
+  /**
+   * Returns the search key for the index
+   *
+   * @return the search key for the index
+   */
+  public int getKey() {
+    return key;
   }
 
   /**

@@ -23,6 +23,7 @@ public class IndexScanOperator extends ScanOperator {
   private final int lowKey;
   private final int highKey;
   private final String indexFileName;
+  private final String indexAttributeName;
   private final boolean indexIsClustered;
 
   private final int PAGE_SIZE = 4096;
@@ -63,13 +64,15 @@ public class IndexScanOperator extends ScanOperator {
    * @throws IOException
    * @throws FileNotFoundException
    */
-  public IndexScanOperator(Table table, AliasMap aliasMap, String indexFileName, Integer lowKey, Integer highKey,
+  public IndexScanOperator(Table table, AliasMap aliasMap, String indexFileName, String indexAttributeName,
+      Integer lowKey, Integer highKey,
       boolean indexIsClustered) throws FileNotFoundException, IOException {
     super(table, aliasMap);
     this.lowKey = lowKey;
     this.highKey = highKey;
     this.indexIsClustered = indexIsClustered;
     this.indexFileName = indexFileName;
+    this.indexAttributeName = indexAttributeName;
     this.initIndex();
   }
 
@@ -81,13 +84,31 @@ public class IndexScanOperator extends ScanOperator {
    */
   @Override
   public Tuple getNextTuple() {
-    if (this.tupleNextIndex < this.tupleList.size()) {
-      Tuple nextTuple = this.tupleList.get(this.tupleNextIndex);
-      this.tupleNextIndex++;
-      return nextTuple;
-    }
+    if (this.tuplesExhausted)
+      return null;
 
-    if (!tuplesExhausted) {
+    if (this.indexIsClustered) {
+      Tuple nextTuple;
+      try {
+        nextTuple = this.tupleReader.readNextTuple();
+        if (nextTuple != null
+            && nextTuple.get(dbc.columnMap(this.baseTableName).get(this.indexAttributeName)) <= this.highKey) {
+          return nextTuple;
+        }
+        this.tuplesExhausted = true;
+        return null;
+      } catch (IOException e) {
+        logger.log(e.getMessage());
+      }
+      return null;
+    } else {
+      // Unclustered Index
+      if (this.tupleNextIndex < this.tupleList.size()) {
+        Tuple nextTuple = this.tupleList.get(this.tupleNextIndex);
+        this.tupleNextIndex++;
+        return nextTuple;
+      }
+
       // Fetch next batch of tuples and return next tuple
       this.currentLeafPage += 1;
       try {
@@ -95,15 +116,15 @@ public class IndexScanOperator extends ScanOperator {
         clearBuffer();
         fc.read(buffer);
         buffer.getInt(); // discard flag. Use this to debug that it is actually a leaf page (=0)
-        this.tupleList = getValidTuplesInIndexTreeBuffer(true);
+        this.tupleList = getValidTuplesOnPageUnclustered(true);
         this.tupleNextIndex = 0;
         return this.getNextTuple();
       } catch (Exception e) {
         logger.log(e.getMessage());
       }
-    }
 
-    return null;
+      return null;
+    }
   }
 
   /**
@@ -134,7 +155,6 @@ public class IndexScanOperator extends ScanOperator {
     this.treeOrder = buffer.getInt();
     this.clearBuffer();
     this.walkIndexTree();
-
   }
 
   private void walkIndexTree() throws IOException {
@@ -175,25 +195,17 @@ public class IndexScanOperator extends ScanOperator {
     }
 
     // Buffer now has content of the first relevant leaf page
-    this.tupleList = this.getValidTuplesInIndexTreeBuffer(false);
-
+    if (this.indexIsClustered) {
+      this.initializeTupleReaderClustered();
+    } else {
+      this.tupleList = this.getValidTuplesOnPageUnclustered(false);
+    }
   }
 
-  private List<Tuple> getValidTuplesInIndexTreeBuffer(boolean startFromFirstTuple) {
+  private List<Tuple> getValidTuplesOnPageUnclustered(boolean startFromFirstTuple) {
     List<Tuple> validTuples = new ArrayList<Tuple>();
     int numberOfDataEntries = buffer.getInt();
-    DataEntry[] dataEntriesOnPage = new DataEntry[numberOfDataEntries];
-    for (int i = 0; i < numberOfDataEntries; i++) {
-      int key = buffer.getInt();
-      int numberOfRids = buffer.getInt();
-      List<Rid> rIds = new ArrayList<Rid>();
-      for (int j = 0; j < numberOfRids; j++) {
-        int pageId = buffer.getInt();
-        int tupleId = buffer.getInt();
-        rIds.add(new Rid(pageId, tupleId));
-      }
-      dataEntriesOnPage[i] = new DataEntry(key, rIds);
-    }
+    DataEntry[] dataEntriesOnPage = this.getDataEntriesOnPage(numberOfDataEntries);
 
     // Find correct DataEntry to start returning from using binary search
     int start = 0;
@@ -222,6 +234,60 @@ public class IndexScanOperator extends ScanOperator {
       this.tuplesExhausted = true;
     }
     return validTuples;
+  }
+
+  private void initializeTupleReaderClustered() throws IOException {
+    int numberOfDataEntries = buffer.getInt();
+    DataEntry[] dataEntriesOnPage = this.getDataEntriesOnPage(numberOfDataEntries);
+    int start = findIndexOfFirstValidTuple(dataEntriesOnPage, numberOfDataEntries);
+    if (start < numberOfDataEntries) {
+      if (dataEntriesOnPage[start].getKey() <= this.highKey) {
+        int pageIdOfFirstTuple = dataEntriesOnPage[start].getRids().get(0).getPageId();
+        int tupleIdOfFirstTuple = dataEntriesOnPage[start].getRids().get(0).getTupleId();
+        this.tupleReader.indexReset(pageIdOfFirstTuple, tupleIdOfFirstTuple);
+      } else {
+        this.tuplesExhausted = true;
+      }
+    } else {
+      if (this.currentLeafPage == this.numberOfLeafPages) {
+        // We have read the last leaf page
+        this.tuplesExhausted = true;
+      }
+
+      this.currentLeafPage++;
+      fc.position(this.currentLeafPage * PAGE_SIZE);
+      clearBuffer();
+      fc.read(buffer);
+      buffer.getInt(); // discard flag
+      buffer.getInt(); // discard number of entries
+      // deserialize first entry on page
+      int key = buffer.getInt();
+      if (key <= this.highKey) {
+        // key > lowKey by the way index tree is walked
+        buffer.getInt(); // discard number of rids and serialized first rid
+        int pageId = buffer.getInt();
+        int tupleId = buffer.getInt();
+        this.tupleReader.indexReset(pageId, tupleId);
+      } else {
+        this.tuplesExhausted = true;
+      }
+    }
+  }
+
+  private DataEntry[] getDataEntriesOnPage(int numberOfDataEntries) {
+    DataEntry[] dataEntriesOnPage = new DataEntry[numberOfDataEntries];
+    for (int i = 0; i < numberOfDataEntries; i++) {
+      int key = buffer.getInt();
+      int numberOfRids = buffer.getInt();
+      List<Rid> rIds = new ArrayList<Rid>();
+      for (int j = 0; j < numberOfRids; j++) {
+        int pageId = buffer.getInt();
+        int tupleId = buffer.getInt();
+        rIds.add(new Rid(pageId, tupleId));
+      }
+      dataEntriesOnPage[i] = new DataEntry(key, rIds);
+    }
+    return dataEntriesOnPage;
   }
 
   private int findIndexOfFirstValidTuple(DataEntry[] dataEntriesOnPage, int numberOfDataEntries) {

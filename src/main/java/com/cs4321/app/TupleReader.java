@@ -171,6 +171,10 @@ public class TupleReader {
         tupleSize = 0;
     }
 
+    public void indexReset(int pageId, int tupleId) {
+        // TODO: Jessica
+    }
+
     /**
      * Resets the tuple reader to start reading tuples from the tupleRow specified
      * Implementation assumes that the tupleRow has already previously been accessed

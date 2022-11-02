@@ -20,6 +20,7 @@ import net.sf.jsqlparser.schema.Table;
 public abstract class ScanOperator extends Operator {
   protected final DatabaseCatalog dbc = DatabaseCatalog.getInstance();
   protected String baseTablePath;
+  protected final String baseTableName;
   protected BufferedReader reader;
   protected TupleReader tupleReader;
   protected final Logger logger = Logger.getInstance();
@@ -29,6 +30,7 @@ public abstract class ScanOperator extends Operator {
     if (tableName == null)
       tableName = table.getName();
     String baseTable = aliasMap.getBaseTable(tableName);
+    this.baseTableName = baseTable;
     setBaseTablePath(baseTable);
     Map<String, Integer> columnMap = new HashMap<>();
     for (Map.Entry<String, Integer> entry : DatabaseCatalog.getInstance().columnMap(baseTable).entrySet()) {

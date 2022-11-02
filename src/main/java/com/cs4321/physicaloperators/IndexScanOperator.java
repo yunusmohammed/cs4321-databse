@@ -30,7 +30,7 @@ public class IndexScanOperator extends ScanOperator {
 
   private int rootIndexNodePageNumber;
   private int numberOfLeafPages;
-  private int treeOrder;
+  private int firstRelevantLeafPage;
   private int currentLeafPage; // 1..numberOfLeafPages inclusive
 
   // Tuple Information
@@ -88,9 +88,8 @@ public class IndexScanOperator extends ScanOperator {
       return null;
 
     if (this.indexIsClustered) {
-      Tuple nextTuple;
       try {
-        nextTuple = this.tupleReader.readNextTuple();
+        Tuple nextTuple = this.tupleReader.readNextTuple();
         if (nextTuple != null
             && nextTuple.get(dbc.columnMap(this.baseTableName).get(this.indexAttributeName)) <= this.highKey) {
           return nextTuple;
@@ -133,6 +132,25 @@ public class IndexScanOperator extends ScanOperator {
    */
   @Override
   public void reset() {
+    this.tuplesExhausted = false;
+    clearBuffer();
+
+    try {
+      fc.position(this.firstRelevantLeafPage * PAGE_SIZE);
+      fc.read(buffer);
+      buffer.getInt(); // discard flag
+
+      if (this.indexIsClustered) {
+        // TODO: Further optimize this case
+        initializeTupleReaderClustered();
+      } else {
+        this.tupleList = this.getValidTuplesOnPageUnclustered(false);
+        this.tupleNextIndex = 0;
+      }
+
+    } catch (Exception e) {
+      logger.log(e.getMessage());
+    }
   }
 
   /**
@@ -141,6 +159,11 @@ public class IndexScanOperator extends ScanOperator {
   @Override
   public void finalize() {
     super.finalize();
+    try {
+      fin.close();
+    } catch (Exception e) {
+      logger.log(e.getMessage());
+    }
   }
 
   private void initIndex() throws FileNotFoundException, IOException {
@@ -152,7 +175,7 @@ public class IndexScanOperator extends ScanOperator {
     fc.read(buffer);
     this.rootIndexNodePageNumber = buffer.getInt();
     this.numberOfLeafPages = buffer.getInt();
-    this.treeOrder = buffer.getInt();
+    // this.treeOrder = buffer.getInt();
     this.clearBuffer();
     this.walkIndexTree();
   }
@@ -195,6 +218,7 @@ public class IndexScanOperator extends ScanOperator {
     }
 
     // Buffer now has content of the first relevant leaf page
+    this.firstRelevantLeafPage = this.currentLeafPage;
     if (this.indexIsClustered) {
       this.initializeTupleReaderClustered();
     } else {

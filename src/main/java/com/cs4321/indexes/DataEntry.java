@@ -53,6 +53,24 @@ public class DataEntry {
     }
 
     /**
+     * Returns the list of record ids
+     *
+     * @return the list of record ids
+     */
+    public List<Rid> getRids() {
+        return rids;
+    }
+
+    /**
+     * Returns the search key for the index
+     *
+     * @return the search key for the index
+     */
+    public int getKey() {
+        return key;
+    }
+
+    /**
      * Returns the string representation of the DataEntry
      *
      * @return The string representation of the DataEntry

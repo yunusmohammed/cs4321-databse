@@ -22,6 +22,24 @@ public class Rid {
     }
 
     /**
+     * Returns pageId - the number of the page the tuple is on
+     *
+     * @return pageId - the number of the page the tuple is on
+     */
+    public int getPageId() {
+        return pageId;
+    }
+
+    /**
+     * Returns the tupleId - the number of the tuple on the page numbered pageid
+     *
+     * @return tupleId - the number of the tuple on the page numbered pageid
+     */
+    public int getTupleId() {
+        return tupleId;
+    }
+
+    /**
      * Returns the string representation of the Rid
      *
      * @return The string representation of the Rid

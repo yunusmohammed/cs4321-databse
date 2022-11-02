@@ -7,11 +7,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * The Database Catalog gives information related to specific tables such as their file location and schema.
@@ -29,6 +26,12 @@ public class DatabaseCatalog {
      * from column names in the schema to their index.
      */
     private static HashMap<String, Map.Entry<String[], HashMap<String, Integer>>> schemaMap;
+
+
+    /**
+     * IndexColumns maps table names to a set of all the column names which belong to an index in the database.
+     */
+    private static HashMap<String, HashSet<String>> indexColumns;
 
     /**
      * Private constructor to follow the singleton pattern.
@@ -132,5 +135,25 @@ public class DatabaseCatalog {
         if (DatabaseCatalog.schemaMap.containsKey(table)) return DatabaseCatalog.schemaMap.get(table).getValue();
         System.out.println("Table " + table + " does not exist.");
         return new HashMap<>();
+    }
+
+    /**
+     * indexColumns maps table names to a set of all the column names which belong to an index in the database.
+     * @return - indexColumns
+     */
+    public HashMap<String, HashSet<String>> getIndexColumns() {
+        if(indexColumns == null) {
+            indexColumns = new HashMap<>();
+            IndexInfoConfig indexInfoConfig = new IndexInfoConfig(DatabaseCatalog.getInputdir()
+                    + File.separator + "db" + File.separator + "index_info.txt");
+            List<IndexInfo> indexInfoConfigList = indexInfoConfig.getIndexInfoList();
+            for (IndexInfo indexInfo : indexInfoConfigList) {
+                String table = indexInfo.getRelationName();
+                HashSet<String> columns = indexColumns.getOrDefault(table, new HashSet<>());
+                columns.add(indexInfo.getAttributeName());
+                indexColumns.put(table, columns);
+            }
+        }
+        return indexColumns;
     }
 }

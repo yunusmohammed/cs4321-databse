@@ -12,6 +12,11 @@ import net.sf.jsqlparser.statement.select.SubSelect;
 
 import java.util.*;
 
+/**
+ * Visitor for determining which parts of an expression can be accessed via index
+ *
+ * @author Lenhard
+ */
 public class IndexSelectionVisitor implements ExpressionVisitor {
 
     // Database Catalogue

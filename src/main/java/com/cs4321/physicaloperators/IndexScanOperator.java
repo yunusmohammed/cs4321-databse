@@ -2,7 +2,6 @@ package com.cs4321.physicaloperators;
 
 import com.cs4321.app.AliasMap;
 import com.cs4321.app.Tuple;
-
 import net.sf.jsqlparser.schema.Table;
 
 public class IndexScanOperator extends ScanOperator {
@@ -27,8 +26,8 @@ public class IndexScanOperator extends ScanOperator {
    * @param indexIsClustered True if and only if the index pointed to by
    *                         indexFileName is clustered
    */
-  public IndexScanOperator(Table table, AliasMap aliasMap, String indexFileName, Integer lowKey, Integer highKey,
-      boolean indexIsClustered) {
+  public IndexScanOperator(Table table, AliasMap aliasMap, String indexFileName, String indexAttributeName,
+                           Integer lowKey, Integer highKey, boolean indexIsClustered) {
     super(table, aliasMap);
   }
 
@@ -62,13 +61,13 @@ public class IndexScanOperator extends ScanOperator {
    * Returns the string representation of the Index Scan Operator
    *
    * @return The string representation of the Index Scan Operator
-   *         Eg:
-   *         IndexScanOperator{baseTablePath='../src/test/resources/input_binary/db/data/Boats'}
+   * Eg:
+   * IndexScanOperator{baseTablePath='../src/test/resources/input_binary/db/data/Boats'}
    */
   @Override
   public String toString() {
     return "IndexScanOperator{" +
-        "baseTablePath='" + baseTablePath + '\'' +
-        '}';
+            "baseTablePath='" + baseTablePath + '\'' +
+            '}';
   }
 }

@@ -6,7 +6,9 @@ package com.cs4321.app;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -19,7 +21,7 @@ class DatabaseCatalogTest {
 	
 	DatabaseCatalog dbc = DatabaseCatalog.getInstance();
 	static String sep = File.separator;
-	static String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input";
+	static String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources"+ sep + "input";
 	
 	@BeforeAll
 	static void setup() {
@@ -50,7 +52,6 @@ class DatabaseCatalogTest {
 	void columnMapTest() {
 		HashMap<String, Integer> sailorMap = dbc.columnMap("Sailors");
 		HashMap<String, Integer> ReservesMap = dbc.columnMap("Reserves");
-		HashMap<String, Integer> emptyMap = dbc.columnMap("empty");
 		
 		assertEquals(0, sailorMap.get("A"));
 		assertEquals(1, sailorMap.get("B"));
@@ -58,8 +59,15 @@ class DatabaseCatalogTest {
 		
 		assertEquals(0, ReservesMap.get("G"));
 		assertEquals(1, ReservesMap.get("H"));
-		assertEquals(0, emptyMap.keySet().size());
 		
+	}
+
+	@Test
+	void getColumnIndexMapTest() {
+		HashMap<String, HashSet<String>> indexColumns = dbc.getIndexColumns();
+		assertEquals(2, indexColumns.keySet().size());
+		assertEquals(new HashSet<>(Arrays.asList("E")), indexColumns.get("Boats"));
+		assertEquals(new HashSet<>(Arrays.asList("A")), indexColumns.get("Sailors"));
 	}
 
 }

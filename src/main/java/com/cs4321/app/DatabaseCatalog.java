@@ -146,8 +146,8 @@ public class DatabaseCatalog {
             indexColumns = new HashMap<>();
             IndexInfoConfig indexInfoConfig = new IndexInfoConfig(DatabaseCatalog.getInputdir()
                     + File.separator + "db" + File.separator + "index_info.txt");
-            List<IndexInfo> indexInfoConfigList = indexInfoConfig.getIndexInfoList();
-            for (IndexInfo indexInfo : indexInfoConfigList) {
+            Map<String, IndexInfo> indexInfoConfigMap = indexInfoConfig.getIndexInfoMap();
+            for (IndexInfo indexInfo : indexInfoConfigMap.values()) {
                 String table = indexInfo.getRelationName();
                 HashSet<String> columns = indexColumns.getOrDefault(table, new HashSet<>());
                 columns.add(indexInfo.getAttributeName());

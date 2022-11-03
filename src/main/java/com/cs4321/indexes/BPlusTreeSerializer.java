@@ -79,11 +79,11 @@ public class BPlusTreeSerializer {
     public void writeIndexNodeToPage(IndexNode indexNode) throws IOException {
         buffer.putInt(indexNode.getNodeFlag());
         buffer.putInt(indexNode.getNumberOfKeys());
-        for (int key : indexNode.keysList) {
+        for (int key : indexNode.getKeysList()) {
             buffer.putInt(key);
         }
-        for (int address : indexNode.addressList) {
-            buffer.putInt(address);
+        for (Node child : indexNode.getChildren()) {
+            buffer.putInt(child.getAddress());
         }
         writePageAndPrepForNewWrite();
         numberOfPages++;

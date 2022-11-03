@@ -1,19 +1,21 @@
 package com.cs4321.indexes;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * LeafNode class representing leaf nodes in the B+ Tree
  */
 public class LeafNode extends Node {
-    List<DataEntry> dataEntries;
-    int numberOfDataEntries;
+    private List<DataEntry> dataEntries;
+    private int numberOfDataEntries;
 
     /**
      * Sets the node flag to 0 representing a leaf node
      */
-    LeafNode() {
-        super(0);
+    LeafNode(int address) {
+        super(0, address);
+        dataEntries = new ArrayList<>();
     }
 
     /**
@@ -54,7 +56,7 @@ public class LeafNode extends Node {
         return "LeafNode{" +
                 "dataEntries=" + dataEntries +
                 ", numberOfDataEntries=" + numberOfDataEntries +
-                ", nodeFlag=" + nodeFlag +
+                ", nodeFlag=" + this.getNodeFlag() +
                 '}';
     }
 

@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This is the B+ Tree for building indexes in the database. It is implemented
@@ -34,8 +35,8 @@ public class BPlusTree {
         }
         IndexInfoConfig indexInfoConfig = new IndexInfoConfig(DatabaseCatalog.getInputdir()
                 + File.separator + "db" + File.separator + "index_info.txt");
-        List<IndexInfo> indexInfoConfigList = indexInfoConfig.getIndexInfoList();
-        for (IndexInfo indexInfo : indexInfoConfigList) {
+        Map<String, IndexInfo> indexInfoConfigMap = indexInfoConfig.getIndexInfoMap();
+        for (IndexInfo indexInfo : indexInfoConfigMap.values()) {
             if (indexInfo.getRelationName().equals(relationName)) {
                 this.order = indexInfo.getOrder();
                 this.relationName = indexInfo.getRelationName();

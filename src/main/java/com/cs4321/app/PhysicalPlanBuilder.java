@@ -46,7 +46,7 @@ public class PhysicalPlanBuilder {
                 // TODO Lenhard, Yunus
                 IndexInfoConfig indexInfoConfig = new IndexInfoConfig(DatabaseCatalog.getInputdir()
                         + File.separator + "db" + File.separator + "index_info.txt");
-                List<IndexInfo> indexInfoConfigList = indexInfoConfig.getIndexInfoList();
+                Map<String, IndexInfo> indexInfoConfigMap = indexInfoConfig.getIndexInfoMap();
                 // TODO Lenhard, Yunus
             }
         }

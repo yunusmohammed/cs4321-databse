@@ -16,13 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 
+ * IndexScanOperator supports data scans using B+ Index trees
  */
 public class IndexScanOperator extends ScanOperator {
 
   private final int lowKey;
   private final int highKey;
-  private final String indexFileName;
+  private final String indexFilePath;
   private final String indexAttributeName;
   private final boolean indexIsClustered;
 
@@ -50,9 +50,8 @@ public class IndexScanOperator extends ScanOperator {
    * @param table            The table in the database the IndexScanOperator is
    *                         scanning
    * @param aliasMap         The mapping from table names to base table names
-   * @param indexFileName    The filename of a serialized B+ tree index on some
-   *                         key
-   *                         (single attribute)
+   * @param indexFilePath    The absolute file path of a serialized B+ tree index
+   *                         on some key (single attribute). The file must exist
    * @param lowKey           The lowest key value such that all produced tuples
    *                         have
    *                         key attribute value of at least this key
@@ -64,14 +63,14 @@ public class IndexScanOperator extends ScanOperator {
    * @throws IOException
    * @throws FileNotFoundException
    */
-  public IndexScanOperator(Table table, AliasMap aliasMap, String indexFileName, String indexAttributeName,
+  public IndexScanOperator(Table table, AliasMap aliasMap, String indexFilePath, String indexAttributeName,
       Integer lowKey, Integer highKey,
       boolean indexIsClustered) throws FileNotFoundException, IOException {
     super(table, aliasMap);
     this.lowKey = lowKey;
     this.highKey = highKey;
     this.indexIsClustered = indexIsClustered;
-    this.indexFileName = indexFileName;
+    this.indexFilePath = indexFilePath;
     this.indexAttributeName = indexAttributeName;
     this.initIndex();
   }
@@ -84,10 +83,9 @@ public class IndexScanOperator extends ScanOperator {
    */
   @Override
   public Tuple getNextTuple() {
-    if (this.tuplesExhausted)
-      return null;
-
     if (this.indexIsClustered) {
+      if (this.tuplesExhausted)
+        return null;
       try {
         Tuple nextTuple = this.tupleReader.readNextTuple();
         if (nextTuple != null
@@ -108,12 +106,15 @@ public class IndexScanOperator extends ScanOperator {
         return nextTuple;
       }
 
+      if (this.tuplesExhausted)
+        return null;
+
       // Fetch next batch of tuples and return next tuple
       this.currentLeafPage += 1;
       try {
         fc.position(this.currentLeafPage * PAGE_SIZE);
         clearBuffer();
-        fc.read(buffer);
+        readIntoBuffer();
         buffer.getInt(); // discard flag. Use this to debug that it is actually a leaf page (=0)
         this.tupleList = getValidTuplesOnPageUnclustered(true);
         this.tupleNextIndex = 0;
@@ -137,7 +138,7 @@ public class IndexScanOperator extends ScanOperator {
 
     try {
       fc.position(this.firstRelevantLeafPage * PAGE_SIZE);
-      fc.read(buffer);
+      readIntoBuffer();
       buffer.getInt(); // discard flag
 
       if (this.indexIsClustered) {
@@ -167,12 +168,12 @@ public class IndexScanOperator extends ScanOperator {
   }
 
   private void initIndex() throws FileNotFoundException, IOException {
-    this.fin = new FileInputStream(this.indexFileName);
+    this.fin = new FileInputStream(this.indexFilePath);
     this.fc = fin.getChannel();
     this.buffer = ByteBuffer.allocate(PAGE_SIZE);
 
     // Read header page
-    fc.read(buffer);
+    readIntoBuffer();
     this.rootIndexNodePageNumber = buffer.getInt();
     this.numberOfLeafPages = buffer.getInt();
     // this.treeOrder = buffer.getInt();
@@ -183,7 +184,7 @@ public class IndexScanOperator extends ScanOperator {
   private void walkIndexTree() throws IOException {
     // Read Root Index Page
     fc.position(this.rootIndexNodePageNumber * PAGE_SIZE);
-    fc.read(buffer);
+    readIntoBuffer();
     int flag = buffer.getInt();
 
     while (flag == 1) {
@@ -201,7 +202,7 @@ public class IndexScanOperator extends ScanOperator {
       // find correct next child page using binary search
       int start = 0;
       int end = numberOfKeys - 1;
-      while (start < end) {
+      while (start <= end) {
         int mid = start + (end - start) / 2;
         if (this.lowKey >= keysOnPage[mid]) {
           start = mid + 1;
@@ -213,7 +214,7 @@ public class IndexScanOperator extends ScanOperator {
       this.currentLeafPage = pageNumberOfChildPage;
       fc.position(pageNumberOfChildPage * PAGE_SIZE);
       clearBuffer();
-      fc.read(buffer);
+      readIntoBuffer();
       flag = buffer.getInt();
     }
 
@@ -226,7 +227,7 @@ public class IndexScanOperator extends ScanOperator {
     }
   }
 
-  private List<Tuple> getValidTuplesOnPageUnclustered(boolean startFromFirstTuple) {
+  private List<Tuple> getValidTuplesOnPageUnclustered(boolean startFromFirstTuple) throws IOException {
     List<Tuple> validTuples = new ArrayList<Tuple>();
     int numberOfDataEntries = buffer.getInt();
     DataEntry[] dataEntriesOnPage = this.getDataEntriesOnPage(numberOfDataEntries);
@@ -241,7 +242,7 @@ public class IndexScanOperator extends ScanOperator {
       while (start < numberOfDataEntries && dataEntriesOnPage[start].getKey() <= highKey) {
         List<Rid> rIds = dataEntriesOnPage[start].getRids();
         for (Rid rid : rIds) {
-          validTuples.add(this.tupleReader.getTuple(rid.getPageId(), rid.getTupleId()));
+          validTuples.add(this.tupleReader.randomAccess(rid.getPageId(), rid.getTupleId()));
         }
         start++;
       }
@@ -273,26 +274,26 @@ public class IndexScanOperator extends ScanOperator {
         this.tuplesExhausted = true;
       }
     } else {
-      if (this.currentLeafPage == this.numberOfLeafPages) {
-        // We have read the last leaf page
-        this.tuplesExhausted = true;
-      }
-
-      this.currentLeafPage++;
-      fc.position(this.currentLeafPage * PAGE_SIZE);
-      clearBuffer();
-      fc.read(buffer);
-      buffer.getInt(); // discard flag
-      buffer.getInt(); // discard number of entries
-      // deserialize first entry on page
-      int key = buffer.getInt();
-      if (key <= this.highKey) {
-        // key > lowKey by the way index tree is walked
-        buffer.getInt(); // discard number of rids and serialized first rid
-        int pageId = buffer.getInt();
-        int tupleId = buffer.getInt();
-        this.tupleReader.indexReset(pageId, tupleId);
+      if (this.currentLeafPage < this.numberOfLeafPages) {
+        this.currentLeafPage++;
+        fc.position(this.currentLeafPage * PAGE_SIZE);
+        clearBuffer();
+        readIntoBuffer();
+        buffer.getInt(); // discard flag
+        buffer.getInt(); // discard number of entries
+        // deserialize first entry on page
+        int key = buffer.getInt();
+        if (key <= this.highKey) {
+          // key > lowKey by the way index tree is walked
+          buffer.getInt(); // discard number of rids and serialized first rid
+          int pageId = buffer.getInt();
+          int tupleId = buffer.getInt();
+          this.tupleReader.indexReset(pageId, tupleId);
+        } else {
+          this.tuplesExhausted = true;
+        }
       } else {
+        // We have read the last leaf page
         this.tuplesExhausted = true;
       }
     }
@@ -317,7 +318,7 @@ public class IndexScanOperator extends ScanOperator {
   private int findIndexOfFirstValidTuple(DataEntry[] dataEntriesOnPage, int numberOfDataEntries) {
     int start = 0;
     int end = numberOfDataEntries - 1;
-    while (start < end) {
+    while (start <= end) {
       int mid = start + (end - start) / 2;
       if (this.lowKey == dataEntriesOnPage[mid].getKey()) {
         start = mid;
@@ -334,6 +335,11 @@ public class IndexScanOperator extends ScanOperator {
   private void clearBuffer() {
     buffer.clear();
     buffer.put(new byte[PAGE_SIZE]);
+    buffer.clear();
+  }
+
+  private void readIntoBuffer() throws IOException {
+    fc.read(buffer);
     buffer.clear();
   }
 

@@ -132,17 +132,6 @@ public class TupleReader {
     }
 
     /**
-     * Returns the next Tuple to be read
-     *
-     * @return the next Tuple to be read
-     * @throws IOException
-     */
-    public Tuple getTuple(int pageId, int tupleId) {
-        // TODO: Jessica Implement
-        return new Tuple("1 1");
-    }
-
-    /**
      * Removes all opened and unused resources
      *
      * @throws IOException
@@ -169,10 +158,6 @@ public class TupleReader {
         pageToNumberOfTuplesOnPage = new ArrayList<>();
         maximumNumberOfTuplesOnPage = 0;
         tupleSize = 0;
-    }
-
-    public void indexReset(int pageId, int tupleId) {
-        // TODO: Jessica
     }
 
     /**
@@ -287,8 +272,7 @@ public class TupleReader {
             } else {
                 if (i >= pageToNumberOfTuplesOnPage.size()) {
                     pageToNumberOfTuplesOnPage.add(i, 0);
-                }
-                else {
+                } else {
                     pageToNumberOfTuplesOnPage.add(i, pageToNumberOfTuplesOnPage.get(i));
                 }
             }

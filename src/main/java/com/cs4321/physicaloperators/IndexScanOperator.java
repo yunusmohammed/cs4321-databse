@@ -138,6 +138,7 @@ public class IndexScanOperator extends ScanOperator {
 
     try {
       fc.position(this.firstRelevantLeafPage * PAGE_SIZE);
+      this.currentLeafPage = this.firstRelevantLeafPage;
       readIntoBuffer();
       buffer.getInt(); // discard flag
 

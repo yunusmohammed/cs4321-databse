@@ -34,8 +34,8 @@ public class IndexScanOperator extends ScanOperator {
   private int currentLeafPage; // 1..numberOfLeafPages inclusive
 
   // Tuple Information
-  private List<Tuple> tupleList = new ArrayList<Tuple>();
-  private int tupleNextIndex = 0;
+  private List<Rid> ridList = new ArrayList<Rid>();
+  private int ridNextIndex = 0;
   private boolean tuplesExhausted = false;
 
   private FileInputStream fin;
@@ -100,10 +100,15 @@ public class IndexScanOperator extends ScanOperator {
       return null;
     } else {
       // Unclustered Index
-      if (this.tupleNextIndex < this.tupleList.size()) {
-        Tuple nextTuple = this.tupleList.get(this.tupleNextIndex);
-        this.tupleNextIndex++;
-        return nextTuple;
+      if (this.ridNextIndex < this.ridList.size()) {
+        try {
+          Rid nextRid = this.ridList.get(this.ridNextIndex);
+          Tuple nextTuple = this.tupleReader.randomAccess(nextRid.getPageId(), nextRid.getTupleId());
+          this.ridNextIndex++;
+          return nextTuple;
+        } catch (Exception e) {
+          logger.log(e.getMessage());
+        }
       }
 
       if (this.tuplesExhausted)
@@ -116,8 +121,8 @@ public class IndexScanOperator extends ScanOperator {
         clearBuffer();
         readIntoBuffer();
         buffer.getInt(); // discard flag. Use this to debug that it is actually a leaf page (=0)
-        this.tupleList = getValidTuplesOnPageUnclustered(true);
-        this.tupleNextIndex = 0;
+        this.ridList = getValidRidsOnPageUnclustered(false);
+        this.ridNextIndex = 0;
         return this.getNextTuple();
       } catch (Exception e) {
         logger.log(e.getMessage());
@@ -146,13 +151,27 @@ public class IndexScanOperator extends ScanOperator {
         // TODO: Further optimize this case
         initializeTupleReaderClustered();
       } else {
-        this.tupleList = this.getValidTuplesOnPageUnclustered(false);
-        this.tupleNextIndex = 0;
+        this.ridList = this.getValidRidsOnPageUnclustered(true);
+        this.ridNextIndex = 0;
       }
 
     } catch (Exception e) {
       logger.log(e.getMessage());
     }
+  }
+
+  /**
+   * Returns the string representation of the Index Scan Operator
+   *
+   * @return The string representation of the Index Scan Operator
+   *         Eg:
+   *         IndexScanOperator{baseTablePath='../src/test/resources/input_binary/db/data/Boats'}
+   */
+  @Override
+  public String toString() {
+    return "IndexScanOperator{" +
+        "baseTablePath='" + baseTablePath + '\'' +
+        '}';
   }
 
   /**
@@ -168,6 +187,13 @@ public class IndexScanOperator extends ScanOperator {
     }
   }
 
+  /**
+   * Extends the inializer of the scan operator. Initializes the index tree and
+   * retrieves the pointer to the first tuple >= lowkey
+   * 
+   * @throws FileNotFoundException
+   * @throws IOException
+   */
   private void initIndex() throws FileNotFoundException, IOException {
     this.fin = new FileInputStream(this.indexFilePath);
     this.fc = fin.getChannel();
@@ -182,6 +208,12 @@ public class IndexScanOperator extends ScanOperator {
     this.walkIndexTree();
   }
 
+  /**
+   * Walks the index tree to retrieve the page on which the first tuple with key
+   * >= lowKey falls on
+   * 
+   * @throws IOException
+   */
   private void walkIndexTree() throws IOException {
     // Read Root Index Page
     fc.position(this.rootIndexNodePageNumber * PAGE_SIZE);
@@ -224,18 +256,25 @@ public class IndexScanOperator extends ScanOperator {
     if (this.indexIsClustered) {
       this.initializeTupleReaderClustered();
     } else {
-      this.tupleList = this.getValidTuplesOnPageUnclustered(false);
+      this.ridList = this.getValidRidsOnPageUnclustered(true);
     }
   }
 
-  private List<Tuple> getValidTuplesOnPageUnclustered(boolean startFromFirstTuple) throws IOException {
-    List<Tuple> validTuples = new ArrayList<Tuple>();
+  /**
+   * 
+   * @param initializing true if and only if we are initialing or reinitializing
+   *                     (during reset)
+   * @return
+   * @throws IOException
+   */
+  private List<Rid> getValidRidsOnPageUnclustered(boolean initializing) throws IOException {
+    List<Rid> validRids = new ArrayList<Rid>();
     int numberOfDataEntries = buffer.getInt();
     DataEntry[] dataEntriesOnPage = this.getDataEntriesOnPage(numberOfDataEntries);
 
     // Find correct DataEntry to start returning from using binary search
     int start = 0;
-    if (!startFromFirstTuple)
+    if (initializing)
       start = findIndexOfFirstValidTuple(dataEntriesOnPage, numberOfDataEntries);
 
     if (start < numberOfDataEntries) {
@@ -243,7 +282,7 @@ public class IndexScanOperator extends ScanOperator {
       while (start < numberOfDataEntries && dataEntriesOnPage[start].getKey() <= highKey) {
         List<Rid> rIds = dataEntriesOnPage[start].getRids();
         for (Rid rid : rIds) {
-          validTuples.add(this.tupleReader.randomAccess(rid.getPageId(), rid.getTupleId()));
+          validRids.add(rid);
         }
         start++;
       }
@@ -259,7 +298,7 @@ public class IndexScanOperator extends ScanOperator {
       // We have read the last leaf page
       this.tuplesExhausted = true;
     }
-    return validTuples;
+    return validRids;
   }
 
   private void initializeTupleReaderClustered() throws IOException {
@@ -342,19 +381,5 @@ public class IndexScanOperator extends ScanOperator {
   private void readIntoBuffer() throws IOException {
     fc.read(buffer);
     buffer.clear();
-  }
-
-  /**
-   * Returns the string representation of the Index Scan Operator
-   *
-   * @return The string representation of the Index Scan Operator
-   *         Eg:
-   *         IndexScanOperator{baseTablePath='../src/test/resources/input_binary/db/data/Boats'}
-   */
-  @Override
-  public String toString() {
-    return "IndexScanOperator{" +
-        "baseTablePath='" + baseTablePath + '\'' +
-        '}';
   }
 }

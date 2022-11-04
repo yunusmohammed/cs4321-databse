@@ -137,4 +137,25 @@ class TupleReaderTest {
         tupleReader.smjReset(1000);
         assertEquals(tupleReader.readNextTuple(), null);
     }
+
+    @Test
+    void randomAccess() throws IOException {
+        assertEquals(tupleReader.randomAccess(2, 2).toString(), "107,22,79");
+        assertEquals(tupleReader.randomAccess(0, 5).toString(), "199,47,127");
+        assertEquals(tupleReader.randomAccess(1, 9).toString(), "164,79,111");
+    }
+
+    @Test
+    void indexReset() throws IOException {
+        tupleReader.indexReset(2, 2);
+        assertEquals(tupleReader.readNextTuple().toString(), "107,22,79");
+
+        tupleReader.indexReset(0, 0);
+        String line = reader.readLine();
+        while (line != null) {
+            Tuple l = tupleReader.readNextTuple();
+            assertEquals(l.toString(), line);
+            line = reader.readLine();
+        }
+    }
 }

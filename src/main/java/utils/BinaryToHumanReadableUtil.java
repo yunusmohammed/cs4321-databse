@@ -55,6 +55,20 @@ public class BinaryToHumanReadableUtil {
     }
 
     /**
+     * Converts the input file from binary to human-readable and stores it at the output file path
+     * @param inputFile - the path to the input file
+     * @param outputFile - the path to the output file
+     */
+    public static void binaryToHuman(String inputFile, String outputFile) {
+        try {
+            tupleReader = new TupleReader(inputFile);
+            dump(new PrintStream(outputFile));
+        } catch (Exception e) {
+            logger.log(e.getMessage());
+        }
+    }
+
+    /**
      * Calls getNextTuple() until the next tuple is null (no more output)
      * and writes each tuple to a suitable PrintStream.
      *

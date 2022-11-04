@@ -47,9 +47,9 @@ public class TupleReader {
     /**
      * Returns a list of all Tuples on the current page
      *
-     * @param startPostion The position at which the first byte is read
+     * @param startPostion         The position at which the first byte is read
      * @param numberOfTuplesOnPage The number of tuples on the current page
-     * @param tupleSize The number of integers a tuple has
+     * @param tupleSize            The number of integers a tuple has
      * @return a list of all Tuples on the current page
      * @throws IOException
      */
@@ -191,4 +191,99 @@ public class TupleReader {
                 tupleSize);
     }
 
+    /**
+     * Returns the tuple at the specified pageID and tupleID ONCE
+     *
+     * @param pageID  0 indexed page id to set read from ONCE
+     * @param tupleID 0 indexed tuple id on the pageID to set read from ONCE
+     * @return the tuple at the specified pageID and tupleID
+     * @throws IOException
+     */
+    public Tuple randomAccess(int pageID, int tupleID) throws IOException {
+        FileInputStream fileInputStream = new FileInputStream(filename);
+        FileChannel fileChannel = fileInputStream.getChannel();
+        ByteBuffer byteBuffer = ByteBuffer.allocate(PAGE_SIZE);
+
+        fileChannel.position((long) PAGE_SIZE * pageID);
+        int checkEndOfFile = fileChannel.read(byteBuffer);
+        if (checkEndOfFile == -1) {
+            return null;
+        }
+        int startPostion = 0;
+        int tupleSize = 0;
+        byteBuffer.clear();
+        while (byteBuffer.hasRemaining()) {
+            if (startPostion == 0) {
+                tupleSize = byteBuffer.getInt();
+                startPostion++;
+            } else if (startPostion == 1) {
+                byteBuffer.getInt();
+                startPostion++;
+            } else if (startPostion == tupleID + 2) {
+                StringBuilder data = new StringBuilder();
+                for (int idx = 0; idx < tupleSize; idx++) {
+                    data.append(byteBuffer.getInt());
+                    startPostion++;
+                    if (idx != tupleSize - 1) {
+                        data.append(",");
+                    }
+                }
+                return new Tuple(data.toString());
+            } else {
+                for (int i = 0; i < tupleSize; i++) {
+                    byteBuffer.getInt();
+                }
+                startPostion++;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Resets the tuple reader to start reading tuples from the tupleRow specified
+     *
+     * @param pageID  0 indexed page id to set read from
+     * @param tupleID 0 indexed tuple id on the pageID to set read from
+     * @throws IOException
+     */
+    public void indexReset(int pageID, int tupleID) throws IOException {
+        buffer = ByteBuffer.allocate(PAGE_SIZE);
+        fc.position((long) PAGE_SIZE * pageID);
+        fc.read(buffer);
+        buffer.clear();
+        int tupleSize = buffer.getInt();
+        int numberOfTuplesOnPage = buffer.getInt();
+
+        // Calculate number of bytes I now need to read
+        int numberOfTuplesFromPageStart = (tupleID) % numberOfTuplesOnPage;
+        int numberOfBytesTillTuple = (SIZE_OF_AN_INTEGER * 2) + (PAGE_SIZE * pageID)
+                + (SIZE_OF_AN_INTEGER * numberOfTuplesFromPageStart * tupleSize);
+
+        // Set file channel
+        fc.position(numberOfBytesTillTuple);
+
+        // Set buffer
+        buffer = ByteBuffer.allocate(PAGE_SIZE);
+
+        for (int i = 0; i < pageID + 1; i++) {
+            if (i == pageID) {
+                pageToNumberOfTuplesOnPage.add(i, numberOfTuplesOnPage);
+            } else {
+                if (i >= pageToNumberOfTuplesOnPage.size()) {
+                    pageToNumberOfTuplesOnPage.add(i, 0);
+                }
+                else {
+                    pageToNumberOfTuplesOnPage.add(i, pageToNumberOfTuplesOnPage.get(i));
+                }
+            }
+        }
+
+        // Read tuples
+        tupleNextIndex = 0;
+        numberOfPagesRead = pageID + 1;
+        tupleList = readFromFile(
+                numberOfTuplesFromPageStart + 2,
+                numberOfTuplesOnPage - numberOfTuplesFromPageStart,
+                tupleSize);
+    }
 }

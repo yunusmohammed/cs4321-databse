@@ -261,10 +261,11 @@ public class IndexScanOperator extends ScanOperator {
   }
 
   /**
+   * Gets the list of the valid Rids on this page with their order maintained
    * 
    * @param initializing true if and only if we are initialing or reinitializing
    *                     (during reset)
-   * @return
+   * @return A list of the valid Rids on this page with their order maintained
    * @throws IOException
    */
   private List<Rid> getValidRidsOnPageUnclustered(boolean initializing) throws IOException {
@@ -275,7 +276,7 @@ public class IndexScanOperator extends ScanOperator {
     // Find correct DataEntry to start returning from using binary search
     int start = 0;
     if (initializing)
-      start = findIndexOfFirstValidTuple(dataEntriesOnPage, numberOfDataEntries);
+      start = findIndexOfFirstValidTuple(dataEntriesOnPage);
 
     if (start < numberOfDataEntries) {
       // Fill up validTuples with predicate satisfying tuples
@@ -301,10 +302,16 @@ public class IndexScanOperator extends ScanOperator {
     return validRids;
   }
 
+  /**
+   * Initialize TupleReader to start returning from the first Tuple with key value
+   * >= lowKey. Requires that the index is Clustered
+   * 
+   * @throws IOException
+   */
   private void initializeTupleReaderClustered() throws IOException {
     int numberOfDataEntries = buffer.getInt();
     DataEntry[] dataEntriesOnPage = this.getDataEntriesOnPage(numberOfDataEntries);
-    int start = findIndexOfFirstValidTuple(dataEntriesOnPage, numberOfDataEntries);
+    int start = findIndexOfFirstValidTuple(dataEntriesOnPage);
     if (start < numberOfDataEntries) {
       if (dataEntriesOnPage[start].getKey() <= this.highKey) {
         int pageIdOfFirstTuple = dataEntriesOnPage[start].getRids().get(0).getPageId();
@@ -339,6 +346,14 @@ public class IndexScanOperator extends ScanOperator {
     }
   }
 
+  /**
+   * Gets the data entries on the leaf page currently read into the buffer.
+   * Requires: Buffer has content of a leaf page and the positioned at the first
+   * byte of the first data entry
+   * 
+   * @param numberOfDataEntries The number of data entries in buffer
+   * @return
+   */
   private DataEntry[] getDataEntriesOnPage(int numberOfDataEntries) {
     DataEntry[] dataEntriesOnPage = new DataEntry[numberOfDataEntries];
     for (int i = 0; i < numberOfDataEntries; i++) {
@@ -355,9 +370,17 @@ public class IndexScanOperator extends ScanOperator {
     return dataEntriesOnPage;
   }
 
-  private int findIndexOfFirstValidTuple(DataEntry[] dataEntriesOnPage, int numberOfDataEntries) {
+  /**
+   * Finds the index of the first data entry with key >= lowKey using binary
+   * search
+   * 
+   * @param dataEntriesOnPage the data entry list
+   * @return the index of the first data entry with key >= lowKey using binary
+   *         search
+   */
+  private int findIndexOfFirstValidTuple(DataEntry[] dataEntriesOnPage) {
     int start = 0;
-    int end = numberOfDataEntries - 1;
+    int end = dataEntriesOnPage.length - 1;
     while (start <= end) {
       int mid = start + (end - start) / 2;
       if (this.lowKey == dataEntriesOnPage[mid].getKey()) {
@@ -372,12 +395,18 @@ public class IndexScanOperator extends ScanOperator {
     return start;
   }
 
+  /**
+   * Clears the buffer and fills it with 0s
+   */
   private void clearBuffer() {
     buffer.clear();
     buffer.put(new byte[PAGE_SIZE]);
     buffer.clear();
   }
 
+  /**
+   * Reads the next chunk (as pointed to by the file channel) into the buffer
+   */
   private void readIntoBuffer() throws IOException {
     fc.read(buffer);
     buffer.clear();

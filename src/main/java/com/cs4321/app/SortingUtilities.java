@@ -16,9 +16,10 @@ public class SortingUtilities {
      * file.
      * 
      * @param filename the name of the file to sort
+     * @param outputFile the path to output the sorted file
      * @return the path to the sorted file
      */
-    public static String sortFile(String filename) {
+    public static String sortFile(String filename, String outputFile) {
         String outputPath = null;
         try {
             TupleReader reader = new TupleReader(filename);
@@ -29,7 +30,8 @@ public class SortingUtilities {
                 tuple = reader.readNextTuple();
             }
             Collections.sort(tuples, (a, b) -> compare(a, b, null, null));
-            outputPath = Files.createTempFile("" + numFilesSorted++, null).toString();
+            if(outputFile == null) outputPath = Files.createTempFile("" + numFilesSorted++, null).toString();
+            else outputPath = outputFile;
             TupleWriter writer = new TupleWriter(outputPath);
             if (writer != null) {
                 for (Tuple t : tuples) {

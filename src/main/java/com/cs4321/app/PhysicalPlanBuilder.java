@@ -12,6 +12,8 @@ import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -113,27 +115,39 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical scan operator acting as a blueprint.
      * @return The physical scan operator corresponding to the logical scan
-     * operator.
+     *         operator.
      */
     public Operator visit(LogicalScanOperator operator) {
         return new FullScanOperator(operator.getTable(), operator.getAliasMap(), humanReadable);
     }
 
     /**
-     * Creates an index scan on `indexColumn` with the range from low to high as specified by lowHigh.
+     * Creates an index scan on `indexColumn` with the range from low to high as
+     * specified by lowHigh.
      *
-     * @param operator    The selection operator being used to generate an index scan operator
+     * @param operator    The selection operator being used to generate an index
+     *                    scan operator
      * @param indexColumn The column to create the index on
      * @param lowHigh     The low and high value for the index
-     * @return A new index scan on `indexColumn` with the range from low to high as specified by lowHigh.
+     * @return A new index scan on `indexColumn` with the range from low to high as
+     *         specified by lowHigh.
      */
-    public IndexScanOperator generateIndexScan(LogicalSelectionOperator operator, Column indexColumn, List<Integer> lowHigh) {
+    public IndexScanOperator generateIndexScan(LogicalSelectionOperator operator, Column indexColumn,
+            List<Integer> lowHigh) {
         String baseTableName = operator.getAliasMap().getBaseTable(indexColumn.getTable().getName());
         String wholeBaseColumnName = String.format("%s.%s", baseTableName, indexColumn.getColumnName());
-        String indexPath = DatabaseCatalog.getInputdir() + File.separator + "indexes" + File.separator + wholeBaseColumnName;
+        String indexPath = DatabaseCatalog.getInputdir() + File.separator + "indexes" + File.separator
+                + wholeBaseColumnName;
         boolean isClustered = indexInfoConfigMap.get(wholeBaseColumnName).isClustered();
-        return new IndexScanOperator(indexColumn.getTable(), operator.getAliasMap(),
-                indexPath, indexColumn.getColumnName(), lowHigh.get(0), lowHigh.get(1), isClustered);
+        try {
+            return new IndexScanOperator(indexColumn.getTable(), operator.getAliasMap(),
+                    indexPath, indexColumn.getColumnName(), lowHigh.get(0), lowHigh.get(1), isClustered);
+        } catch (FileNotFoundException e) {
+            Logger.getInstance().log(e.getMessage());
+        } catch (IOException e) {
+            Logger.getInstance().log(e.getMessage());
+        }
+        return null;
     }
 
     /**
@@ -141,12 +155,13 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical selection operator acting as a blueprint.
      * @return The physical selection operator corresponding to the logical
-     * selection operator.
+     *         selection operator.
      */
     public Operator visit(LogicalSelectionOperator operator) {
         if (config.shouldUseIndexForSelection()) {
             IndexSelectionVisitor visitor = operator.getIndexVisitor();
-            visitor.splitExpression(operator.getSelectCondition(), operator.getAliasMap(), DatabaseCatalog.getInstance());
+            visitor.splitExpression(operator.getSelectCondition(), operator.getAliasMap(),
+                    DatabaseCatalog.getInstance());
             Column indexColumn = visitor.getIndexColumn();
             List<Integer> lowHigh = visitor.getLowHigh();
             Expression noIndexExpression = visitor.getNoIndexExpression();
@@ -160,7 +175,8 @@ public class PhysicalPlanBuilder {
             else if (noIndexExpression == null) {
                 return generateIndexScan(operator, indexColumn, lowHigh);
             }
-            // Construct a selection using the reduced expression with the child being an index scan
+            // Construct a selection using the reduced expression with the child being an
+            // index scan
             else {
                 ScanOperator indexScan = generateIndexScan(operator, indexColumn, lowHigh);
                 return new SelectionOperator(operator.getSelectExpressionVisitor(), operator.getAliasMap(),
@@ -178,7 +194,7 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical projection operator acting as a blueprint.
      * @return The physical projection operator corresponding to the logical
-     * projection operator.
+     *         projection operator.
      */
     public Operator visit(LogicalProjectionOperator operator) {
         Operator child = constructPhysical(operator.getChild());
@@ -192,7 +208,7 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical join operator acting as a blueprint.
      * @return The physical join operator corresponding to the logical join
-     * operator.
+     *         operator.
      */
     public Operator visit(LogicalJoinOperator operator) {
         Operator leftChild = constructPhysical(operator.getLeftChild());
@@ -276,7 +292,7 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical sort operator acting as a blueprint.
      * @return The physical sort operator corresponding to the logical sort
-     * operator.
+     *         operator.
      */
     public Operator visit(LogicalSortOperator operator) {
         Operator child = constructPhysical(operator.getChild());
@@ -290,7 +306,7 @@ public class PhysicalPlanBuilder {
      * @param operator The logical DuplicateElimination operator acting as a
      *                 blueprint.
      * @return The physical DuplicateElimination operator corresponding to the
-     * logical DuplicateElimination operator.
+     *         logical DuplicateElimination operator.
      */
     public Operator visit(LogicalDuplicateEliminationOperator operator) {
         Operator child = constructPhysical(operator.getChild());

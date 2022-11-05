@@ -57,6 +57,4 @@ public class LeafNode extends Node {
                 ", nodeFlag=" + nodeFlag +
                 '}';
     }
-
-
 }

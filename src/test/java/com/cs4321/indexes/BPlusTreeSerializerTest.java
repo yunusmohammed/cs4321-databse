@@ -56,7 +56,7 @@ class BPlusTreeSerializerTest {
         fc.read(buffer);
         buffer.clear();
 
-        assertEquals(9, buffer.getInt());
+        assertEquals(0, buffer.getInt());
         assertEquals(1, buffer.getInt());
         assertEquals(5, buffer.getInt());
         assertEquals(1, buffer.getInt());

@@ -2,6 +2,7 @@ package com.cs4321.logicaloperators;
 
 import com.cs4321.app.AliasMap;
 import com.cs4321.app.PhysicalPlanBuilder;
+import com.cs4321.physicaloperators.IndexSelectionVisitor;
 import com.cs4321.physicaloperators.Operator;
 import com.cs4321.physicaloperators.SelectExpressionVisitor;
 import net.sf.jsqlparser.expression.Expression;
@@ -15,6 +16,7 @@ public class LogicalSelectionOperator extends LogicalOperator {
     private final Expression selectCondition;
     private final LogicalScanOperator child;
     private final SelectExpressionVisitor visitor;
+    private final IndexSelectionVisitor indexVisitor;
     private final AliasMap aliasMap;
 
     /**
@@ -25,13 +27,17 @@ public class LogicalSelectionOperator extends LogicalOperator {
      *                        operator
      * @param visitor         The ExpressionVisitor that will be used to determine
      *                        whether a row passes a condition
+     * @param indexVisitor    The ExpressionVisitor used to split an expression into those
+     *                        that can and cannot be indexed
      * @param aliasMap        A AliasMap instance for alias resolution
      */
     public LogicalSelectionOperator(Expression selectCondition, LogicalScanOperator child,
-                                    SelectExpressionVisitor visitor, AliasMap aliasMap) {
+                                    SelectExpressionVisitor visitor, IndexSelectionVisitor indexVisitor,
+                                    AliasMap aliasMap) {
         this.selectCondition = selectCondition;
         this.child = child;
         this.visitor = visitor;
+        this.indexVisitor = indexVisitor;
         this.aliasMap = aliasMap;
     }
 
@@ -60,6 +66,15 @@ public class LogicalSelectionOperator extends LogicalOperator {
      */
     public SelectExpressionVisitor getSelectExpressionVisitor() {
         return this.visitor;
+    }
+
+    /**
+     * Get the IndexSelectionVisitor of the logical select operator
+     *
+     * @return The IndexSelectionVisitor of the logical select operator
+     */
+    public IndexSelectionVisitor getIndexVisitor() {
+        return this.indexVisitor;
     }
 
     /**

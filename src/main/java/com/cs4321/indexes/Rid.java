@@ -1,10 +1,10 @@
 package com.cs4321.indexes;
 
 /**
- * A rid is a tuple identifier and has the form (pageid, tupleid) where pageid is the
+ * A rid is a tuple identifier and has the form (pageid, tupleid) where pageid
  * number of the page the tuple is on, and tupleid is the number of the tuple on the
  * page numbered pageid. For the purpose of rids, we number both pages and tuples
- * within pages starting at 0.
+ * ithin pages starting at 0.
  */
 public class Rid {
     int pageId;
@@ -16,7 +16,7 @@ public class Rid {
      * @param pageId  is the number of the page the tuple is on
      * @param tupleId is the number of the tuple on the page numbered pageid
      */
-    Rid(int pageId, int tupleId) {
+    public Rid(int pageId, int tupleId) {
         this.pageId = pageId;
         this.tupleId = tupleId;
     }
@@ -52,3 +52,10 @@ public class Rid {
                 '}';
     }
 }
+
+  
+  
+  
+  
+
+  

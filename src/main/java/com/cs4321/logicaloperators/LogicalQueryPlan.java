@@ -1,6 +1,7 @@
 package com.cs4321.logicaloperators;
 
 import com.cs4321.app.AliasMap;
+import com.cs4321.physicaloperators.IndexSelectionVisitor;
 import com.cs4321.physicaloperators.JoinExpressionVisitor;
 import com.cs4321.physicaloperators.JoinExpressions;
 import com.cs4321.physicaloperators.SelectExpressionVisitor;
@@ -110,7 +111,7 @@ public class LogicalQueryPlan {
     private LogicalSelectionOperator generateLogicalSelection(PlainSelect selectBody) {
         Expression whereExpression = selectBody.getWhere();
         return new LogicalSelectionOperator(whereExpression, generateLogicalScan(selectBody), new SelectExpressionVisitor(),
-                this.aliasMap);
+                new IndexSelectionVisitor(), this.aliasMap);
     }
 
     /**

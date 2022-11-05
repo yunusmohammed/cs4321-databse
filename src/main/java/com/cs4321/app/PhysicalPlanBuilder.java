@@ -23,6 +23,7 @@ import java.util.*;
 public class PhysicalPlanBuilder {
 
     private static BuilderConfig config;
+    static Map<String, IndexInfo> indexInfoConfigMap;
     private static PhysicalPlanBuilder instance;
     private static boolean humanReadable;
     private static Map<String, Integer> tableOrder;
@@ -46,8 +47,7 @@ public class PhysicalPlanBuilder {
                 // TODO Lenhard, Yunus
                 IndexInfoConfig indexInfoConfig = new IndexInfoConfig(DatabaseCatalog.getInputdir()
                         + File.separator + "db" + File.separator + "index_info.txt");
-                Map<String, IndexInfo> indexInfoConfigMap = indexInfoConfig.getIndexInfoMap();
-                // TODO Lenhard, Yunus
+                indexInfoConfigMap = indexInfoConfig.getIndexInfoMap();
             }
         }
     }
@@ -113,10 +113,27 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical scan operator acting as a blueprint.
      * @return The physical scan operator corresponding to the logical scan
-     *         operator.
+     * operator.
      */
     public Operator visit(LogicalScanOperator operator) {
         return new FullScanOperator(operator.getTable(), operator.getAliasMap(), humanReadable);
+    }
+
+    /**
+     * Creates an index scan on `indexColumn` with the range from low to high as specified by lowHigh.
+     *
+     * @param operator    The selection operator being used to generate an index scan operator
+     * @param indexColumn The column to create the index on
+     * @param lowHigh     The low and high value for the index
+     * @return A new index scan on `indexColumn` with the range from low to high as specified by lowHigh.
+     */
+    public IndexScanOperator generateIndexScan(LogicalSelectionOperator operator, Column indexColumn, List<Integer> lowHigh) {
+        String baseTableName = operator.getAliasMap().getBaseTable(indexColumn.getTable().getName());
+        String wholeBaseColumnName = String.format("%s.%s", baseTableName, indexColumn.getColumnName());
+        String indexPath = DatabaseCatalog.getInputdir() + File.separator + "indexes" + File.separator + wholeBaseColumnName;
+        boolean isClustered = indexInfoConfigMap.get(wholeBaseColumnName).isClustered();
+        return new IndexScanOperator(indexColumn.getTable(), operator.getAliasMap(),
+                indexPath, indexColumn.getColumnName(), lowHigh.get(0), lowHigh.get(1), isClustered);
     }
 
     /**
@@ -124,12 +141,36 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical selection operator acting as a blueprint.
      * @return The physical selection operator corresponding to the logical
-     *         selection operator.
+     * selection operator.
      */
     public Operator visit(LogicalSelectionOperator operator) {
-        FullScanOperator child = (FullScanOperator) constructPhysical(operator.getChild());
-        return new SelectionOperator(operator.getSelectExpressionVisitor(), operator.getAliasMap(),
-                operator.getSelectCondition(), child);
+        if (config.shouldUseIndexForSelection()) {
+            IndexSelectionVisitor visitor = operator.getIndexVisitor();
+            visitor.splitExpression(operator.getSelectCondition(), operator.getAliasMap(), DatabaseCatalog.getInstance());
+            Column indexColumn = visitor.getIndexColumn();
+            List<Integer> lowHigh = visitor.getLowHigh();
+            Expression noIndexExpression = visitor.getNoIndexExpression();
+            // Construct just a full scan if there's no way to use an index
+            if (indexColumn == null) {
+                FullScanOperator child = (FullScanOperator) constructPhysical(operator.getChild());
+                return new SelectionOperator(operator.getSelectExpressionVisitor(), operator.getAliasMap(),
+                        operator.getSelectCondition(), child);
+            }
+            // Construct just an index scan if every sub-expression can be indexed
+            else if (noIndexExpression == null) {
+                return generateIndexScan(operator, indexColumn, lowHigh);
+            }
+            // Construct a selection using the reduced expression with the child being an index scan
+            else {
+                ScanOperator indexScan = generateIndexScan(operator, indexColumn, lowHigh);
+                return new SelectionOperator(operator.getSelectExpressionVisitor(), operator.getAliasMap(),
+                        noIndexExpression, indexScan);
+            }
+        } else {
+            FullScanOperator child = (FullScanOperator) constructPhysical(operator.getChild());
+            return new SelectionOperator(operator.getSelectExpressionVisitor(), operator.getAliasMap(),
+                    operator.getSelectCondition(), child);
+        }
     }
 
     /**
@@ -137,7 +178,7 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical projection operator acting as a blueprint.
      * @return The physical projection operator corresponding to the logical
-     *         projection operator.
+     * projection operator.
      */
     public Operator visit(LogicalProjectionOperator operator) {
         Operator child = constructPhysical(operator.getChild());
@@ -151,7 +192,7 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical join operator acting as a blueprint.
      * @return The physical join operator corresponding to the logical join
-     *         operator.
+     * operator.
      */
     public Operator visit(LogicalJoinOperator operator) {
         Operator leftChild = constructPhysical(operator.getLeftChild());
@@ -235,7 +276,7 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical sort operator acting as a blueprint.
      * @return The physical sort operator corresponding to the logical sort
-     *         operator.
+     * operator.
      */
     public Operator visit(LogicalSortOperator operator) {
         Operator child = constructPhysical(operator.getChild());
@@ -249,7 +290,7 @@ public class PhysicalPlanBuilder {
      * @param operator The logical DuplicateElimination operator acting as a
      *                 blueprint.
      * @return The physical DuplicateElimination operator corresponding to the
-     *         logical DuplicateElimination operator.
+     * logical DuplicateElimination operator.
      */
     public Operator visit(LogicalDuplicateEliminationOperator operator) {
         Operator child = constructPhysical(operator.getChild());

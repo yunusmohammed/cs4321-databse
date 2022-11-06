@@ -59,6 +59,7 @@ class BPlusTreeTest {
             File[] correctQueries = new File(System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "expected_indexes").listFiles();
             File[] outputQueries = new File(indexesPath).listFiles();
             Arrays.sort(correctQueries, (a, b) -> compareFiles(a, b));
+            Arrays.sort(outputQueries, (a, b) -> compareFiles(a, b));
             for(int i=0; i<outputQueries.length; i++) {
                 System.out.println("correct query: " + correctQueries[i].getName());
                 System.out.println("output query: " + outputQueries[i].getName());

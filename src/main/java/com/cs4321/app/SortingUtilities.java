@@ -17,9 +17,11 @@ public class SortingUtilities {
      * 
      * @param filename the name of the file to sort
      * @param outputFile the path to output the sorted file
+     * @param indexInfo information on the index if sorting a relation on an attribute for a clustered index. Is null
+     *                  if not building a clustered index.
      * @return the path to the sorted file
      */
-    public static String sortFile(String filename, String outputFile) {
+    public static String sortFile(String filename, String outputFile, IndexInfo indexInfo) {
         String outputPath = null;
         try {
             TupleReader reader = new TupleReader(filename);
@@ -29,7 +31,7 @@ public class SortingUtilities {
                 tuples.add(tuple);
                 tuple = reader.readNextTuple();
             }
-            Collections.sort(tuples, (a, b) -> compare(a, b, null, null));
+            Collections.sort(tuples, (a, b) -> compare(a, b, null, null, indexInfo));
             if(outputFile == null) outputPath = Files.createTempFile("" + numFilesSorted++, null).toString();
             else outputPath = outputFile;
             TupleWriter writer = new TupleWriter(outputPath);
@@ -60,10 +62,12 @@ public class SortingUtilities {
      * @param columnMap          a map from column names in the table to their
      *                           associated indexes. Should be null if no order
      *                           by clause is used.
+     * @param indexInfo information on the index if sorting a relation on an attribute for a clustered index. Is null
+     *      *           if not building a clustered index.
      * @return- an integer in accordance to the rules mentioned above
      */
     public static int compare(Tuple a, Tuple b, List<OrderByElement> orderByElementList,
-            Map<String, Integer> columnMap) {
+            Map<String, Integer> columnMap, IndexInfo indexInfo) {
         HashSet<Integer> seenColumns = new HashSet<>();
         if (orderByElementList != null) {
             for (OrderByElement o : orderByElementList) {
@@ -73,6 +77,15 @@ public class SortingUtilities {
                 if (aVal != bVal)
                     return aVal - bVal;
             }
+        }
+        if(indexInfo != null) {
+            String table = indexInfo.getRelationName();
+            String column = indexInfo.getAttributeName();
+            int index = DatabaseCatalog.getInstance().columnMap(table).get(column);
+            seenColumns.add(index);
+            int aVal = a.get(index), bVal = b.get(index);
+            if(aVal != bVal)
+                return aVal - bVal;
         }
         for (int i = 0; i < a.size(); i++) {
             if (!seenColumns.contains(i)) {

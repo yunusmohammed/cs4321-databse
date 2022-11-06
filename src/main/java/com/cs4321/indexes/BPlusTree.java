@@ -25,22 +25,24 @@ public class BPlusTree {
     private Logger logger = Logger.getInstance();
     private DatabaseCatalog dbc = DatabaseCatalog.getInstance();
     private final int PAGE_SIZE = 4096;
+    private int leafCount = 0;
 
     /**
      * Initialises a new B+ Tree object
-     *
+     * @param filename - path to the index
      * @param indexInfo - information on the index for the B+ Tree we are creating
      */
     public BPlusTree(String filename, IndexInfo indexInfo) {
+        this.order = indexInfo.getOrder();
+        this.relationName = indexInfo.getRelationName();
+        this.attributeName = indexInfo.getAttributeName();
+        this.isClustered = indexInfo.isClustered();
+        if(isClustered) sortRelation(indexInfo);
         try {
             this.bPlusTreeSerializer = new BPlusTreeSerializer(filename);
         } catch (FileNotFoundException e) {
             Logger.getInstance().log(e.getMessage());
         }
-        this.order = indexInfo.getOrder();
-        this.relationName = indexInfo.getRelationName();
-        this.attributeName = indexInfo.getAttributeName();
-        this.isClustered = indexInfo.isClustered();
         buildIndex();
     }
 
@@ -51,7 +53,6 @@ public class BPlusTree {
      */
     private void buildIndex() {
         try {
-            if(isClustered) sortRelation();
             TupleReader reader = new TupleReader(dbc.tablePath(relationName));
             Tuple cur = reader.readNextTuple();
             // can assume relation is never empty
@@ -89,7 +90,7 @@ public class BPlusTree {
                 lowerlevel = nodesAtCurLevel == 1 ? 0 : nodesAtCurLevel;
             }
             bPlusTreeSerializer.writeHeaderPage(numberOfLeaves + numberOfIndexNodes, numberOfLeaves, order);
-            Queue<LeafNode> leaves = buildLeafLayer(entries);
+            Queue<Node> leaves = buildLeafLayer(entries);
             buildIndexLayer(leaves);
 
         } catch (IOException e) {
@@ -110,8 +111,9 @@ public class BPlusTree {
         return a.getPageId() - b.getPageId();
     }
 
-    private void sortRelation() {
-
+    private void sortRelation(IndexInfo indexInfo) {
+        String filename = dbc.tablePath(indexInfo.getRelationName());
+        SortingUtilities.sortFile(filename, filename, indexInfo);
     }
 
     /**
@@ -119,9 +121,9 @@ public class BPlusTree {
      * @param entries - a queue containing all data entries in sorted order
      * @return - a queue of all leaf nodes added from left to right
      */
-    private Queue<LeafNode> buildLeafLayer(PriorityQueue<DataEntry> entries) {
+    private Queue<Node> buildLeafLayer(PriorityQueue<DataEntry> entries) {
         try {
-            Queue<LeafNode> leaves = new ArrayDeque<>();
+            Queue<Node> leaves = new ArrayDeque<>();
             int address = 1;
             while(entries.size() > 0) {
                 int size = entries.size();
@@ -132,6 +134,7 @@ public class BPlusTree {
                     }
                     bPlusTreeSerializer.writeLeafNodeToPage(leaf);
                     leaves.add(leaf);
+                    leafCount++;
                 }
                 else if(size > 2 * order && size < 3 * order) {
                     LeafNode secondLast = new LeafNode(address++);
@@ -146,6 +149,7 @@ public class BPlusTree {
                     bPlusTreeSerializer.writeLeafNodeToPage(last);
                     leaves.add(secondLast);
                     leaves.add(last);
+                    leafCount += 2;
                 }
                 else {
                     LeafNode last = new LeafNode(address++);
@@ -154,6 +158,7 @@ public class BPlusTree {
                     }
                     bPlusTreeSerializer.writeLeafNodeToPage(last);
                     leaves.add(last);
+                    leafCount++;
                 }
             }
             return leaves;
@@ -198,7 +203,7 @@ public class BPlusTree {
      * Builds and serializes the index layers of the B+ tree and sets the root.
      * @param leaves - a queue of the leaves for the tree
      */
-    private void buildIndexLayer(Queue<LeafNode> leaves) {
+    private void buildIndexLayer(Queue<Node> leaves) {
         try {
             // check if tree has only one leaf node
             if(leaves.size() == 1) {
@@ -207,7 +212,7 @@ public class BPlusTree {
                 return;
             }
             Queue<Node> curLayer = new ArrayDeque<>();
-            Queue<Node> prevLayer = new ArrayDeque<>(leaves);
+            Queue<Node> prevLayer = leaves;
             int address = leaves.size()+1;
             // iterating over each layer - will terminate after building the root
             while(prevLayer.size() > 1) {
@@ -267,6 +272,19 @@ public class BPlusTree {
         }
     }
 
+    /**
+     * Prints out a string representation of this tree
+     */
+    public void printTree() {
+        Node n = root;
+        Queue<Node> bfs = new ArrayDeque<>();
+
+        System.out.println("Header page info: tree has order " + order + ", a root at address " + root.getAddress() + " and " + leafCount + " leaf nodes\n");
+        System.out.println("Root node is: " + root.toString() + "\n");
+
+
+    }
+
     @Override
     public String toString() {
         return "BPlusTree{" +
@@ -274,6 +292,7 @@ public class BPlusTree {
                 ", isClustered=" + isClustered +
                 ", relationName='" + relationName + '\'' +
                 ", attributeName='" + attributeName + '\'' +
+                ", tree= " + root.toString() +
                 '}';
     }
 }

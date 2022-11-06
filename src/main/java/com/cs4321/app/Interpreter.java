@@ -1,5 +1,6 @@
 package com.cs4321.app;
 
+import com.cs4321.indexes.BPlusTree;
 import com.cs4321.physicaloperators.QueryPlan;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.parser.ParseException;
@@ -27,6 +28,7 @@ public class Interpreter {
     private static final Logger logger = Logger.getInstance();
     private static List<Statement> statements = new ArrayList<>();
     private static InterpreterConfig interpreterConfig;
+    private static List<BPlusTree> indexes = new ArrayList<>();
 
     /**
      * Main function that is executed to run the project
@@ -56,12 +58,33 @@ public class Interpreter {
         DatabaseCatalog.setInputDir(getInputdir());
         PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
         PhysicalPlanBuilder.setHumanReadable(humanReadable);
+        if (interpreterConfig.shouldBuildIndexes()) {
+            buildIndexInfos();
+        }
         if (interpreterConfig.shouldEvaluateQueries()) {
             parseQueries();
         }
-        if (interpreterConfig.shouldBuildIndexes()) {
-            // TODO Yunus, Lenhard
+    }
+
+    /**
+     * Builds indexInfos for each index to be built
+     */
+    public static List<IndexInfo> buildIndexInfos() {
+        String indexInfosPath = DatabaseCatalog.getInputdir() + sep + "db" + sep + "index_info.txt";
+        List<String> indexInfoStrings = DatabaseCatalog.getInstance().readFile(indexInfosPath);
+        List<IndexInfo> indexInfos = new ArrayList<>();
+        for(String indexString : indexInfoStrings) {
+            String[] info = indexString.split(" ");
+            IndexInfo indexInfo = new IndexInfo(info[0], info[1], info[2].equals("1"), Integer.parseInt(info[3]));
+            indexInfos.add(indexInfo);
         }
+        indexes = new ArrayList<>();
+        String indexesPath = DatabaseCatalog.getInputdir() + sep + "db" + sep + "indexes";
+        for(IndexInfo indexinfo : indexInfos) {
+            indexes.add(new BPlusTree(indexesPath + sep + indexinfo.getRelationName() + "." + indexinfo.getAttributeName(), indexinfo));
+        }
+        return indexInfos;
+
     }
 
     /**

@@ -52,7 +52,7 @@ public class SortOperator extends Operator {
                 tuples.add(nextTuple);
                 nextTuple = child.getNextTuple();
             }
-            Collections.sort(tuples, (a, b) -> SortingUtilities.compare(a, b, orderByElementList, columnMap));
+            Collections.sort(tuples, (a, b) -> SortingUtilities.compare(a, b, orderByElementList, columnMap, null));
             index = 0;
         }
         if(index < tuples.size()) return tuples.get(index++);

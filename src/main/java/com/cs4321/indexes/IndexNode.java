@@ -11,7 +11,6 @@ public class IndexNode extends Node {
     private int numberOfKeys;
     private List<Integer> keysList;
     private List<Node> children;
-    private int address;
 
     /**
      * Sets the node flag to 1 representing an index node
@@ -76,11 +75,18 @@ public class IndexNode extends Node {
      */
     @Override
     public String toString() {
+        List<Integer> childAddresses = new ArrayList<>();
+        for(Node n : children) {
+            childAddresses.add(n.getAddress());
+        }
+        String rest = children.get(0).getNodeFlag() == 1 ? children.toString() : "";
         return "IndexNode{" +
-                "numberOfKeys=" + numberOfKeys +
+                "address " + getAddress() +
+                ", numberOfKeys=" + numberOfKeys +
                 ", keysList=" + keysList +
-                ", children=" + children.toString() +
+                ", children=" + childAddresses +
                 ", nodeFlag=" + this.getNodeFlag() +
+                ", " + rest +
                 '}';
     }
 }

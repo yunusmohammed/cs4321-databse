@@ -22,7 +22,7 @@ class BPlusTreeTest {
     private static String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_indexes";
 
     private static String pathToTable(String table) {
-        return DatabaseCatalog.getInputdir() + sep + "db" + sep + "data" + sep + table;
+        return inputdir + sep + "db" + sep + "data" + sep + table;
     }
 
     private int compareFiles(File a, File b) {
@@ -38,7 +38,7 @@ class BPlusTreeTest {
             assertEquals(inputdir, DatabaseCatalog.getInputdir());
             dbcMockedStatic.when(DatabaseCatalog::getInstance).thenReturn(dbc);
 
-            String indexInfoPath = DatabaseCatalog.getInputdir() + sep + "db" + sep + "index_info.txt";
+            String indexInfoPath = inputdir + sep + "db" + sep + "index_info.txt";
             Mockito.when(dbc.readFile(indexInfoPath)).thenReturn(Files.readAllLines(Paths.get(indexInfoPath)));
             String boatsPath = pathToTable("Boats");
             String sailorsPath = pathToTable("Sailors");
@@ -52,7 +52,7 @@ class BPlusTreeTest {
 
             List<IndexInfo> indexInfos = Interpreter.buildIndexInfos();
             List<BPlusTree> trees = new ArrayList<>();
-            String indexesPath = DatabaseCatalog.getInputdir() + sep + "db" + sep + "indexes";
+            String indexesPath = inputdir + sep + "db" + sep + "indexes";
             for(IndexInfo indexinfo : indexInfos) {
                 trees.add(new BPlusTree(indexesPath + sep + indexinfo.getRelationName() + "." + indexinfo.getAttributeName(), indexinfo));
             }

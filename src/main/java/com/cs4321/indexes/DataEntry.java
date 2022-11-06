@@ -77,10 +77,6 @@ public class DataEntry {
    */
   @Override
   public String toString() {
-    return "DataEntry{" +
-        "rids=" + rids +
-        ", key=" + key +
-        ", numberOfRids=" + numberOfRids +
-        '}';
+    return "<[" + key + ":" + rids.toString() + "\n";
   }
 }

@@ -1,20 +1,24 @@
 package com.cs4321.indexes;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
  * IndexNode class representing index nodes in the B+ Tree
  */
 public class IndexNode extends Node {
-    int numberOfKeys;
-    List<Integer> keysList;
-    List<Integer> addressList;
+    private int numberOfKeys;
+    private List<Integer> keysList;
+    private List<Node> children;
 
     /**
      * Sets the node flag to 1 representing an index node
      */
-    IndexNode() {
-        super(1);
+    IndexNode(int address) {
+        super(1, address);
+        keysList = new ArrayList<>();
+        children = new ArrayList<>();
     }
 
     /**
@@ -27,6 +31,12 @@ public class IndexNode extends Node {
     }
 
     /**
+     * Returns the keys for this node
+     * @return the keys for this node
+     */
+    public List<Integer> getKeysList() { return keysList; }
+
+    /**
      * Adds a key to this node
      *
      * @param key is the (integer) search key for the index
@@ -37,13 +47,26 @@ public class IndexNode extends Node {
     }
 
     /**
-     * Adds an address to this node
-     *
-     * @param address is the number of the page it is serialized on.
+     * Adds the child to the current node
+     * @param child - child to be added
      */
-    public void addAddress(int address) {
-        addressList.add(address);
+    public void addChild(Node child) {
+        this.children.add(child);
     }
+
+    /**
+     * Adds a list of children to the node
+     * @param children - the children of the node
+     */
+    public void addChildren(Collection<Node> children) {
+        this.children.addAll(children);
+    }
+
+    /**
+     * Returns the children of this node
+     * @return - the children of this node
+     */
+    public List<Node> getChildren() { return this.children; }
 
     /**
      * Returns the string representation of the IndexNode
@@ -52,11 +75,10 @@ public class IndexNode extends Node {
      */
     @Override
     public String toString() {
-        return "IndexNode{" +
-                "numberOfKeys=" + numberOfKeys +
-                ", keysList=" + keysList +
-                ", addressList=" + addressList +
-                ", nodeFlag=" + nodeFlag +
-                '}';
+        List<Integer> childAddresses = new ArrayList<>();
+        for(Node n : children) {
+            childAddresses.add(n.getAddress());
+        }
+        return "IndexNode with keys " + keysList + " and child addresses " + childAddresses;
     }
 }

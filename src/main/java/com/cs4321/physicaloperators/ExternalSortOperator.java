@@ -71,7 +71,7 @@ public class ExternalSortOperator extends Operator{
                 sortedTuples.add(cur);
                 cur = child.getNextTuple();
             }
-            Collections.sort(sortedTuples, (a, b) -> SortingUtilities.compare(a, b, orderByElementList, columnMap));
+            Collections.sort(sortedTuples, (a, b) -> SortingUtilities.compare(a, b, orderByElementList, columnMap, null));
             for(Tuple t : sortedTuples) {
                 writer.writeToFile(t, false);
             }
@@ -84,7 +84,7 @@ public class ExternalSortOperator extends Operator{
             while(index < currentPassFilenames.size()) {
                 // [buffersize - 1] way merge
                 PriorityQueue<Map.Entry<Tuple, TupleReader>> nextTuples =
-                        new PriorityQueue<>((a, b) -> SortingUtilities.compare(a.getKey(), b.getKey(), orderByElementList, columnMap));
+                        new PriorityQueue<>((a, b) -> SortingUtilities.compare(a.getKey(), b.getKey(), orderByElementList, columnMap, null));
                 // In the current pass, we have [currentPassFilenames.size()] runs, and we want to merge [bufferSize - 1]
                 // runs at a time.
                 for(int i=index; i<index + bufferSize - 1 && i < currentPassFilenames.size(); i++) {

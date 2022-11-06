@@ -91,7 +91,7 @@ public class DatabaseCatalog {
      * @return- A list of Strings containing the content in a given file. If the
      *          file does not exist, an empty list will be returned.
      */
-    private List<String> readFile(String path) {
+    public List<String> readFile(String path) {
         try {
             return Files.readAllLines(Paths.get(path));
         } catch (IOException e) {

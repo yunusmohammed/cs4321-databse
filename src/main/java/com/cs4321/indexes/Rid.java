@@ -46,10 +46,7 @@ public class Rid {
      */
     @Override
     public String toString() {
-        return "Rid{" +
-                "pageId=" + pageId +
-                ", tupleId=" + tupleId +
-                '}';
+        return "(" + pageId + "," + tupleId + ")";
     }
 }
 

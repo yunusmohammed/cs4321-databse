@@ -4,7 +4,6 @@ import com.cs4321.app.AliasMap;
 import com.cs4321.app.Tuple;
 import com.cs4321.indexes.DataEntry;
 import com.cs4321.indexes.Rid;
-
 import net.sf.jsqlparser.schema.Table;
 
 import java.io.FileInputStream;
@@ -164,14 +163,14 @@ public class IndexScanOperator extends ScanOperator {
    * Returns the string representation of the Index Scan Operator
    *
    * @return The string representation of the Index Scan Operator
-   *         Eg:
-   *         IndexScanOperator{baseTablePath='../src/test/resources/input_binary/db/data/Boats'}
+   * Eg:
+   * IndexScanOperator{baseTablePath='../src/test/resources/input_binary/db/data/Boats'}
    */
   @Override
   public String toString() {
     return "IndexScanOperator{" +
-        "baseTablePath='" + baseTablePath + '\'' +
-        '}';
+            "baseTablePath='" + baseTablePath + '\'' +
+            '}';
   }
 
   /**

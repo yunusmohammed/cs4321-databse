@@ -53,10 +53,8 @@ public class LeafNode extends Node {
      */
     @Override
     public String toString() {
-        return "LeafNode{" +
-                "dataEntries=" + dataEntries +
-                ", numberOfDataEntries=" + numberOfDataEntries +
-                ", nodeFlag=" + this.getNodeFlag() +
-                '}';
+        return "LeafNode[\n" +
+                dataEntries.toString() +
+                ']';
     }
 }

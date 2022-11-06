@@ -79,14 +79,6 @@ public class IndexNode extends Node {
         for(Node n : children) {
             childAddresses.add(n.getAddress());
         }
-        String rest = children.get(0).getNodeFlag() == 1 ? children.toString() : "";
-        return "IndexNode{" +
-                "address " + getAddress() +
-                ", numberOfKeys=" + numberOfKeys +
-                ", keysList=" + keysList +
-                ", children=" + childAddresses +
-                ", nodeFlag=" + this.getNodeFlag() +
-                ", " + rest +
-                '}';
+        return "IndexNode with keys " + keysList + " and child addresses " + childAddresses;
     }
 }

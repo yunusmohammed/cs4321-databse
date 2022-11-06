@@ -62,7 +62,7 @@ public class BPlusTree {
             HashMap<Integer, DataEntry> entriesMap = new HashMap<>();
             // build data entries by adding the current tuple to the data entry which has the correct key
             while(cur != null) {
-                if(tupleSize * 4 * (tupleId + 1) > PAGE_SIZE) {
+                if(tupleSize * 4 * (tupleId + 1) + 8 > PAGE_SIZE) {
                     pageId++;
                     tupleId = 0;
                 }
@@ -276,11 +276,32 @@ public class BPlusTree {
      * Prints out a string representation of this tree
      */
     public void printTree() {
-        Node n = root;
-        Queue<Node> bfs = new ArrayDeque<>();
-
         System.out.println("Header page info: tree has order " + order + ", a root at address " + root.getAddress() + " and " + leafCount + " leaf nodes\n");
         System.out.println("Root node is: " + root.toString() + "\n");
+        System.out.println("---------Next layer is index nodes---------");
+        Node n = root;
+        Queue<Node> bfs = new ArrayDeque<>();
+        for(Node child : ((IndexNode) n).getChildren()) {
+            bfs.add(child);
+        }
+        Queue<Node> leaves = new ArrayDeque<>();
+        while(bfs.size() > 0) {
+            Node cur = bfs.poll();
+            if(cur.getNodeFlag() == 1) {
+                System.out.println(cur + "\n");
+                for(Node child : ((IndexNode) cur).getChildren()) {
+                    bfs.add(child);
+                }
+            }
+            else {
+                leaves.add(cur);
+            }
+        }
+        System.out.println("---------Next layer is leaf nodes---------");
+        for(Node leaf : leaves) {
+            System.out.println(leaf + "\n");
+        }
+
 
 
     }

@@ -11,10 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,6 +23,12 @@ class BPlusTreeTest {
 
     private static String pathToTable(String table) {
         return DatabaseCatalog.getInputdir() + sep + "db" + sep + "data" + sep + table;
+    }
+
+    private int compareFiles(File a, File b) {
+        int alen = a.getName().length(), blen = b.getName().length();
+        if(alen != blen) return alen - blen;
+        return a.getName().charAt(0) - b.getName().charAt(0);
     }
 
     @Test
@@ -53,13 +56,11 @@ class BPlusTreeTest {
             for(IndexInfo indexinfo : indexInfos) {
                 trees.add(new BPlusTree(indexesPath + sep + indexinfo.getRelationName() + "." + indexinfo.getAttributeName(), indexinfo));
             }
-            trees.get(0).printTree();
-            File[] correctQueries = new File(System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "correctIndexes").listFiles();
+            // trees.get(0).printTree();
+            File[] correctQueries = new File(System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "expected_indexes").listFiles();
             File[] outputQueries = new File(indexesPath).listFiles();
-            if(correctQueries.length != outputQueries.length) throw new Error();
+            Arrays.sort(correctQueries, (a, b) -> compareFiles(a, b));
             for(int i=0; i<outputQueries.length; i++) {
-                System.out.println(correctQueries[i].getName());
-                System.out.println(outputQueries[i].getName());
                 assertTrue(FileUtils.contentEquals(correctQueries[i], outputQueries[i]));
             }
         }

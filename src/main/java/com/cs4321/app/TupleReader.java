@@ -168,13 +168,14 @@ public class TupleReader {
      * @throws IOException
      */
     public void smjReset(int tupleRow) throws IOException {
-        // Figure out what page  this index is supposed to be on
+        // Figure out what page this index is supposed to be on
         int pageIndexIsOn = tupleRow / maximumNumberOfTuplesOnPage;
         int numberOfTuplesOnPage = pageToNumberOfTuplesOnPage.get(pageIndexIsOn);
 
         // Calculate number of bytes I now need to read
         int numberOfTuplesFromPageStart = (tupleRow) % maximumNumberOfTuplesOnPage;
-        int numberOfBytesTillTuple = (SIZE_OF_AN_INTEGER * 2) + (PAGE_SIZE * pageIndexIsOn) + (SIZE_OF_AN_INTEGER * numberOfTuplesFromPageStart * tupleSize);
+        int numberOfBytesTillTuple = (SIZE_OF_AN_INTEGER * 2) + (PAGE_SIZE * pageIndexIsOn)
+                + (SIZE_OF_AN_INTEGER * numberOfTuplesFromPageStart * tupleSize);
 
         // Set file channel
         fc.position(numberOfBytesTillTuple);
@@ -271,8 +272,7 @@ public class TupleReader {
             } else {
                 if (i >= pageToNumberOfTuplesOnPage.size()) {
                     pageToNumberOfTuplesOnPage.add(i, 0);
-                }
-                else {
+                } else {
                     pageToNumberOfTuplesOnPage.add(i, pageToNumberOfTuplesOnPage.get(i));
                 }
             }

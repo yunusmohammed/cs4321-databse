@@ -59,6 +59,4 @@ public class LeafNode extends Node {
                 ", nodeFlag=" + this.getNodeFlag() +
                 '}';
     }
-
-
 }

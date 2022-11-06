@@ -33,8 +33,10 @@ public class BPlusTreeSerializer {
     /**
      * Writes the header page
      *
-     * @param rootAddress          the address of the root, stored at offset 0 on the header page.
-     *                             The address of a node is the number of the page it is serialized on.
+     * @param rootAddress          the address of the root, stored at offset 0 on
+     *                             the header page.
+     *                             The address of a node is the number of the page
+     *                             it is serialized on.
      * @param numberOfLeavesInTree the number of leaves in the tree, at offset 4
      * @param order                the order of the tree, at offset 8
      * @throws IOException
@@ -50,7 +52,8 @@ public class BPlusTreeSerializer {
     /**
      * Writes a leaf node to a page.
      *
-     * @param leafNode the leaf Node to be written to the page. We assume every node will fit
+     * @param leafNode the leaf Node to be written to the page. We assume every node
+     *                 will fit
      *                 in a 4096-byte page.
      * @throws IOException
      */
@@ -72,7 +75,8 @@ public class BPlusTreeSerializer {
     /**
      * Writes an index node to a page.
      *
-     * @param indexNode the index Node to be written to the page. We assume every node will fit
+     * @param indexNode the index Node to be written to the page. We assume every
+     *                  node will fit
      *                  in a 4096-byte page.
      * @throws IOException
      */

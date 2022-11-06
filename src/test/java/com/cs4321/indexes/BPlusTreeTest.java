@@ -16,8 +16,6 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BPlusTreeTest {
-
-    private static DatabaseCatalog dbc = Mockito.mock(DatabaseCatalog.class);
     private static String sep = File.separator;
     private static String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_indexes";
 
@@ -36,6 +34,7 @@ class BPlusTreeTest {
         try (MockedStatic<DatabaseCatalog> dbcMockedStatic = Mockito.mockStatic(DatabaseCatalog.class)) {
             dbcMockedStatic.when(DatabaseCatalog::getInputdir).thenReturn(inputdir);
             assertEquals(inputdir, DatabaseCatalog.getInputdir());
+            DatabaseCatalog dbc = Mockito.mock(DatabaseCatalog.class);
             dbcMockedStatic.when(DatabaseCatalog::getInstance).thenReturn(dbc);
 
             String indexInfoPath = inputdir + sep + "db" + sep + "index_info.txt";
@@ -61,6 +60,8 @@ class BPlusTreeTest {
             File[] outputQueries = new File(indexesPath).listFiles();
             Arrays.sort(correctQueries, (a, b) -> compareFiles(a, b));
             for(int i=0; i<outputQueries.length; i++) {
+                System.out.println("correct query: " + correctQueries[i].getName());
+                System.out.println("output query: " + outputQueries[i].getName());
                 assertTrue(FileUtils.contentEquals(correctQueries[i], outputQueries[i]));
             }
         }

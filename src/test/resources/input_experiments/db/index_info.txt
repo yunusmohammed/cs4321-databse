@@ -1,2 +1,3 @@
-Boats E 0 10
-Sailors A 1 15
+Kenya A 1 10
+Ghana B 1 10
+Eritrea B 1 10

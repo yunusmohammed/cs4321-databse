@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.List;
 
 import net.sf.jsqlparser.statement.Statement;
@@ -45,7 +46,13 @@ class InterpreterTest {
         Interpreter.setInputdir(inputdir);
         Interpreter.parseQueries();
         File[] correctQueries = new File(correctOutputPath).listFiles();
+        Arrays.sort(correctQueries,
+                (File a, File b) -> Integer.parseInt(a.toString().substring(a.toString().lastIndexOf("y") + 1))
+                        - Integer.parseInt(b.toString().substring(b.toString().lastIndexOf("y") + 1)));
         File[] outputQueries = new File(outputdir).listFiles();
+        Arrays.sort(outputQueries,
+                (File a, File b) -> Integer.parseInt(a.toString().substring(a.toString().lastIndexOf("y") + 1))
+                        - Integer.parseInt(b.toString().substring(b.toString().lastIndexOf("y") + 1)));
         List<Statement> statements = Interpreter.getStatements();
         if (correctQueries.length != outputQueries.length) logger.log("At least one query has not been output");
         for (int i = 0; i < correctQueries.length; i++) {
@@ -58,8 +65,17 @@ class InterpreterTest {
                     File sortedCorrect = new File(SortingUtilities.sortFile(correctQueries[i].toString(), null, null));
                     File sortedOutput = new File(SortingUtilities.sortFile(outputQueries[i].toString(), null, null));
                     equal = FileUtils.contentEquals(sortedCorrect, sortedOutput);
+                    if (!equal) {
+                        System.out.println("Entered");
+                        System.out.println(correctQueries[i].getName());
+                        System.out.println(outputQueries[i].getName());
+                    }
                 }
                 else equal = FileUtils.contentEquals(correctQueries[i], outputQueries[i]);
+                if (!equal) {
+                    System.out.println(correctQueries[i].getName());
+                    System.out.println(outputQueries[i].getName());
+                }
                 if (!equal) logger.log(correctQueries[i].getName() + " is incorrect");
                 assertTrue(equal);
             } catch (Exception e) {

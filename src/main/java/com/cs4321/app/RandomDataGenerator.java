@@ -2,6 +2,8 @@ package com.cs4321.app;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
 
 /**
  * Creates a temporary file with random data according to a set of specifications.
@@ -30,14 +32,15 @@ public class RandomDataGenerator {
      */
     public RandomDataGenerator(String tableName, int minTuples, int maxTuples, int minColumns, int maxColumns, int minValue, int maxValue) {
         try {
-            tablePath = Files.createTempFile(tableName, null).toString();
+            tablePath = Files.createFile(Path.of(tableName)).toString();
             this.minValue = minValue;
             this.maxValue = maxValue;
             numTuples = randomIntWithinRange(minTuples, maxTuples);
             numColumns = randomIntWithinRange(minColumns, maxColumns);
             columnNames = new String[numColumns];
             for(int i=0; i<numColumns; i++) {
-                columnNames[i] = "" + i;
+                Character letter = (char) ('A' + i);
+                columnNames[i] = letter.toString();
             }
             TupleWriter writer = new TupleWriter(tablePath);
             for(int i=0; i<numTuples; i++) {
@@ -50,6 +53,18 @@ public class RandomDataGenerator {
             throw new Error();
         }
     }
+
+//    public static void main(String[] args) {
+//        String tableName = args[0];
+//        int minTuples = Integer.parseInt(args[1]);
+//        int maxTuples = Integer.parseInt(args[2]);
+//        int minColumns = Integer.parseInt(args[3]);
+//        int maxColumns = Integer.parseInt(args[4]);
+//        int minValue = Integer.parseInt(args[5]);
+//        int maxValue = Integer.parseInt(args[6]);
+//        RandomDataGenerator randomDataGenerator = new RandomDataGenerator(tableName, minTuples, maxTuples, minColumns, maxColumns, minValue, maxValue);
+//        System.out.println(Arrays.toString(randomDataGenerator.getColumnNames()));
+//    }
 
     /**
      * Generates a random tuple where each attribute value lies between this.minValue and this.maxValue.

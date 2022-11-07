@@ -12,7 +12,6 @@ import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
@@ -130,20 +129,18 @@ public class PhysicalPlanBuilder {
      * @param indexColumn The column to create the index on
      * @param lowHigh     The low and high value for the index
      * @return A new index scan on `indexColumn` with the range from low to high as
-     *         specified by lowHigh.
+     * specified by lowHigh.
      */
     public IndexScanOperator generateIndexScan(LogicalSelectionOperator operator, Column indexColumn,
-            List<Integer> lowHigh) {
+                                               List<Integer> lowHigh) {
         String baseTableName = operator.getAliasMap().getBaseTable(indexColumn.getTable().getName());
         String wholeBaseColumnName = String.format("%s.%s", baseTableName, indexColumn.getColumnName());
-        String indexPath = DatabaseCatalog.getInputdir() + File.separator + "indexes" + File.separator
-                + wholeBaseColumnName;
+        String dbPath = DatabaseCatalog.getInputdir() + File.separator + "db";
+        String indexPath = dbPath + File.separator + "indexes" + File.separator + wholeBaseColumnName;
         boolean isClustered = indexInfoConfigMap.get(wholeBaseColumnName).isClustered();
         try {
             return new IndexScanOperator(indexColumn.getTable(), operator.getAliasMap(),
                     indexPath, indexColumn.getColumnName(), lowHigh.get(0), lowHigh.get(1), isClustered);
-        } catch (FileNotFoundException e) {
-            Logger.getInstance().log(e.getMessage());
         } catch (IOException e) {
             Logger.getInstance().log(e.getMessage());
         }

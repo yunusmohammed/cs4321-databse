@@ -74,6 +74,7 @@ public class SMJOperator extends JoinOperator {
         this.leftSort = this.getLeftChild();
         this.rightSort = this.getRightChild();
         this.started = false;
+        this.index = 0;
         this.rightIndex = 0;
     }
 
@@ -134,38 +135,32 @@ public class SMJOperator extends JoinOperator {
         if (!started) {
             started = true;
             leftTuple = this.leftSort.getNextTuple();
-            rightTuple = this.rightSort.getNextTuple();
-            rightIndex = 0;
         }
-
-        // Case where outer tuple is smaller
-        while (leftTuple != null && (rightTuple == null || compare(leftTuple, rightTuple, leftSort, rightSort, leftSortOrder, rightSortOrder) == -1)) {
-            Tuple nextLeftTup = leftSort.getNextTuple();
-            // If next outer tuple is the same, reset inner tuple to start at the correct partition
-            if (nextLeftTup != null && compare(leftTuple, nextLeftTup, leftSort, leftSort, leftSortOrder, leftSortOrder) == 0) {
-                rightSort.reset(rightIndex);
-                rightTuple = rightSort.getNextTuple();
+        rightTuple = this.rightSort.getNextTuple();
+        // Continue searching while an unscanned outer tuple exists and the two tuples are not equal (or the inner row finished scanning)
+        while (leftTuple != null && (rightTuple == null || compare(leftTuple, rightTuple, leftSort, rightSort, leftSortOrder, rightSortOrder) != 0)) {
+            // Case where inner row is done scanning or the inner tuple is larger
+            if (rightTuple == null || compare(leftTuple, rightTuple, leftSort, rightSort, leftSortOrder, rightSortOrder) == -1) {
+                Tuple nextLeftTuple = leftSort.getNextTuple();
+                // Reset the inner row to the S-partition if next outer tuple matches current outer tuple
+                if (nextLeftTuple != null && compare(leftTuple, nextLeftTuple, leftSort, leftSort, leftSortOrder, leftSortOrder) == 0) {
+                    rightSort.reset(rightIndex);
+                    rightTuple = rightSort.getNextTuple();
+                } else {
+                    rightIndex = index;
+                }
+                index = rightIndex;
+                leftTuple = nextLeftTuple;
             }
-            // If next outer tuple is different, update index of inner partition
+            // Case where inner tuple is smaller
             else {
-                rightIndex = index;
+                rightTuple = rightSort.getNextTuple();
+                index += 1;
             }
-            index = rightIndex;
-            leftTuple = nextLeftTup;
         }
-        if (leftTuple == null) return null;
 
-        // Case where inner tuple is smaller
-        while (rightTuple != null && compare(leftTuple, rightTuple, leftSort, rightSort, leftSortOrder, rightSortOrder) == -1) {
-            index += 1;
-            rightTuple = rightSort.getNextTuple();
-        }
-        if (rightTuple == null) return null;
+        if (leftTuple == null || rightTuple == null) return null;
 
-        // Return joined tuple and set up for next iteration
-        Tuple newTup = leftTuple.concat(rightTuple);
-        rightTuple = rightSort.getNextTuple();
-        index += 1;
-        return newTup;
+        return leftTuple.concat(rightTuple);
     }
 }

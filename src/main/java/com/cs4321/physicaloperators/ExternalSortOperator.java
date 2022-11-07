@@ -48,7 +48,7 @@ public class ExternalSortOperator extends Operator {
             this.bufferSize = bufferSize;
             currentPassFilenames = new ArrayList<>();
             this.setColumnMap(child.getColumnMap());
-//            createSortedRelation();
+            createSortedRelation();
         } catch (IOException e) {
             logger.log("Unable to create external sort operator.");
             throw new Error();

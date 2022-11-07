@@ -6,6 +6,7 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -23,6 +24,7 @@ import javax.xml.crypto.Data;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Disabled
 class InterpreterHumanReadableTest {
 
     private static final String sep = File.separator;
@@ -30,7 +32,7 @@ class InterpreterHumanReadableTest {
             + "resources" + sep + "input_endToEnd";
     private static String outputdir;
     private static final Logger logger = Logger.getInstance();
-    private static DatabaseCatalog dbc = Mockito.mock(DatabaseCatalog.class);
+    private static DatabaseCatalog dbc = DatabaseCatalog.getInstance();
 
     static {
         try {
@@ -43,7 +45,10 @@ class InterpreterHumanReadableTest {
     @BeforeAll
     static void setup() {
         // Interpreter.setHumanReadable(true);
-        // DatabaseCatalog.setInputDir(inputdir);
+        DatabaseCatalog.setInputDir(inputdir);
+        Interpreter.setOutputdir(outputdir);
+        Interpreter.setInputdir(inputdir);
+
         // PhysicalPlanBuilder.setHumanReadable(true);
         HashMap<String, Integer> sailorsColumnMap = new HashMap<>();
         sailorsColumnMap.put("A", 0);
@@ -63,29 +68,23 @@ class InterpreterHumanReadableTest {
         shipsColumnMap.put("X", 0);
         shipsColumnMap.put("Y", 1);
 
-        Mockito.when(dbc.tablePath(Mockito.any())).thenCallRealMethod();
-        Mockito.when(dbc.columnMap("Sailors")).thenReturn(sailorsColumnMap);
-        Mockito.when(dbc.columnMap("Sailors2")).thenReturn(sailorsColumnMap);
-        Mockito.when(dbc.columnMap("Boats")).thenReturn(boatsColumnMap);
-        Mockito.when(dbc.columnMap("Boats2")).thenReturn(boatsColumnMap);
-        Mockito.when(dbc.columnMap("Reserves")).thenReturn(reservesColumnMap);
-        Mockito.when(dbc.columnMap("Reserves2")).thenReturn(reservesColumnMap);
-        Mockito.when(dbc.columnMap("Ships")).thenReturn(shipsColumnMap);
+//        Mockito.when(dbc.tablePath(Mockito.any())).thenCallRealMethod();
+//        Mockito.when(dbc.columnMap("Sailors")).thenReturn(sailorsColumnMap);
+//        Mockito.when(dbc.columnMap("Sailors2")).thenReturn(sailorsColumnMap);
+//        Mockito.when(dbc.columnMap("Boats")).thenReturn(boatsColumnMap);
+//        Mockito.when(dbc.columnMap("Boats2")).thenReturn(boatsColumnMap);
+//        Mockito.when(dbc.columnMap("Reserves")).thenReturn(reservesColumnMap);
+//        Mockito.when(dbc.columnMap("Reserves2")).thenReturn(reservesColumnMap);
+//        Mockito.when(dbc.columnMap("Ships")).thenReturn(shipsColumnMap);
     }
 
     @Test
     void queryOutputHumanReadable() {
 //        BinaryToHumanReadableUtil.binaryToHuman("C:\\Users\\Yohanes\\eclipse-workspace\\cs4321-databse\\src\\test\\resources\\expectedOutputHumanReadable\\query12", "C:\\Users\\Yohanes\\eclipse-workspace\\cs4321-databse\\src\\test\\resources\\expectedOutputHumanReadable\\query12H");
 //        BinaryToHumanReadableUtil.binaryToHuman("C:\\Users\\Yohanes\\eclipse-workspace\\cs4321-databse\\src\\test\\resources\\correctOutput_endToEnd\\query12", "C:\\Users\\Yohanes\\eclipse-workspace\\cs4321-databse\\src\\test\\resources\\correctOutput_endToEnd\\query12H");
-        try (MockedStatic<DatabaseCatalog> dbcMockedStatic = Mockito.mockStatic(DatabaseCatalog.class)) {
-            dbcMockedStatic.when(DatabaseCatalog::getInputdir).thenReturn(inputdir);
-            dbcMockedStatic.when(DatabaseCatalog::getInstance).thenReturn(dbc);
-            Interpreter.setInputdir(inputdir);
-            PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
+                PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
             String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep
                 + "correctOutput_endToEnd";
-            Interpreter.setOutputdir(outputdir);
-
             Interpreter.parseQueries();
             File[] correctQueries = new File(correctOutputPath).listFiles();
             System.out.println(correctQueries[0].toString());
@@ -120,7 +119,6 @@ class InterpreterHumanReadableTest {
                     throw new Error();
             }
         }
-    }
-}
+            }
 
 }

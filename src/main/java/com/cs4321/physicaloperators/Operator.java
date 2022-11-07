@@ -50,6 +50,12 @@ public abstract class Operator {
     abstract void reset();
 
     /**
+     * Tells the operator to reset its state and start returning its output again
+     * from a specific index.
+     */
+    public void reset(int index) {}
+
+    /**
      * For binary files, calls getNextTuple() until the next tuple is null (no more
      * output)
      * and writes each tuple to a provided filename.

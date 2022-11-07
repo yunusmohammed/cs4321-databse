@@ -5,7 +5,6 @@ import com.cs4321.app.Tuple;
 import com.cs4321.app.TupleReader;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 
@@ -56,7 +55,8 @@ public class BinaryToHumanReadableUtil {
 
     /**
      * Converts the input file from binary to human-readable and stores it at the output file path
-     * @param inputFile - the path to the input file
+     *
+     * @param inputFile  - the path to the input file
      * @param outputFile - the path to the output file
      */
     public static void binaryToHuman(String inputFile, String outputFile) {

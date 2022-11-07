@@ -21,10 +21,10 @@ class InterpreterTest {
 
     private static final String sep = File.separator;
     private String outputdir;
+    private String tempdir;
     private static final Logger logger = Logger.getInstance();
 
     void testQueries(String inputdir, String correctOutputPath) {
-        Interpreter.setOutputdir(outputdir);
         Interpreter.setInputdir(inputdir);
         Interpreter.parseQueries();
         File[] correctQueries = new File(correctOutputPath).listFiles();
@@ -59,8 +59,12 @@ class InterpreterTest {
 
     @BeforeEach
     void setUp() {
+
         try {
             outputdir = Files.createTempDirectory("output").toString();
+            tempdir = Files.createTempDirectory("temp").toString();
+            Interpreter.setOutputdir(outputdir);
+            Interpreter.setTempdir(tempdir);
         } catch (IOException e) {
             logger.log(e.getMessage());
         }
@@ -76,14 +80,14 @@ class InterpreterTest {
         testQueries(inputdir, correctOutputPath);
     }
 
-//    @Test
-//    void SMJQueryOutput() {
-//        String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_SMJ";
-//        String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "expected_SMJ";
-//        DatabaseCatalog.setInputDir(inputdir);
-//        PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
-//        testQueries(inputdir, correctOutputPath);
-//    }
+    @Test
+    void SMJQueryOutput() {
+        String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_SMJ";
+        String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "expected_SMJ";
+        DatabaseCatalog.setInputDir(inputdir);
+        PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
+        testQueries(inputdir, correctOutputPath);
+    }
 
 
     @Test

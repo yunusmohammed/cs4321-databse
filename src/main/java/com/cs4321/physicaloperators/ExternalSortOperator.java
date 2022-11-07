@@ -145,6 +145,16 @@ public class ExternalSortOperator extends Operator {
 
     }
 
+    @Override
+    public void reset(int index) {
+        try {
+            if (sortedReader != null) sortedReader.smjReset(index);
+        } catch (IOException e) {
+            logger.log("Unable to reset sorted reader in External Sort Operator");
+            throw new Error();
+        }
+    }
+
     /**
      * Returns a string representation of this operator.
      *

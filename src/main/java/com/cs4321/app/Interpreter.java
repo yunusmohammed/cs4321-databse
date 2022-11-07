@@ -73,14 +73,14 @@ public class Interpreter {
         String indexInfosPath = DatabaseCatalog.getInputdir() + sep + "db" + sep + "index_info.txt";
         List<String> indexInfoStrings = DatabaseCatalog.getInstance().readFile(indexInfosPath);
         List<IndexInfo> indexInfos = new ArrayList<>();
-        for(String indexString : indexInfoStrings) {
+        for (String indexString : indexInfoStrings) {
             String[] info = indexString.split(" ");
             IndexInfo indexInfo = new IndexInfo(info[0], info[1], info[2].equals("1"), Integer.parseInt(info[3]));
             indexInfos.add(indexInfo);
         }
         indexes = new ArrayList<>();
         String indexesPath = DatabaseCatalog.getInputdir() + sep + "db" + sep + "indexes";
-        for(IndexInfo indexinfo : indexInfos) {
+        for (IndexInfo indexinfo : indexInfos) {
             indexes.add(new BPlusTree(indexesPath + sep + indexinfo.getRelationName() + "." + indexinfo.getAttributeName(), indexinfo));
         }
         return indexInfos;
@@ -215,6 +215,7 @@ public class Interpreter {
 
     /**
      * Returns all the statements from the queries.sql file that have been evaluated
+     *
      * @return- all the statements from the queries.sql file that have been evaluated
      */
     public static List<Statement> getStatements() {

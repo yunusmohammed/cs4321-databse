@@ -5,8 +5,6 @@ import com.cs4321.app.Tuple;
 import com.cs4321.app.TupleWriter;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 
 /**

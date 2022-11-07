@@ -1,18 +1,17 @@
 package com.cs4321.app;
 
+import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.select.OrderByElement;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.Select;
 import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.List;
-
-import net.sf.jsqlparser.statement.Statement;
-import net.sf.jsqlparser.statement.select.*;
-
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -20,39 +19,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class InterpreterTest {
 
     private static final String sep = File.separator;
-    private static final String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_binary";
-    private static String outputdir;
+    private String outputdir;
     private static final Logger logger = Logger.getInstance();
 
-    static {
-        try {
-            outputdir = Files.createTempDirectory("output").toString();
-        } catch (IOException e) {
-            logger.log(e.getMessage());
-        }
-    }
-
-
-    @BeforeAll
-    static void setup() {
-        DatabaseCatalog.setInputDir(inputdir);
-        PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
-    }
-
-    @Test
-    void queryOutput() {
-        String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "correctOutput_binary";
+    void testQueries(String inputdir, String correctOutputPath) {
         Interpreter.setOutputdir(outputdir);
         Interpreter.setInputdir(inputdir);
         Interpreter.parseQueries();
         File[] correctQueries = new File(correctOutputPath).listFiles();
-        Arrays.sort(correctQueries,
-                (File a, File b) -> Integer.parseInt(a.toString().substring(a.toString().lastIndexOf("y") + 1))
-                        - Integer.parseInt(b.toString().substring(b.toString().lastIndexOf("y") + 1)));
         File[] outputQueries = new File(outputdir).listFiles();
-        Arrays.sort(outputQueries,
-                (File a, File b) -> Integer.parseInt(a.toString().substring(a.toString().lastIndexOf("y") + 1))
-                        - Integer.parseInt(b.toString().substring(b.toString().lastIndexOf("y") + 1)));
         List<Statement> statements = Interpreter.getStatements();
         if (correctQueries.length != outputQueries.length) logger.log("At least one query has not been output");
         for (int i = 0; i < correctQueries.length; i++) {
@@ -61,21 +36,11 @@ class InterpreterTest {
                 Select select = (Select) statements.get(i);
                 PlainSelect selectBody = (PlainSelect) select.getSelectBody();
                 List<OrderByElement> orderByElementsList = selectBody.getOrderByElements();
-                if(orderByElementsList == null || orderByElementsList.size() == 0) {
+                if (orderByElementsList == null || orderByElementsList.size() == 0) {
                     File sortedCorrect = new File(SortingUtilities.sortFile(correctQueries[i].toString(), null, null));
                     File sortedOutput = new File(SortingUtilities.sortFile(outputQueries[i].toString(), null, null));
                     equal = FileUtils.contentEquals(sortedCorrect, sortedOutput);
-                    if (!equal) {
-                        System.out.println("Entered");
-                        System.out.println(correctQueries[i].getName());
-                        System.out.println(outputQueries[i].getName());
-                    }
-                }
-                else equal = FileUtils.contentEquals(correctQueries[i], outputQueries[i]);
-                if (!equal) {
-                    System.out.println(correctQueries[i].getName());
-                    System.out.println(outputQueries[i].getName());
-                }
+                } else equal = FileUtils.contentEquals(correctQueries[i], outputQueries[i]);
                 if (!equal) logger.log(correctQueries[i].getName() + " is incorrect");
                 assertTrue(equal);
             } catch (Exception e) {
@@ -83,6 +48,34 @@ class InterpreterTest {
                 throw new Error();
             }
         }
+    }
+
+    @BeforeEach
+    void setUp() {
+        try {
+            outputdir = Files.createTempDirectory("output").toString();
+        } catch (IOException e) {
+            logger.log(e.getMessage());
+        }
+    }
+
+
+    @Test
+    void queryOutput() {
+        String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_binary";
+        String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "correctOutput_binary";
+        DatabaseCatalog.setInputDir(inputdir);
+        PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
+        testQueries(inputdir, correctOutputPath);
+    }
+
+    @Test
+    void SMJQueryOutput() {
+        String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_SMJ";
+        String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "expected_SMJ";
+        DatabaseCatalog.setInputDir(inputdir);
+        PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
+        testQueries(inputdir, correctOutputPath);
     }
 
 
@@ -94,12 +87,14 @@ class InterpreterTest {
 
     @Test
     void inputdir() {
+        String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_binary";
         Interpreter.setInputdir(inputdir);
         assertEquals(inputdir, Interpreter.getInputdir());
     }
 
     @Test
     void queriesPath() {
+        String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_binary";
         Interpreter.setInputdir(inputdir);
         assertEquals(inputdir + sep + "queries.sql", Interpreter.queriesPath());
     }

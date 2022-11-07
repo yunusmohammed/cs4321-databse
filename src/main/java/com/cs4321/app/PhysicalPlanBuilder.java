@@ -41,15 +41,13 @@ public class PhysicalPlanBuilder {
      * @param fileName The name of the config file
      */
     public static void setConfigs(String fileName) {
-        if (config == null) {
-            String filePath = DatabaseCatalog.getInputdir() + File.separator + fileName;
-            config = new BuilderConfig(filePath);
-            if (config.shouldUseIndexForSelection()) {
-                // TODO Lenhard, Yunus
-                IndexInfoConfig indexInfoConfig = new IndexInfoConfig(DatabaseCatalog.getInputdir()
-                        + File.separator + "db" + File.separator + "index_info.txt");
-                indexInfoConfigMap = indexInfoConfig.getIndexInfoMap();
-            }
+        String filePath = DatabaseCatalog.getInputdir() + File.separator + fileName;
+        config = new BuilderConfig(filePath);
+        if (config.shouldUseIndexForSelection()) {
+            // TODO Lenhard, Yunus
+            IndexInfoConfig indexInfoConfig = new IndexInfoConfig(DatabaseCatalog.getInputdir()
+                    + File.separator + "db" + File.separator + "index_info.txt");
+            indexInfoConfigMap = indexInfoConfig.getIndexInfoMap();
         }
     }
 

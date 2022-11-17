@@ -6,9 +6,10 @@ package com.cs4321.app;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.*;
 
 /**
  * The Database Catalog gives information related to specific tables such as
@@ -21,6 +22,19 @@ public class DatabaseCatalog {
     private static String inputdir;
     private static String sep = File.separator;
     private static DatabaseCatalog instance;
+
+    /**
+     * Maps tables to table metadata containing information about the
+     * minimum and the maximum value that each column takes, and the
+     * total number of tables. Example: <br>
+     * { Eritrea :
+     *  < numberOfTuples: 500, <br>
+     *   [ ColumnStatsInfo< columnName: A, minValue: 0, maxValue: 3000 >,
+     *     ColumnStatsInfo< columnName: B, minValue: 0, maxValue: 5000 > ]
+     *  >
+     * }
+     */
+    private static Map<String, TableStatsInfo> tableStatsMap;
 
     /**
      * schemaMap maps table names to a pair where the key contains the table schema
@@ -58,6 +72,7 @@ public class DatabaseCatalog {
      * @return- The database catalog singleton.
      */
     public static DatabaseCatalog getInstance() {
+        initSchemaMap();
         if (DatabaseCatalog.instance == null)
             DatabaseCatalog.instance = new DatabaseCatalog();
         return DatabaseCatalog.instance;
@@ -91,7 +106,7 @@ public class DatabaseCatalog {
      * @return- A list of Strings containing the content in a given file. If the
      *          file does not exist, an empty list will be returned.
      */
-    public List<String> readFile(String path) {
+    public static List<String> readFile(String path) {
         try {
             return Files.readAllLines(Paths.get(path));
         } catch (IOException e) {
@@ -103,17 +118,29 @@ public class DatabaseCatalog {
     /**
      * Initializes schemaMap if not previously done before.
      */
-    private void initSchemaMap() {
+    private static void initSchemaMap() {
         if (schemaMap == null) {
+            try {
+                Files.deleteIfExists(Path.of(getInputdir() + sep + "db" + sep + "stats.txt"));
+            } catch (IOException e) {
+                Logger.getInstance().log(e.getMessage());
+            }
+            File statsFile = new File(getInputdir() + sep + "db" + sep + "stats.txt");
             schemaMap = new HashMap<>();
+            tableStatsMap = new HashMap<>();
             List<String> tableSchemas = readFile(getInputdir() + sep + "db" + sep + "schema.txt");
             for (String tableSchema : tableSchemas) {
                 String[] columns = tableSchema.split(" ");
                 HashMap<String, Integer> columnIndex = new HashMap<>();
+                List<ColumnStatsInfo> columnStatsInfoList = new ArrayList<>();
                 for (int i = 1; i < columns.length; i++) {
                     columnIndex.put(columns[i], i - 1);
+                    columnStatsInfoList.add(new ColumnStatsInfo(columns[i]));
                 }
+                tableStatsMap.put(columns[0],  new TableStatsInfo(columnStatsInfoList, columns[0]));
                 DatabaseCatalog.schemaMap.put(columns[0], new SimpleEntry<>(columns, columnIndex));
+                Stats stats = new Stats(columns[0], tableStatsMap.get(columns[0]));
+                stats.generateStatistics(statsFile);
             }
         }
     }
@@ -129,7 +156,6 @@ public class DatabaseCatalog {
      *         columns- returns an empty array if the table doesn't exist.
      */
     public String[] tableSchema(String table) {
-        initSchemaMap();
         if (DatabaseCatalog.schemaMap.containsKey(table))
             return DatabaseCatalog.schemaMap.get(table).getKey();
         System.out.println("Table " + table + " does not exist.");
@@ -148,7 +174,6 @@ public class DatabaseCatalog {
      *          exist.
      */
     public HashMap<String, Integer> columnMap(String table) {
-        initSchemaMap();
         if (DatabaseCatalog.schemaMap.containsKey(table))
             return DatabaseCatalog.schemaMap.get(table).getValue();
         System.out.println("Table " + table + " does not exist.");
@@ -175,5 +200,9 @@ public class DatabaseCatalog {
             }
         }
         return indexColumns;
+    }
+
+    public static Map<String, TableStatsInfo> getTableStatsMap() {
+        return tableStatsMap;
     }
 }

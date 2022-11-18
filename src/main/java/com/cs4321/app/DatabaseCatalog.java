@@ -202,6 +202,10 @@ public class DatabaseCatalog {
         return indexColumns;
     }
 
+    /**
+     * Returns the table stats of all tables in the database
+     * @return the table stats of all tables in the database
+     */
     public static Map<String, TableStatsInfo> getTableStatsMap() {
         return tableStatsMap;
     }

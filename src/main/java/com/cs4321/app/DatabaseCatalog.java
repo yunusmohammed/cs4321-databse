@@ -206,7 +206,7 @@ public class DatabaseCatalog {
      * Returns the table stats of all tables in the database
      * @return the table stats of all tables in the database
      */
-    public static Map<String, TableStatsInfo> getTableStatsMap() {
+    public Map<String, TableStatsInfo> getTableStatsMap() {
         return tableStatsMap;
     }
 }

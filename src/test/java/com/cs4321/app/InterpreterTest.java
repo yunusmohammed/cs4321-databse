@@ -55,6 +55,7 @@ class InterpreterTest {
                 throw new Error();
             }
         }
+        System.out.println(DatabaseCatalog.getInstance().getTableStatsMap());
     }
 
     @BeforeEach

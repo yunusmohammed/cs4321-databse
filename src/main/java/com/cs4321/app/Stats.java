@@ -33,7 +33,7 @@ public class Stats {
      *
      * @return the next tuple in the table
      */
-    public Tuple getNextTuple() {
+    private Tuple getNextTuple() {
         try {
             return tupleReader.readNextTuple();
         } catch (IOException e) {

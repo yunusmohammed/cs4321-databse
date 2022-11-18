@@ -49,6 +49,15 @@ public class ColumnStatsInfo {
         this.maxValue = maxValue;
     }
 
+    /**
+     * Returns the column name
+     *
+     * @return the column name
+     */
+    public String getColumnName() {
+        return columnName;
+    }
+
     @Override
     public String toString() {
         return String.format("%s,%d,%d", columnName, minValue, maxValue);

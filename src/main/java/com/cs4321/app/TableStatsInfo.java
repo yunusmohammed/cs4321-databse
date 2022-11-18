@@ -42,6 +42,24 @@ public class TableStatsInfo {
         return columnStatsInfoList;
     }
 
+    /**
+     * Returns the number of tuples in the table
+     *
+     * @return the number of tuples in the table
+     */
+    public int getNumberOfTuples() {
+        return numberOfTuples;
+    }
+
+    /**
+     * Returns the table name
+     *
+     * @return the table name
+     */
+    public String getTableName() {
+        return tableName;
+    }
+
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder(String.format("%s %d", tableName, numberOfTuples));

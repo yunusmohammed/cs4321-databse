@@ -72,9 +72,10 @@ public class DatabaseCatalog {
      * @return- The database catalog singleton.
      */
     public static DatabaseCatalog getInstance() {
-        initSchemaMap();
-        if (DatabaseCatalog.instance == null)
+        if (DatabaseCatalog.instance == null) {
             DatabaseCatalog.instance = new DatabaseCatalog();
+            initSchemaMap();
+        }
         return DatabaseCatalog.instance;
     }
 

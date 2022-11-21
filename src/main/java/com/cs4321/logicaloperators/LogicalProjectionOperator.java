@@ -41,7 +41,8 @@ public class LogicalProjectionOperator extends LogicalOperator {
             Expression exp = (((SelectExpressionItem) item).getExpression());
             Column c = (Column) exp;
             String tableName = c.getTable().getAlias();
-            if (tableName == null) tableName = c.getTable().getName();
+            if (tableName == null)
+                tableName = c.getTable().getName();
             this.columnOrder.put(tableName + "." + c.getColumnName(), i);
         }
         this.aliasMap = aliasMap;
@@ -92,5 +93,13 @@ public class LogicalProjectionOperator extends LogicalOperator {
     @Override
     public Operator accept(PhysicalPlanBuilder builder) {
         return builder.visit(this);
+    }
+
+    /**
+     * Returns the string representation of this logical projection operator
+     */
+    @Override
+    public String toString() {
+        return "Project" + this.getSelectItems().toString();
     }
 }

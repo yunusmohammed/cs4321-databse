@@ -41,4 +41,13 @@ public class LogicalDuplicateEliminationOperator extends LogicalOperator {
     public Operator accept(PhysicalPlanBuilder builder) {
         return builder.visit(this);
     }
+
+    /**
+     * Returns the string representation of this logical duplicate elimation
+     * operator
+     */
+    @Override
+    public String toString() {
+        return "DupElim";
+    }
 }

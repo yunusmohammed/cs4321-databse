@@ -27,13 +27,14 @@ public class LogicalSelectionOperator extends LogicalOperator {
      *                        operator
      * @param visitor         The ExpressionVisitor that will be used to determine
      *                        whether a row passes a condition
-     * @param indexVisitor    The ExpressionVisitor used to split an expression into those
+     * @param indexVisitor    The ExpressionVisitor used to split an expression into
+     *                        those
      *                        that can and cannot be indexed
      * @param aliasMap        A AliasMap instance for alias resolution
      */
     public LogicalSelectionOperator(Expression selectCondition, LogicalScanOperator child,
-                                    SelectExpressionVisitor visitor, IndexSelectionVisitor indexVisitor,
-                                    AliasMap aliasMap) {
+            SelectExpressionVisitor visitor, IndexSelectionVisitor indexVisitor,
+            AliasMap aliasMap) {
         this.selectCondition = selectCondition;
         this.child = child;
         this.visitor = visitor;
@@ -95,5 +96,13 @@ public class LogicalSelectionOperator extends LogicalOperator {
     @Override
     public Operator accept(PhysicalPlanBuilder builder) {
         return builder.visit(this);
+    }
+
+    /**
+     * Returns the string representation of this logical selection operator
+     */
+    @Override
+    public String toString() {
+        return "Select[" + this.getSelectCondition().toString() + "]";
     }
 }

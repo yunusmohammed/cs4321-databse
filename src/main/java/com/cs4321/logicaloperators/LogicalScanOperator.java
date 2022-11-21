@@ -53,4 +53,12 @@ public class LogicalScanOperator extends LogicalOperator {
     public Operator accept(PhysicalPlanBuilder builder) {
         return builder.visit(this);
     }
+
+    /**
+     * Returns the string representation of this logical scan operator
+     */
+    @Override
+    public String toString() {
+        return "Leaf[" + this.getTable().getName() + "]";
+    }
 }

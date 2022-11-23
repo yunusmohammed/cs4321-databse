@@ -2,6 +2,9 @@ package com.cs4321.app;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 
 /**
  * Creates a temporary file with random data according to a set of specifications.
@@ -54,6 +57,38 @@ public class RandomDataGenerator {
         }
     }
 
+    public RandomDataGenerator(String filename) {
+        try {
+            List<String> readLines = Files.readAllLines(Paths.get(filename));
+            for (String line : readLines) {
+                String[] lineArr = line.split(" ");
+                numColumns = lineArr.length - 2;
+                columnNames = new String[numColumns];
+                int[][] columnMaxMinArr = new int[numColumns][2];
+                String tableName = lineArr[0];
+                numTuples = Integer.parseInt(lineArr[1]);
+                for (int i = 2; i < lineArr.length; i++) {
+                    String[] columnMetaData = lineArr[i].split(",");
+                    String columnName = columnMetaData[0];
+                    columnNames[i - 2] = columnName;
+                    columnMaxMinArr[i - 2][0] = Integer.parseInt(columnMetaData[1]);
+                    columnMaxMinArr[i - 2][1] = Integer.parseInt(columnMetaData[2]);
+                }
+                tablePath = Files.createFile(Path.of(tableName)).toString();
+                TupleWriter writer = new TupleWriter(tablePath);
+                for (int i = 0; i < numTuples; i++) {
+                    Tuple t = generateTuple(columnMaxMinArr);
+                    writer.writeToFile(t, false);
+                }
+                writer.writeToFile(null, true);
+            }
+        } catch (IOException e) {
+            logger.log(e.getMessage());
+            throw new Error();
+        }
+    }
+
+
 //    public static void main(String[] args) {
 //        String tableName = args[0];
 //        int minTuples = Integer.parseInt(args[1]);
@@ -66,6 +101,11 @@ public class RandomDataGenerator {
 //        System.out.println(Arrays.toString(randomDataGenerator.getColumnNames()));
 //    }
 
+//    public static void main(String[] args) {
+//        String filename = args[0];
+//        new RandomDataGenerator(filename);
+//    }
+
     /**
      * Generates a random tuple where each attribute value lies between this.minValue and this.maxValue.
      *
@@ -75,6 +115,21 @@ public class RandomDataGenerator {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < numColumns; i++) {
             int value = randomIntWithinRange(minValue, maxValue);
+            sb.append(value);
+            if (i != numColumns - 1) sb.append(",");
+        }
+        return new Tuple(sb.toString());
+    }
+
+    /**
+     * Generates a random tuple where each attribute value lies between this.minValue and this.maxValue.
+     *
+     * @return - a random tuple of length numColumns.
+     */
+    private Tuple generateTuple(int[][] columnMaxMinArr) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < numColumns; i++) {
+            int value = randomIntWithinRange(columnMaxMinArr[i][0], columnMaxMinArr[i][1]);
             sb.append(value);
             if (i != numColumns - 1) sb.append(",");
         }

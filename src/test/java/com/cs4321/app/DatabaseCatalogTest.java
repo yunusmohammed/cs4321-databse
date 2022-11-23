@@ -21,7 +21,7 @@ class DatabaseCatalogTest {
 	
 	DatabaseCatalog dbc = DatabaseCatalog.getInstance();
 	static String sep = File.separator;
-	static String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources"+ sep + "input";
+	static String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources"+ sep + "input_binary";
 	
 	@BeforeAll
 	static void setup() {
@@ -70,4 +70,8 @@ class DatabaseCatalogTest {
 		assertEquals(new HashSet<>(Arrays.asList("A")), indexColumns.get("Sailors"));
 	}
 
+    @Test
+    void getTableStatsMap() {
+		assertEquals("{Reserves=Reserves 1000 G,0,200 H,0,200, Boats=Boats 1000 D,0,200 E,0,200 F,0,200, Sailors=Sailors 1000 A,0,200 B,0,200 C,1,200}", DatabaseCatalog.getInstance().getTableStatsMap().toString());
+    }
 }

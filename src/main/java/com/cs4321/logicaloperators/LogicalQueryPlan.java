@@ -1,6 +1,7 @@
 package com.cs4321.logicaloperators;
 
 import com.cs4321.app.AliasMap;
+import com.cs4321.app.DSUExpressionVisitor;
 import com.cs4321.physicaloperators.IndexSelectionVisitor;
 import com.cs4321.physicaloperators.JoinExpressionVisitor;
 import com.cs4321.physicaloperators.JoinExpressions;
@@ -32,7 +33,9 @@ public class LogicalQueryPlan {
      *
      * @param queryStatement The query to construct the logical query plan from
      */
-    public LogicalQueryPlan(Statement queryStatement) {this.generateLogicalQueryTree(queryStatement);}
+    public LogicalQueryPlan(Statement queryStatement) {
+        this.generateLogicalQueryTree(queryStatement);
+    }
 
     /**
      * Get the root of this LogicalQueryPlan
@@ -103,6 +106,16 @@ public class LogicalQueryPlan {
     }
 
     /**
+     * Generate a new logical scan operator
+     *
+     * @param table The table corresponding to the scan
+     * @return The logical scan operator that was just created
+     */
+    private LogicalScanOperator generateLogicalScan(Table table) {
+        return new LogicalScanOperator(table, aliasMap);
+    }
+
+    /**
      * Generate a new logical select operator
      *
      * @param selectBody The body of the Select statement
@@ -111,6 +124,18 @@ public class LogicalQueryPlan {
     private LogicalSelectionOperator generateLogicalSelection(PlainSelect selectBody) {
         Expression whereExpression = selectBody.getWhere();
         return new LogicalSelectionOperator(whereExpression, generateLogicalScan(selectBody), new SelectExpressionVisitor(),
+                new IndexSelectionVisitor(), this.aliasMap);
+    }
+
+    /**
+     * Generate a new logical select operator
+     *
+     * @param selectCondition The selection condition
+     * @param table           The table for the scan
+     * @return The logical select operator that was just created
+     */
+    private LogicalSelectionOperator generateLogicalSelection(Expression selectCondition, Table table) {
+        return new LogicalSelectionOperator(selectCondition, generateLogicalScan(table), new SelectExpressionVisitor(),
                 new IndexSelectionVisitor(), this.aliasMap);
     }
 
@@ -155,15 +180,45 @@ public class LogicalQueryPlan {
     }
 
     /**
+     * Generates a new logical join operator using union find.
+     *
+     * @param selectBody The body of the select statement.
+     * @return A new logical join operator.
+     */
+    private LogicalJoinOperator newGenerateLogicalJoin(PlainSelect selectBody) {
+        DSUExpressionVisitor visitor = new DSUExpressionVisitor();
+        visitor.processExpression(selectBody.getWhere(), aliasMap);
+        Map<String, Expression> tableSelections = visitor.getExpressions();
+        List<LogicalOperator> children = new ArrayList<>();
+        List<Join> joins = selectBody.getJoins();
+
+        Table table = (Table) selectBody.getFromItem();
+        if (tableSelections.containsKey(table.getName())) {
+            children.add(generateLogicalSelection(tableSelections.get(table.getName()), table));
+        } else {
+            children.add(generateLogicalScan(table));
+        }
+        for (Join join : joins) {
+            table = (Table) join.getRightItem();
+            if (tableSelections.containsKey(table.getName())) {
+                children.add(generateLogicalSelection(tableSelections.get(table.getName()), table));
+            } else {
+                children.add(generateLogicalScan(table));
+            }
+        }
+        return new LogicalJoinOperator(visitor.getUnusable(), children, visitor.getUnionFind());
+    }
+
+    /**
      * Generates a logical join query plan
      *
      * @param selectBody The body of a select statement. The joins field must be non
      *                   null and not empty
      * @return the root of the logical join query plan
      */
-    private LogicalJoinOperator generateLogicalJoin(PlainSelect selectBody) {
-        LogicalJoinOperator root = new LogicalJoinOperator();
-        LogicalJoinOperator currentParent = root;
+    private OldLogicalJoinOperator generateLogicalJoin(PlainSelect selectBody) {
+        OldLogicalJoinOperator root = new OldLogicalJoinOperator();
+        OldLogicalJoinOperator currentParent = root;
         List<Join> joins = new ArrayList<>(selectBody.getJoins());
         Map<String, Integer> tableOffset = LogicalQueryPlanUtils.generateJoinTableOffsets(selectBody, this.aliasMap);
         Stack<BinaryExpression> expressions = LogicalQueryPlanUtils.getExpressions(selectBody.getWhere());
@@ -197,9 +252,9 @@ public class LogicalQueryPlan {
                 currentParent
                         .setLeftChild(getJoinChildOperator((Stack) leftChildExpressions, selectBody.getFromItem()));
             } else {
-                leftOperator = new LogicalJoinOperator();
+                leftOperator = new OldLogicalJoinOperator();
                 currentParent.setLeftChild(leftOperator);
-                currentParent = (LogicalJoinOperator) leftOperator;
+                currentParent = (OldLogicalJoinOperator) leftOperator;
             }
         }
         return root;

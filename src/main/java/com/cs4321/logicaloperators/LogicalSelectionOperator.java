@@ -14,7 +14,7 @@ import net.sf.jsqlparser.expression.Expression;
  */
 public class LogicalSelectionOperator extends LogicalOperator {
     private final Expression selectCondition;
-    private final LogicalScanOperator child;
+    private final LogicalOperator child;
     private final SelectExpressionVisitor visitor;
     private final IndexSelectionVisitor indexVisitor;
     private final AliasMap aliasMap;
@@ -32,7 +32,7 @@ public class LogicalSelectionOperator extends LogicalOperator {
      *                        that can and cannot be indexed
      * @param aliasMap        A AliasMap instance for alias resolution
      */
-    public LogicalSelectionOperator(Expression selectCondition, LogicalScanOperator child,
+    public LogicalSelectionOperator(Expression selectCondition, LogicalOperator child,
             SelectExpressionVisitor visitor, IndexSelectionVisitor indexVisitor,
             AliasMap aliasMap) {
         this.selectCondition = selectCondition;
@@ -47,7 +47,7 @@ public class LogicalSelectionOperator extends LogicalOperator {
      *
      * @return The child logical scan operator of the logical select
      */
-    public LogicalScanOperator getChild() {
+    public LogicalOperator getChild() {
         return this.child;
     }
 

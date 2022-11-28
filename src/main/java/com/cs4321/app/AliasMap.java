@@ -69,4 +69,16 @@ public class AliasMap {
     public String getBaseTable(String tableName) {
         return this.aliasMap.get(tableName);
     }
+
+    /**
+     * The string representation of the column using the base table.
+     *
+     * @param col The column that will be represented as a string/
+     * @return The string representation of the column using the base table.
+     */
+    public String columnWithBaseTable(Column col){
+        String tableName = col.getTable().getName();
+        String baseTableName = this.aliasMap.get(tableName);
+        return baseTableName + "." + col.getColumnName();
+    }
 }

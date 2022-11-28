@@ -15,7 +15,7 @@ import net.sf.jsqlparser.expression.Expression;
  * 
  * @author Yunus (ymm26@cornell.edu)
  */
-public class LogicalJoinOperatorTest {
+public class OldLogicalJoinOperatorTest {
   LogicalOperator expectedLeftChild;
   LogicalOperator expectedRightChild;
   Expression expectedJoinCondition;
@@ -31,7 +31,7 @@ public class LogicalJoinOperatorTest {
 
   @Test
   public void logicalJoinOperatorCorrectlyInitializedTest() {
-    LogicalJoinOperator logicalJoinOperator = new LogicalJoinOperator(expectedLeftChild, expectedRightChild,
+    OldLogicalJoinOperator logicalJoinOperator = new OldLogicalJoinOperator(expectedLeftChild, expectedRightChild,
         expectedJoinCondition, expectedExpressionVisitor);
     assertEquals(expectedLeftChild, logicalJoinOperator.getLeftChild());
     assertEquals(expectedRightChild, logicalJoinOperator.getRightChild());
@@ -40,7 +40,7 @@ public class LogicalJoinOperatorTest {
 
   @Test
   public void logicalJoinOperatorGettersAndSettersTest() {
-    LogicalJoinOperator logicalJoinOperator = new LogicalJoinOperator();
+    OldLogicalJoinOperator logicalJoinOperator = new OldLogicalJoinOperator();
     logicalJoinOperator.setLeftChild(expectedLeftChild);
     logicalJoinOperator.setRightChild(expectedRightChild);
     logicalJoinOperator.setJoinCondition(expectedJoinCondition);

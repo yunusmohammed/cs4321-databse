@@ -98,11 +98,15 @@ public class LogicalSelectionOperator extends LogicalOperator {
         return builder.visit(this);
     }
 
-    /**
-     * Returns the string representation of this logical selection operator
-     */
     @Override
-    public String toString() {
-        return "Select[" + this.getSelectCondition().toString() + "]";
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < level; i++) {
+            builder.append("-");
+        }
+        builder.append("Select[" + this.getSelectCondition().toString() + "]");
+        builder.append("\n");
+        builder.append(this.getChild().toString(level + 1));
+        return builder.toString();
     }
 }

@@ -54,11 +54,14 @@ public class LogicalScanOperator extends LogicalOperator {
         return builder.visit(this);
     }
 
-    /**
-     * Returns the string representation of this logical scan operator
-     */
     @Override
-    public String toString() {
-        return "Leaf[" + this.getTable().getName() + "]";
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < level; i++) {
+            builder.append("-");
+        }
+        builder.append("Leaf[" + this.getTable().getName() + "]");
+        builder.append("\n");
+        return builder.toString();
     }
 }

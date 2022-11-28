@@ -74,11 +74,15 @@ public class LogicalSortOperator extends LogicalOperator {
         return builder.visit(this);
     }
 
-    /**
-     * Returns the string representation of this logical sort operator
-     */
     @Override
-    public String toString() {
-        return "Sort" + this.orderByElementList.toString();
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < level; i++) {
+            builder.append("-");
+        }
+        builder.append("Sort" + this.orderByElementList.toString());
+        builder.append("\n");
+        builder.append(this.getChild().toString(level + 1));
+        return builder.toString();
     }
 }

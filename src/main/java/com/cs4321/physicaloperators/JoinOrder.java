@@ -21,6 +21,7 @@ import com.cs4321.logicaloperators.LogicalSelectionOperator;
 
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.expression.operators.relational.GreaterThan;
@@ -144,27 +145,61 @@ public class JoinOrder {
         throw new Error();
     }
 
+    private static double getVal(Expression longValue) {
+        return ((LongValue) longValue).getValue();
+    }
+
+    private static double setMinMax(Double minMax, boolean takeMax, double bound) {
+        return minMax == null ? bound : (takeMax ? Math.max(minMax, bound) : Math.min(minMax, bound));
+    }
+
     private static Integer[] selectionMinMax(Expression selectCondition) {
         Stack<BinaryExpression> expressions = LogicalQueryPlanUtils.getExpressions(selectCondition);
         // store the minimum and maximum range after every selection condition
-        Integer min, max;
+        Double min = null, max = null;
         for (BinaryExpression binExp : expressions) {
+            Expression left = binExp.getLeftExpression();
+            Expression right = binExp.getRightExpression();
+            double bound;
+            ! (check for correct column)
             if (binExp instanceof GreaterThan) {
-                Expression left = binExp.getLeftExpression();
-                Expression right = binExp.getRightExpression();
                 if (left instanceof Column && !(right instanceof Column)) {
-
+                    bound = getVal(right) + 1;
+                    min = setMinMax(min, true, bound);
                 } else if (!(left instanceof Column) && right instanceof Column) {
-
+                    bound = getVal(left) - 1;
+                    max = setMinMax(max, false, bound);
                 }
             } else if (binExp instanceof GreaterThanEquals) {
-
+                if(left instanceof Column && !(right instanceof Column)) {
+                    bound = getVal(right);
+                    min = setMinMax(min, true, bound);
+                } else if (!(left instanceof Column) && right instanceof Column) {
+                    bound = getVal(left);
+                    max = setMinMax(max, false, bound);
+                }
             } else if (binExp instanceof MinorThan) {
-
+                if(left instanceof Column && !(right instanceof Column)) {
+                    bound = getVal(right) - 1;
+                    max = setMinMax(max, false, bound);
+                } else if (!(left instanceof Column) && right instanceof Column) {
+                    bound = getVal(left) + 1;
+                    min = setMinMax(min, true, bound);
+                }
             } else if (binExp instanceof MinorThanEquals) {
-
+                if(left instanceof Column && !(right instanceof Column)) {
+                    bound = getVal(right);
+                    max = setMinMax(max, false, bound);
+                } else if (!(left instanceof Column) && right instanceof Column) {
+                    bound = getVal(left);
+                    min = setMinMax(min, true, bound);
+                }
             } else if (binExp instanceof EqualsTo) {
-                
+                if(left instanceof Column && !(right instanceof Column)) {
+
+                } else if (!(left instanceof Column) && right instanceof Column) {
+                    
+                }
             }
         }
     }

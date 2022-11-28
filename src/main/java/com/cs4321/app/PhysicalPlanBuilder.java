@@ -205,7 +205,7 @@ public class PhysicalPlanBuilder {
      * @return The physical join operator corresponding to the logical join
      * operator.
      */
-    public Operator visit(LogicalJoinOperator operator) {
+    public Operator visit(OldLogicalJoinOperator operator) {
         Operator leftChild = constructPhysical(operator.getLeftChild());
         Operator rightChild = constructPhysical(operator.getRightChild());
         switch (config.getJoinType()) {

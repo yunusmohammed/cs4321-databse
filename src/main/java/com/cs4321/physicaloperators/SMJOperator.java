@@ -59,7 +59,6 @@ public class SMJOperator extends JoinOperator {
      */
     private List<OrderByElement> rightSortOrder;
 
-
     /**
      * Constructor for JoinOperator
      *
@@ -69,7 +68,7 @@ public class SMJOperator extends JoinOperator {
      * @param visitor       the expression visitor of this join operator
      */
     public SMJOperator(Operator leftSort, Operator rightSort, Expression joinCondition,
-                       JoinExpressionVisitor visitor) {
+            JoinExpressionVisitor visitor) {
         super(leftSort, rightSort, joinCondition, visitor);
         this.leftSort = this.getLeftChild();
         this.rightSort = this.getRightChild();
@@ -90,23 +89,28 @@ public class SMJOperator extends JoinOperator {
     /**
      * Sets the right sort order for this SMJ operator.
      *
-     * @param rightSortOrder The sort order corresponding to the right sort operator.
+     * @param rightSortOrder The sort order corresponding to the right sort
+     *                       operator.
      */
     public void setRightSortOrder(List<OrderByElement> rightSortOrder) {
         this.rightSortOrder = rightSortOrder;
     }
 
     /**
-     * Returns -1 if leftTuple is smaller than rightTuple, 0 if they're the same, and 1 if leftTuple is larger than rightTuple.
-     * Comparison is done as a linear scan of the value of each tuple utilizing their corresponding sort order.
+     * Returns -1 if leftTuple is smaller than rightTuple, 0 if they're the same,
+     * and 1 if leftTuple is larger than rightTuple.
+     * Comparison is done as a linear scan of the value of each tuple utilizing
+     * their corresponding sort order.
      *
      * @param leftTuple  The left tuple to compare
      * @param rightTuple The right tuple to compare
      * @param leftOrder  The order of elements for the left tuple
      * @param rightOrder The order of elements for the right tuple
-     * @return -1 if leftTuple is smaller, 0 if leftTuple and rightTuple the same, and 1 if leftTuple is larger
+     * @return -1 if leftTuple is smaller, 0 if leftTuple and rightTuple the same,
+     *         and 1 if leftTuple is larger
      */
-    private int compare(Tuple leftTuple, Tuple rightTuple, Operator leftOperator, Operator rightOperator, List<OrderByElement> leftOrder, List<OrderByElement> rightOrder) {
+    private int compare(Tuple leftTuple, Tuple rightTuple, Operator leftOperator, Operator rightOperator,
+            List<OrderByElement> leftOrder, List<OrderByElement> rightOrder) {
         int leftValue;
         int rightValue;
         int index;
@@ -137,13 +141,18 @@ public class SMJOperator extends JoinOperator {
             leftTuple = this.leftSort.getNextTuple();
         }
         rightTuple = this.rightSort.getNextTuple();
-        // Continue searching while an unscanned outer tuple exists and the two tuples are not equal (or the inner row finished scanning)
-        while (leftTuple != null && (rightTuple == null || compare(leftTuple, rightTuple, leftSort, rightSort, leftSortOrder, rightSortOrder) != 0)) {
+        // Continue searching while an unscanned outer tuple exists and the two tuples
+        // are not equal (or the inner row finished scanning)
+        while (leftTuple != null && (rightTuple == null
+                || compare(leftTuple, rightTuple, leftSort, rightSort, leftSortOrder, rightSortOrder) != 0)) {
             // Case where inner row is done scanning or the inner tuple is larger
-            if (rightTuple == null || compare(leftTuple, rightTuple, leftSort, rightSort, leftSortOrder, rightSortOrder) == -1) {
+            if (rightTuple == null
+                    || compare(leftTuple, rightTuple, leftSort, rightSort, leftSortOrder, rightSortOrder) == -1) {
                 Tuple nextLeftTuple = leftSort.getNextTuple();
-                // Reset the inner row to the S-partition if next outer tuple matches current outer tuple
-                if (nextLeftTuple != null && compare(leftTuple, nextLeftTuple, leftSort, leftSort, leftSortOrder, leftSortOrder) == 0) {
+                // Reset the inner row to the S-partition if next outer tuple matches current
+                // outer tuple
+                if (nextLeftTuple != null
+                        && compare(leftTuple, nextLeftTuple, leftSort, leftSort, leftSortOrder, leftSortOrder) == 0) {
                     rightSort.reset(rightIndex);
                     rightTuple = rightSort.getNextTuple();
                 } else {
@@ -159,8 +168,22 @@ public class SMJOperator extends JoinOperator {
             }
         }
 
-        if (leftTuple == null || rightTuple == null) return null;
+        if (leftTuple == null || rightTuple == null)
+            return null;
 
         return leftTuple.concat(rightTuple);
+    }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < level; i++) {
+            builder.append("-");
+        }
+        builder.append("SMJ[" + this.getJoinCondition().toString() + "]");
+        builder.append("\n");
+        builder.append(this.getLeftChild().toString(level + 1));
+        builder.append(this.getRightChild().toString(level + 1));
+        return builder.toString();
     }
 }

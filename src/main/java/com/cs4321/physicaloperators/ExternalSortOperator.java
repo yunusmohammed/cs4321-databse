@@ -29,16 +29,24 @@ public class ExternalSortOperator extends Operator {
     private static int numOperators = 1;
 
     /**
-     * Creates an operator to represent an order by clause without needing to perform an in-memory sort.
-     * This operator is at the root of the query plan unless there is a distinct clause.
+     * Creates an operator to represent an order by clause without needing to
+     * perform an in-memory sort.
+     * This operator is at the root of the query plan unless there is a distinct
+     * clause.
      *
-     * @param child              - the rest of the query plan, besides a potential DuplicateEliminationOperator.
-     * @param columnMap          - a map from column names in the table to their associated indexes.
-     * @param orderByElementList - the list of elements for which our order by clause will sort.
-     * @param tempFolderDir      - the path to the folder we will use to store our temporary files.
-     * @param bufferSize         - the number of pages available to be used in memory. Requires: bufferSize >= 3
+     * @param child              - the rest of the query plan, besides a potential
+     *                           DuplicateEliminationOperator.
+     * @param columnMap          - a map from column names in the table to their
+     *                           associated indexes.
+     * @param orderByElementList - the list of elements for which our order by
+     *                           clause will sort.
+     * @param tempFolderDir      - the path to the folder we will use to store our
+     *                           temporary files.
+     * @param bufferSize         - the number of pages available to be used in
+     *                           memory. Requires: bufferSize >= 3
      */
-    public ExternalSortOperator(Operator child, Map<String, Integer> columnMap, List<OrderByElement> orderByElementList, String tempFolderDir, int bufferSize) {
+    public ExternalSortOperator(Operator child, Map<String, Integer> columnMap, List<OrderByElement> orderByElementList,
+            String tempFolderDir, int bufferSize) {
         try {
             this.child = child;
             this.columnMap = columnMap;
@@ -62,7 +70,8 @@ public class ExternalSortOperator extends Operator {
      */
     private void createSortedRelation() throws IOException {
         Tuple cur = child.getNextTuple();
-        if (cur == null) return;
+        if (cur == null)
+            return;
         int maxTuples = (bufferSize * 4096) / (4 * cur.size());
         int numFiles = 1;
         // pass 0
@@ -75,7 +84,8 @@ public class ExternalSortOperator extends Operator {
                 sortedTuples.add(cur);
                 cur = child.getNextTuple();
             }
-            Collections.sort(sortedTuples, (a, b) -> SortingUtilities.compare(a, b, orderByElementList, columnMap, null));
+            Collections.sort(sortedTuples,
+                    (a, b) -> SortingUtilities.compare(a, b, orderByElementList, columnMap, null));
             for (Tuple t : sortedTuples) {
                 writer.writeToFile(t, false);
             }
@@ -87,14 +97,16 @@ public class ExternalSortOperator extends Operator {
             int index = 0;
             while (index < currentPassFilenames.size()) {
                 // [buffersize - 1] way merge
-                PriorityQueue<Map.Entry<Tuple, TupleReader>> nextTuples =
-                        new PriorityQueue<>((a, b) -> SortingUtilities.compare(a.getKey(), b.getKey(), orderByElementList, columnMap, null));
-                // In the current pass, we have [currentPassFilenames.size()] runs, and we want to merge [bufferSize - 1]
+                PriorityQueue<Map.Entry<Tuple, TupleReader>> nextTuples = new PriorityQueue<>((a, b) -> SortingUtilities
+                        .compare(a.getKey(), b.getKey(), orderByElementList, columnMap, null));
+                // In the current pass, we have [currentPassFilenames.size()] runs, and we want
+                // to merge [bufferSize - 1]
                 // runs at a time.
                 for (int i = index; i < index + bufferSize - 1 && i < currentPassFilenames.size(); i++) {
                     TupleReader reader = new TupleReader(currentPassFilenames.get(i));
                     Tuple readerTuple = reader.readNextTuple();
-                    if (readerTuple != null) nextTuples.add(new AbstractMap.SimpleEntry<>(readerTuple, reader));
+                    if (readerTuple != null)
+                        nextTuples.add(new AbstractMap.SimpleEntry<>(readerTuple, reader));
                 }
                 String outputFile = Files.createTempFile(tempFolderName, "" + numFiles++, "").toString();
                 nextPassFilenames.add(outputFile);
@@ -111,7 +123,8 @@ public class ExternalSortOperator extends Operator {
             }
             currentPassFilenames = nextPassFilenames;
         }
-        if (currentPassFilenames.size() == 1) sortedReader = new TupleReader(currentPassFilenames.get(0));
+        if (currentPassFilenames.size() == 1)
+            sortedReader = new TupleReader(currentPassFilenames.get(0));
     }
 
     /**
@@ -123,7 +136,8 @@ public class ExternalSortOperator extends Operator {
     @Override
     public Tuple getNextTuple() {
         try {
-            if (sortedReader == null) return null;
+            if (sortedReader == null)
+                return null;
             return sortedReader.readNextTuple();
         } catch (IOException e) {
             logger.log("Unable to read tuple from sorted reader in External Sort Operator.");
@@ -132,12 +146,20 @@ public class ExternalSortOperator extends Operator {
     }
 
     /**
+     * Returns the child of this operator
+     */
+    public Operator getChild() {
+        return this.child;
+    }
+
+    /**
      * Resets the operator so that it can read tuples from the beginning.
      */
     @Override
     public void reset() {
         try {
-            if (sortedReader != null) sortedReader.reset();
+            if (sortedReader != null)
+                sortedReader.reset();
         } catch (FileNotFoundException e) {
             logger.log("Unable to reset sorted reader in External Sort Operator");
             throw new Error();
@@ -148,7 +170,8 @@ public class ExternalSortOperator extends Operator {
     @Override
     public void reset(int index) {
         try {
-            if (sortedReader != null) sortedReader.smjReset(index);
+            if (sortedReader != null)
+                sortedReader.smjReset(index);
         } catch (IOException e) {
             logger.log("Unable to reset sorted reader in External Sort Operator");
             throw new Error();
@@ -166,9 +189,22 @@ public class ExternalSortOperator extends Operator {
         orderBy.append("Order By : ");
         for (int i = 0; i < orderByElementList.size(); i++) {
             orderBy.append(orderByElementList.get(i).toString());
-            if (i < orderByElementList.size() - 1) orderBy.append(", ");
+            if (i < orderByElementList.size() - 1)
+                orderBy.append(", ");
         }
         return "ExternalSortOperator{" + child.toString() + ", " + orderBy + "}";
+    }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < level; i++) {
+            builder.append("-");
+        }
+        builder.append("ExternalSort" + this.orderByElementList.toString());
+        builder.append("\n");
+        builder.append(this.getChild().toString(level + 1));
+        return builder.toString();
     }
 
     /**

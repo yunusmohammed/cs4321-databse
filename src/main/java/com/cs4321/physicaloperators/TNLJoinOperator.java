@@ -31,7 +31,7 @@ public class TNLJoinOperator extends JoinOperator {
      * @param visitor       the expression visitor of this join operator
      */
     public TNLJoinOperator(Operator leftChild, Operator rightChild, Expression joinCondition,
-                           JoinExpressionVisitor visitor) {
+            JoinExpressionVisitor visitor) {
         super(leftChild, rightChild, joinCondition, visitor);
     }
 
@@ -64,5 +64,18 @@ public class TNLJoinOperator extends JoinOperator {
         String joinConditionString = (this.getJoinCondition() == null) ? "null" : this.getJoinCondition().toString();
         return "TNLJoinOperator{" + this.getLeftChild().toString() + ", " + this.getRightChild().toString() + ", "
                 + joinConditionString + "}";
+    }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < level; i++) {
+            builder.append("-");
+        }
+        builder.append("TNLJ[" + this.getJoinCondition().toString() + "]");
+        builder.append("\n");
+        builder.append(this.getLeftChild().toString(level + 1));
+        builder.append(this.getRightChild().toString(level + 1));
+        return builder.toString();
     }
 }

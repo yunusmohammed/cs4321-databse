@@ -4,6 +4,7 @@ import com.cs4321.app.Tuple;
 
 /**
  * Operator for handling distinct clauses
+ * 
  * @author Yohanes
  */
 public class DuplicateEliminationOperator extends Operator {
@@ -20,6 +21,13 @@ public class DuplicateEliminationOperator extends Operator {
     public DuplicateEliminationOperator(Operator child) {
         this.child = child;
         this.setColumnMap(child.getColumnMap());
+    }
+
+    /**
+     * Returns the child of this Physical Duplicate Elimination operator
+     */
+    public Operator getChild() {
+        return this.child;
     }
 
     /**
@@ -48,13 +56,25 @@ public class DuplicateEliminationOperator extends Operator {
     }
 
     /**
-     * Returns a string representation of the duplicate elimination operator and its children.
+     * Returns a string representation of the duplicate elimination operator and its
+     * children.
      *
      * @return - a string representation of the duplicate elimination operator.
      */
     @Override
     public String toString() {
         return "DuplicateEliminationOperator{" + child.toString() + "}";
+    }
+
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < level; i++) {
+            builder.append("-");
+        }
+        builder.append("DupElim");
+        builder.append("\n");
+        builder.append(this.getChild().toString(level + 1));
+        return builder.toString();
     }
 
     /**

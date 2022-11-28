@@ -22,7 +22,7 @@ public class SelectionOperator extends Operator {
      * @param child    The Scan Operator that will provide the rows in a column
      */
     public SelectionOperator(SelectExpressionVisitor visitor, AliasMap aliasMap, Expression exp,
-                             ScanOperator child) {
+            ScanOperator child) {
         this.visitor = visitor;
         this.aliasMap = aliasMap;
         this.exp = exp;
@@ -34,7 +34,7 @@ public class SelectionOperator extends Operator {
      * If possible, gets the next Tuple in its column
      *
      * @return The next Tuple in the column that passes the statement's expression;
-     * null if no such Tuple exists
+     *         null if no such Tuple exists
      */
     @Override
     public Tuple getNextTuple() {
@@ -43,6 +43,22 @@ public class SelectionOperator extends Operator {
             row = this.child.getNextTuple();
         }
         return row;
+    }
+
+    /**
+     * Returns the child of this operator
+     */
+    public Operator getChild() {
+        return this.child;
+    }
+
+    /**
+     * Returns the select condition of this selection operator
+     * 
+     * @return the select condition of this selection operator
+     */
+    public Expression getSelectCondition() {
+        return this.exp;
     }
 
     /**
@@ -63,6 +79,18 @@ public class SelectionOperator extends Operator {
     @Override
     public String toString() {
         return "SelectionOperator{" + this.child.toString() + ", " + this.exp.toString() + "}";
+    }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < level; i++) {
+            builder.append("-");
+        }
+        builder.append("Select[" + this.getSelectCondition().toString() + "]");
+        builder.append("\n");
+        builder.append(this.getChild().toString(level + 1));
+        return builder.toString();
     }
 
     /**

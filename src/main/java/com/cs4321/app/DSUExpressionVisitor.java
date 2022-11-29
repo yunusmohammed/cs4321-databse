@@ -8,7 +8,10 @@ import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SubSelect;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DSUExpressionVisitor implements ExpressionVisitor {
 
@@ -26,24 +29,6 @@ public class DSUExpressionVisitor implements ExpressionVisitor {
         unionFind = new UnionFind();
         this.unusable = new ArrayList<>();
         this.loneExpressions = new HashMap<>();
-
-        // Move columns to the left side of each binary expression (if possible)
-        Stack<Expression> stack = new Stack<>();
-        stack.push(exp);
-        while (!stack.isEmpty()) {
-            Expression e = stack.pop();
-            if (e instanceof AndExpression) {
-                stack.push(((AndExpression) e).getLeftExpression());
-                stack.push(((AndExpression) e).getRightExpression());
-            } else if (e instanceof BinaryExpression) {
-                Expression left = ((BinaryExpression) e).getLeftExpression();
-                Expression right = ((BinaryExpression) e).getRightExpression();
-                if (left instanceof LongValue && right instanceof Column) {
-                    ((BinaryExpression) e).setLeftExpression(right);
-                    ((BinaryExpression) e).setRightExpression(left);
-                }
-            }
-        }
         exp.accept(this);
     }
 
@@ -163,6 +148,12 @@ public class DSUExpressionVisitor implements ExpressionVisitor {
             e.setLowerBound(value);
             e.setUpperBound(value);
             e.setEqualityConstraint(value);
+        } else if (left instanceof LongValue && right instanceof Column) {
+            UnionFindElement e = unionFind.find((Column) right);
+            int value = (int) ((LongValue) left).getValue();
+            e.setLowerBound(value);
+            e.setUpperBound(value);
+            e.setEqualityConstraint(value);
         }
     }
 
@@ -172,6 +163,9 @@ public class DSUExpressionVisitor implements ExpressionVisitor {
         Expression right = exp.getRightExpression();
         if (left instanceof Column && right instanceof LongValue) {
             String tableName = ((Column) left).getWholeColumnName().split("\\.")[0];
+            loneExpressions.put(tableName, exp);
+        } else if (left instanceof LongValue && right instanceof Column) {
+            String tableName = ((Column) right).getWholeColumnName().split("\\.")[0];
             loneExpressions.put(tableName, exp);
         } else {
             unusable.add(exp);
@@ -186,8 +180,10 @@ public class DSUExpressionVisitor implements ExpressionVisitor {
             UnionFindElement e = unionFind.find((Column) left);
             int value = (int) ((LongValue) right).getValue();
             e.setLowerBound(value + 1);
-        } else {
-            unusable.add(exp);
+        } else if (left instanceof LongValue && right instanceof Column) {
+            UnionFindElement e = unionFind.find((Column) right);
+            int value = (int) ((LongValue) left).getValue();
+            e.setUpperBound(value - 1);
         }
     }
 
@@ -199,8 +195,10 @@ public class DSUExpressionVisitor implements ExpressionVisitor {
             UnionFindElement e = unionFind.find((Column) left);
             int value = (int) ((LongValue) right).getValue();
             e.setLowerBound(value);
-        } else {
-            unusable.add(exp);
+        } else if (left instanceof LongValue && right instanceof Column) {
+            UnionFindElement e = unionFind.find((Column) right);
+            int value = (int) ((LongValue) left).getValue();
+            e.setUpperBound(value);
         }
     }
 
@@ -212,8 +210,10 @@ public class DSUExpressionVisitor implements ExpressionVisitor {
             UnionFindElement e = unionFind.find((Column) left);
             int value = (int) ((LongValue) right).getValue();
             e.setUpperBound(value - 1);
-        } else {
-            unusable.add(exp);
+        } else if (left instanceof LongValue && right instanceof Column) {
+            UnionFindElement e = unionFind.find((Column) right);
+            int value = (int) ((LongValue) left).getValue();
+            e.setLowerBound(value + 1);
         }
     }
 
@@ -225,8 +225,10 @@ public class DSUExpressionVisitor implements ExpressionVisitor {
             UnionFindElement e = unionFind.find((Column) left);
             int value = (int) ((LongValue) right).getValue();
             e.setUpperBound(value);
-        } else {
-            unusable.add(exp);
+        } else if (left instanceof LongValue && right instanceof Column) {
+            UnionFindElement e = unionFind.find((Column) right);
+            int value = (int) ((LongValue) left).getValue();
+            e.setLowerBound(value);
         }
     }
 

@@ -123,7 +123,8 @@ public class LogicalQueryPlan {
      */
     private LogicalSelectionOperator generateLogicalSelection(PlainSelect selectBody) {
         Expression whereExpression = selectBody.getWhere();
-        return new LogicalSelectionOperator(whereExpression, generateLogicalScan(selectBody), new SelectExpressionVisitor(),
+        return new LogicalSelectionOperator(whereExpression, generateLogicalScan(selectBody),
+                new SelectExpressionVisitor(),
                 new IndexSelectionVisitor(), this.aliasMap);
     }
 
@@ -186,6 +187,7 @@ public class LogicalQueryPlan {
      * @return A new logical join operator.
      */
     private LogicalJoinOperator newGenerateLogicalJoin(PlainSelect selectBody) {
+        Expression whereExpression = selectBody.getWhere();
         DSUExpressionVisitor visitor = new DSUExpressionVisitor();
         visitor.processExpression(selectBody.getWhere(), aliasMap);
         Map<String, Expression> tableSelections = visitor.getExpressions();
@@ -206,7 +208,7 @@ public class LogicalQueryPlan {
                 children.add(generateLogicalScan(table));
             }
         }
-        return new LogicalJoinOperator(visitor.getUnusable(), children, visitor.getUnionFind());
+        return new LogicalJoinOperator(visitor.getUnusable(), children, visitor.getUnionFind(), whereExpression);
     }
 
     /**
@@ -220,7 +222,7 @@ public class LogicalQueryPlan {
         OldLogicalJoinOperator root = new OldLogicalJoinOperator();
         OldLogicalJoinOperator currentParent = root;
         List<Join> joins = new ArrayList<>(selectBody.getJoins());
-        Map<String, Integer> tableOffset = LogicalQueryPlanUtils.generateJoinTableOffsets(selectBody, this.aliasMap);
+        Map<String, Integer> tableOffset = LogicalQueryPlanUtils.generateOldJoinTableOffsets(selectBody, this.aliasMap);
         Stack<BinaryExpression> expressions = LogicalQueryPlanUtils.getExpressions(selectBody.getWhere());
         while (joins.size() > 0) {
             Table rightChildTable = (Table) joins.remove(joins.size() - 1).getRightItem();
@@ -228,7 +230,8 @@ public class LogicalQueryPlan {
             String rightChildTableName = rightChildTable.getAlias();
             rightChildTableName = (rightChildTableName != null) ? rightChildTableName : rightChildTable.getName();
 
-            JoinExpressions joinExpressions = LogicalQueryPlanUtils.getJoinExpressions(expressions, rightChildTableName);
+            JoinExpressions joinExpressions = LogicalQueryPlanUtils.getJoinExpressions(expressions,
+                    rightChildTableName);
 
             Stack<Expression> parentExpressions = joinExpressions.getParentExpressions();
             Stack<BinaryExpression> leftChildExpressions = joinExpressions.getLeftExpressions();

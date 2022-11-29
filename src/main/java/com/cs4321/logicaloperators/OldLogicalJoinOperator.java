@@ -1,9 +1,12 @@
 package com.cs4321.logicaloperators;
 
+import java.util.List;
+
 import com.cs4321.app.PhysicalPlanBuilder;
 import com.cs4321.physicaloperators.JoinExpressionVisitor;
 import com.cs4321.physicaloperators.Operator;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.schema.Table;
 
 /**
  * A Logical Join Operator
@@ -16,6 +19,7 @@ public class OldLogicalJoinOperator extends LogicalOperator {
     private LogicalOperator rightChild;
     private Expression joinCondition;
     private JoinExpressionVisitor visitor;
+    private List<Table> originalJoinOrder;
 
     /**
      * Base constructor for the LogicalJoinOperator
@@ -34,11 +38,12 @@ public class OldLogicalJoinOperator extends LogicalOperator {
      * @param joinCondition the condition to join rows on
      */
     public OldLogicalJoinOperator(LogicalOperator leftChild, LogicalOperator rightChild, Expression joinCondition,
-                                  JoinExpressionVisitor visitor) {
+            JoinExpressionVisitor visitor, List<Table> originalJoinOrder) {
         this.leftChild = leftChild;
         this.rightChild = rightChild;
         this.joinCondition = joinCondition;
         this.visitor = visitor;
+        this.originalJoinOrder = originalJoinOrder;
     }
 
     /**
@@ -77,6 +82,10 @@ public class OldLogicalJoinOperator extends LogicalOperator {
         return this.visitor;
     }
 
+    public List<Table> getOriginalJoinOrder() {
+        return this.originalJoinOrder;
+    }
+
     /**
      * Set the left child of this logical join operator
      */
@@ -103,6 +112,13 @@ public class OldLogicalJoinOperator extends LogicalOperator {
      */
     public void setJoinExpressionVisitor(JoinExpressionVisitor visitor) {
         this.visitor = visitor;
+    }
+
+    /**
+     * Set the original join order of this logical join operator
+     */
+    public void setOriginalJoinOrder(List<Table> originalJoinOrder) {
+        this.originalJoinOrder = originalJoinOrder;
     }
 
     /**

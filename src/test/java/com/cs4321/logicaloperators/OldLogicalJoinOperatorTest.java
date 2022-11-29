@@ -2,6 +2,8 @@ package com.cs4321.logicaloperators;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.ArrayList;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -32,7 +34,7 @@ public class OldLogicalJoinOperatorTest {
   @Test
   public void logicalJoinOperatorCorrectlyInitializedTest() {
     OldLogicalJoinOperator logicalJoinOperator = new OldLogicalJoinOperator(expectedLeftChild, expectedRightChild,
-        expectedJoinCondition, expectedExpressionVisitor);
+        expectedJoinCondition, expectedExpressionVisitor, new ArrayList<>());
     assertEquals(expectedLeftChild, logicalJoinOperator.getLeftChild());
     assertEquals(expectedRightChild, logicalJoinOperator.getRightChild());
     assertEquals(expectedJoinCondition, logicalJoinOperator.getJoinCondition());

@@ -10,7 +10,7 @@ import net.sf.jsqlparser.schema.Table;
  *
  * @author Yunus (ymm26@cornell.edu)
  */
-public class LogicalScanOperator extends LogicalOperator {
+public class LogicalScanOperator extends LogicalOperator implements LogicalJoinChild {
     private Table table;
     private AliasMap aliasMap;
 

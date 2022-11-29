@@ -6,13 +6,14 @@ import com.cs4321.physicaloperators.IndexSelectionVisitor;
 import com.cs4321.physicaloperators.Operator;
 import com.cs4321.physicaloperators.SelectExpressionVisitor;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.schema.Table;
 
 /**
  * A Logical Selection Operator
  *
  * @author Yunus (ymm26@cornell.edu)
  */
-public class LogicalSelectionOperator extends LogicalOperator {
+public class LogicalSelectionOperator extends LogicalOperator implements LogicalJoinChild {
     private final Expression selectCondition;
     private final LogicalScanOperator child;
     private final SelectExpressionVisitor visitor;
@@ -27,13 +28,14 @@ public class LogicalSelectionOperator extends LogicalOperator {
      *                        operator
      * @param visitor         The ExpressionVisitor that will be used to determine
      *                        whether a row passes a condition
-     * @param indexVisitor    The ExpressionVisitor used to split an expression into those
+     * @param indexVisitor    The ExpressionVisitor used to split an expression into
+     *                        those
      *                        that can and cannot be indexed
      * @param aliasMap        A AliasMap instance for alias resolution
      */
     public LogicalSelectionOperator(Expression selectCondition, LogicalScanOperator child,
-                                    SelectExpressionVisitor visitor, IndexSelectionVisitor indexVisitor,
-                                    AliasMap aliasMap) {
+            SelectExpressionVisitor visitor, IndexSelectionVisitor indexVisitor,
+            AliasMap aliasMap) {
         this.selectCondition = selectCondition;
         this.child = child;
         this.visitor = visitor;
@@ -48,6 +50,16 @@ public class LogicalSelectionOperator extends LogicalOperator {
      */
     public LogicalScanOperator getChild() {
         return this.child;
+    }
+
+    /**
+     * Get the table in the database the child of this SelectOperator is scanning
+     * 
+     * @return the table in the database the child of this SelectOperator is
+     *         scanning
+     */
+    public Table getTable() {
+        return this.getChild().getTable();
     }
 
     /**

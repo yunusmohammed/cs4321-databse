@@ -117,10 +117,13 @@ class JoinOrderTest {
             Mockito.when(aliasMap.getBaseTable("Sailors")).thenReturn("Sailors");
             Mockito.when(aliasMap.getBaseTable("Boats")).thenReturn("Boats");
             Mockito.when(aliasMap.getBaseTable("Reserves")).thenReturn("Reserves");
+            Mockito.when(aliasMap.getBaseTable("S")).thenReturn("Sailors");
+            Mockito.when(aliasMap.getBaseTable("B")).thenReturn("Boats");
+            Mockito.when(aliasMap.getBaseTable("R")).thenReturn("Reserves");
+
             Mockito.when(aliasMap.columnWithBaseTable(any())).then(
                     invocation -> invocation.getArgument(0, Column.class).getWholeColumnName());
 
-            // expression without aliases
             LogicalScanOperator sailorsScan = Mockito.mock(LogicalScanOperator.class);
             LogicalScanOperator boatsScan = Mockito.mock(LogicalScanOperator.class);
             LogicalScanOperator reservesScan = Mockito.mock(LogicalScanOperator.class);
@@ -161,12 +164,25 @@ class JoinOrderTest {
                     "Sailors.A > 2 AND Reserves.G = Sailors.A AND Sailors.C > Reserves.H");
 
             List<LogicalOperator> correctOrder = Arrays.asList(sailorsSelection, reservesSelection, boatsScan);
+
+            // expression without aliases
             assertEquals(correctOrder,
                     JoinOrder.getJoinOrder(joinChildren, whereExpression, aliasMap));
             assertEquals(correctOrder,
                     JoinOrder.getJoinOrder(joinChildren2, whereExpression, aliasMap));
 
             // expression with aliases
+            Mockito.when(sailorsScan.getTableName()).thenReturn("S");
+            Mockito.when(boatsScan.getTableName()).thenReturn("B");
+            Mockito.when(reservesScan.getTableName()).thenReturn("R");
+            Mockito.when(sailorsTable.getAlias()).thenReturn("S");
+            Mockito.when(boatsTable.getAlias()).thenReturn("B");
+            Mockito.when(reservesTable.getAlias()).thenReturn("R");
+
+            Expression whereExpression2 = Utils.getExpression("Sailors S, Boats B, Reserves R",
+                    "S.A > 2 AND R.G = S.A AND S.C > R.H");
+            assertEquals(correctOrder, JoinOrder.getJoinOrder(joinChildren, whereExpression2, aliasMap));
+            assertEquals(correctOrder, JoinOrder.getJoinOrder(joinChildren2, whereExpression2, aliasMap));
         }
 
     }

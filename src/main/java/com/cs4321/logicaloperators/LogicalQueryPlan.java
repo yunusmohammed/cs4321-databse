@@ -187,7 +187,7 @@ public class LogicalQueryPlan {
      */
     private LogicalJoinOperator newGenerateLogicalJoin(PlainSelect selectBody) {
         DSUExpressionVisitor visitor = new DSUExpressionVisitor();
-        visitor.processExpression(selectBody.getWhere(), aliasMap);
+        visitor.processExpression(selectBody.getWhere());
         Map<String, Expression> tableSelections = visitor.getExpressions();
         List<LogicalOperator> children = new ArrayList<>();
         List<Join> joins = selectBody.getJoins();

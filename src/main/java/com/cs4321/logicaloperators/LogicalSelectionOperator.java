@@ -14,7 +14,7 @@ import net.sf.jsqlparser.expression.Expression;
  */
 public class LogicalSelectionOperator extends LogicalOperator {
     private final Expression selectCondition;
-    private final LogicalScanOperator child;
+    private final LogicalOperator child;
     private final SelectExpressionVisitor visitor;
     private final IndexSelectionVisitor indexVisitor;
     private final AliasMap aliasMap;
@@ -27,13 +27,14 @@ public class LogicalSelectionOperator extends LogicalOperator {
      *                        operator
      * @param visitor         The ExpressionVisitor that will be used to determine
      *                        whether a row passes a condition
-     * @param indexVisitor    The ExpressionVisitor used to split an expression into those
+     * @param indexVisitor    The ExpressionVisitor used to split an expression into
+     *                        those
      *                        that can and cannot be indexed
      * @param aliasMap        A AliasMap instance for alias resolution
      */
-    public LogicalSelectionOperator(Expression selectCondition, LogicalScanOperator child,
-                                    SelectExpressionVisitor visitor, IndexSelectionVisitor indexVisitor,
-                                    AliasMap aliasMap) {
+    public LogicalSelectionOperator(Expression selectCondition, LogicalOperator child,
+            SelectExpressionVisitor visitor, IndexSelectionVisitor indexVisitor,
+            AliasMap aliasMap) {
         this.selectCondition = selectCondition;
         this.child = child;
         this.visitor = visitor;
@@ -46,7 +47,7 @@ public class LogicalSelectionOperator extends LogicalOperator {
      *
      * @return The child logical scan operator of the logical select
      */
-    public LogicalScanOperator getChild() {
+    public LogicalOperator getChild() {
         return this.child;
     }
 
@@ -95,5 +96,17 @@ public class LogicalSelectionOperator extends LogicalOperator {
     @Override
     public Operator accept(PhysicalPlanBuilder builder) {
         return builder.visit(this);
+    }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < level; i++) {
+            builder.append("-");
+        }
+        builder.append("Select[" + this.getSelectCondition().toString() + "]");
+        builder.append("\n");
+        builder.append(this.getChild().toString(level + 1));
+        return builder.toString();
     }
 }

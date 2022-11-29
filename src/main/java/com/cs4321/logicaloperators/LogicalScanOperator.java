@@ -53,4 +53,15 @@ public class LogicalScanOperator extends LogicalOperator {
     public Operator accept(PhysicalPlanBuilder builder) {
         return builder.visit(this);
     }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < level; i++) {
+            builder.append("-");
+        }
+        builder.append("Leaf[" + this.getTable().getName() + "]");
+        builder.append("\n");
+        return builder.toString();
+    }
 }

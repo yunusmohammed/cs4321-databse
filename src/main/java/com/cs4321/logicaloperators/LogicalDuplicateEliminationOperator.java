@@ -41,4 +41,15 @@ public class LogicalDuplicateEliminationOperator extends LogicalOperator {
     public Operator accept(PhysicalPlanBuilder builder) {
         return builder.visit(this);
     }
+
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < level; i++) {
+            builder.append("-");
+        }
+        builder.append("DupElim");
+        builder.append("\n");
+        builder.append(this.getChild().toString(level + 1));
+        return builder.toString();
+    }
 }

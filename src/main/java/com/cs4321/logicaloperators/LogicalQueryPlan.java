@@ -123,7 +123,8 @@ public class LogicalQueryPlan {
      */
     private LogicalSelectionOperator generateLogicalSelection(PlainSelect selectBody) {
         Expression whereExpression = selectBody.getWhere();
-        return new LogicalSelectionOperator(whereExpression, generateLogicalScan(selectBody), new SelectExpressionVisitor(),
+        return new LogicalSelectionOperator(whereExpression, generateLogicalScan(selectBody),
+                new SelectExpressionVisitor(),
                 new IndexSelectionVisitor(), this.aliasMap);
     }
 
@@ -228,7 +229,8 @@ public class LogicalQueryPlan {
             String rightChildTableName = rightChildTable.getAlias();
             rightChildTableName = (rightChildTableName != null) ? rightChildTableName : rightChildTable.getName();
 
-            JoinExpressions joinExpressions = LogicalQueryPlanUtils.getJoinExpressions(expressions, rightChildTableName);
+            JoinExpressions joinExpressions = LogicalQueryPlanUtils.getJoinExpressions(expressions,
+                    rightChildTableName);
 
             Stack<Expression> parentExpressions = joinExpressions.getParentExpressions();
             Stack<BinaryExpression> leftChildExpressions = joinExpressions.getLeftExpressions();
@@ -280,5 +282,13 @@ public class LogicalQueryPlan {
             operator = generateLogicalSelection(selectBody);
         }
         return operator;
+    }
+
+    /**
+     * Returns a formated string of the logical query plan as specified by project 4
+     * handout. the string ends with a new line character
+     */
+    public String toString() {
+        return this.getRoot().toString(0);
     }
 }

@@ -17,18 +17,15 @@ import java.util.Map;
 public class UnionFind {
 
     /**
-     * Mapping from attribute (using the base table) to union find element.
+     * Mapping from attribute (using the table name and favoring aliases) to union find element.
      */
     private final Map<String, UnionFindElement> elements;
-
-    private AliasMap aliasMap;
 
     /**
      * Creates the union find data structure.
      */
-    public UnionFind(AliasMap aliasMap) {
+    public UnionFind() {
         elements = new HashMap<>();
-        this.aliasMap = aliasMap;
     }
 
     /**
@@ -38,7 +35,7 @@ public class UnionFind {
      * @return The union find element corresponding to this attribute.
      */
     public UnionFindElement find(Column attribute) {
-        String attributeName = aliasMap.columnWithBaseTable(attribute);
+        String attributeName = attribute.getWholeColumnName();
         if (!elements.containsKey(attributeName)) {
             UnionFindElement element = new UnionFindElement(attribute);
             elements.put(attributeName, element);

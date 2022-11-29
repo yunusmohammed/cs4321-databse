@@ -76,7 +76,7 @@ public class JoinOrder {
         JoinOrder.aliasMap = aliasMap;
         Expression selectionExpression = getSelectionExpression(whereExpression);
         selectionVisitor = new DSUExpressionVisitor();
-        selectionVisitor.processExpression(selectionExpression, aliasMap);
+        selectionVisitor.processExpression(selectionExpression);
         valuesMap = new HashMap<>();
 
         List<Table> tables = new ArrayList<>();

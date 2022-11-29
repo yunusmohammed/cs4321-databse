@@ -5,7 +5,6 @@ import com.cs4321.app.Tuple;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -69,8 +68,8 @@ class ExternalSortOperatorTest {
         assertNull(externalSortOperator.getNextTuple());
 
         // order by clause sorts by columns "A", "B", "C", and "D"
-        for(int i=0; i<orderByElementList.size(); i++) {
-            orderByElementList.remove(orderByElementList.size()-1);
+        for (int i = 0; i < orderByElementList.size(); i++) {
+            orderByElementList.remove(orderByElementList.size() - 1);
         }
         Mockito.when(mockChild.getNextTuple()).thenReturn(firstTuple, secondTuple, thirdTuple, fourthTuple, null);
         externalSortOperator = new ExternalSortOperator(mockChild, columnMap, orderByElementList, tempFileDir, 3);
@@ -86,6 +85,18 @@ class ExternalSortOperatorTest {
     void testToString() {
         Mockito.when(mockChild.toString()).thenReturn("Operator{}");
         assertEquals("ExternalSortOperator{Operator{}, Order By : Table.B, Table.D}", externalSortOperator.toString());
+    }
+
+    @Test
+    void testToStringForPrinting() {
+        Mockito.when(mockChild.toString(Mockito.anyInt())).thenCallRealMethod();
+
+        // External Sort at depth 0 of physical query plan tree
+        assertEquals("ExternalSort[Table.B, Table.D]\n-PhysicalOperator\n", externalSortOperator.toString(0));
+
+        // External Sort at depth 3 of physical query plan tree
+        assertEquals("---ExternalSort[Table.B, Table.D]\n----PhysicalOperator\n",
+                externalSortOperator.toString(3));
     }
 
 }

@@ -8,7 +8,7 @@ public class SelectionOperator extends Operator {
     private final SelectExpressionVisitor visitor;
     private final AliasMap aliasMap;
     private final Expression exp;
-    private final ScanOperator child;
+    private final Operator child;
 
     /**
      * Creates an Operator that will represent a particular SELECT statement
@@ -22,7 +22,7 @@ public class SelectionOperator extends Operator {
      * @param child    The Scan Operator that will provide the rows in a column
      */
     public SelectionOperator(SelectExpressionVisitor visitor, AliasMap aliasMap, Expression exp,
-            ScanOperator child) {
+            Operator child) {
         this.visitor = visitor;
         this.aliasMap = aliasMap;
         this.exp = exp;

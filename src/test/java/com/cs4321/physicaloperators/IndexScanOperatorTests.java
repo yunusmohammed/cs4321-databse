@@ -516,4 +516,22 @@ public class IndexScanOperatorTests {
                         assertEquals(s, scanOperator.toString());
                 }
         }
+
+        @Test
+        void testToStringForPrinting() throws FileNotFoundException, IOException {
+                try (MockedStatic<DatabaseCatalog> dbcMockedStatic = Mockito.mockStatic(DatabaseCatalog.class)) {
+                        dbcMockedStatic.when(DatabaseCatalog::getInputdir).thenReturn(inputdir);
+                        assertEquals(inputdir, DatabaseCatalog.getInputdir());
+                        dbcMockedStatic.when(DatabaseCatalog::getInstance).thenReturn(dbc);
+
+                        scanOperator = new IndexScanOperator(tableClustered, mockAliasMapClustered,
+                                        sailorsAClustedIndexFilePath, clusteredIndexAttributeName,
+                                        8, 10, true);
+                        // Selection at depth 0 of physical query plan tree
+                        assertEquals("IndexScan[Sailors2,A,8,10]\n", scanOperator.toString(0));
+                        // Projection at depth 3 of physical query plan tree
+                        assertEquals("---IndexScan[Sailors2,A,8,10]\n",
+                                        scanOperator.toString(3));
+                }
+        }
 }

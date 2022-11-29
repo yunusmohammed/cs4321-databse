@@ -56,4 +56,15 @@ class FullScanOperatorTest {
         assertEquals(s, scanOperator.toString());
     }
 
+    @Test
+    void testToStringForPrinting() {
+
+        // Selection at depth 0 of physical query plan tree
+        assertEquals("TableScan[Boats]\n", scanOperator.toString(0));
+
+        // Projection at depth 3 of physical query plan tree
+        assertEquals("---TableScan[Boats]\n",
+                scanOperator.toString(3));
+    }
+
 }

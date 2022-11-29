@@ -19,6 +19,7 @@ import com.cs4321.app.DSUExpressionVisitor;
 import com.cs4321.app.DatabaseCatalog;
 import com.cs4321.app.Logger;
 import com.cs4321.app.TableStatsInfo;
+import com.cs4321.app.UnionFind;
 import com.cs4321.app.UnionFindElement;
 import com.cs4321.logicaloperators.LogicalOperator;
 import com.cs4321.logicaloperators.LogicalScanOperator;
@@ -48,19 +49,17 @@ public class JoinOrder {
     // names to their associated V-Value.
     // valuesMap.get(table).get(column) = V(table, column)
     private static HashMap<String, HashMap<String, Double>> valuesMap;
+    private static AliasMap aliasMap;
 
     /**
      * Returns an optimal order of LogicalOperators for a join
      * 
      * @param joinChildren    - the children of the logical join operator
-     * @param joinExpression  - the expression associated with the logical join
-     *                        operator
      * @param whereExpression - the where clause from the select body
      * @param aliasMap        - map from alias names to table names
      * @return a list of logical operators in the order which they should be joined
      */
     public static List<LogicalOperator> getJoinOrder(List<LogicalOperator> joinChildren,
-            Expression joinExpression,
             Expression whereExpression, AliasMap aliasMap) {
         // each subset stores the indexes of the children in joinChildren
         List<HashSet<Integer>> subsets = generateSubsets(joinChildren.size());
@@ -74,23 +73,27 @@ public class JoinOrder {
         HashMap<HashSet<Integer>, Map.Entry<Integer[], List<Integer>>> dpMap = new HashMap<>();
         // union find will help us compute V-Values for selection operators and joins
         // later
+        JoinOrder.aliasMap = aliasMap;
         Expression selectionExpression = getSelectionExpression(whereExpression);
         selectionVisitor = new DSUExpressionVisitor();
         selectionVisitor.processExpression(selectionExpression, aliasMap);
         valuesMap = new HashMap<>();
 
         List<Table> tables = new ArrayList<>();
-        for(LogicalOperator operator : joinChildren) {
+        for (LogicalOperator operator : joinChildren) {
             LogicalScanOperator scan = getLogicalScanOperator(operator);
             tables.add(scan.getTable());
         }
 
         // initialize V-Values for every table column while factoring in selections
         for (Table t : tables) {
+            String name = t.getAlias();
+            if (name == null)
+                name = t.getName();
             String baseTableName = t.getName();
             String[] tableSchema = dbc.tableSchema(baseTableName);
             for (int i = 1; i < tableSchema.length; i++) {
-                Column col = new Column(t, tableSchema[i]);
+                Column col = new Column(t, name + "." + tableSchema[i]);
                 setColumnValue(col);
             }
         }
@@ -112,7 +115,7 @@ public class JoinOrder {
         for (int i = 0; i < subsets.size(); i++) {
             HashSet<Integer> set = subsets.get(i);
             List<Integer> ordering = new ArrayList<>();
-            List<List<Column>> equalityConditions = equalityConditions(joinExpression);
+            List<List<Column>> equalityConditions = equalityConditions(whereExpression);
             if (set.size() == 1) {
                 ordering.addAll(set);
                 dpMap.put(set, new SimpleEntry<>(new Integer[] { 0, 0 }, ordering));
@@ -123,13 +126,18 @@ public class JoinOrder {
                 int second = iterator.next();
                 int firstSize = getTableSize(joinChildren.get(first));
                 int secondSize = getTableSize(joinChildren.get(second));
+                int relationSize;
                 // choose the smaller relation to be the outer
-                if (firstSize < secondSize)
+                if (firstSize < secondSize) {
                     ordering.addAll(Arrays.asList(first, second));
-                else
+                    relationSize = computeRelationSize(equalityConditions, joinChildren, Arrays.asList(first),
+                            firstSize, second, secondSize);
+                } else {
                     ordering.addAll(Arrays.asList(second, first));
-                int relationSize = computeRelationSize(equalityConditions, joinChildren,
-                        new ArrayList<>(first), firstSize, second, secondSize);
+                    relationSize = computeRelationSize(equalityConditions, joinChildren, Arrays.asList(second),
+                            secondSize, first, firstSize);
+                }
+
                 dpMap.put(set, new SimpleEntry<>(new Integer[] { 0, relationSize }, ordering));
             } else {
                 HashSet<Integer> removeOneElement = new HashSet<>(set);
@@ -228,8 +236,9 @@ public class JoinOrder {
         Stack<BinaryExpression> expressions = LogicalQueryPlanUtils.getExpressions(whereExpression);
         List<BinaryExpression> selectionExpressions = new ArrayList<>();
         for (BinaryExpression binExp : expressions) {
-            if (!(binExp instanceof NotEqualsTo || (binExp.getLeftExpression() instanceof Column
-                    && binExp.getRightExpression() instanceof Column))) {
+            if (!(binExp instanceof NotEqualsTo
+                    || (!(binExp instanceof EqualsTo) && binExp.getLeftExpression() instanceof Column
+                            && binExp.getRightExpression() instanceof Column))) {
                 selectionExpressions.add(binExp);
             }
         }
@@ -256,7 +265,7 @@ public class JoinOrder {
     private static void setColumnValue(Column column) {
         String[] columnStrings = column.getWholeColumnName().split("\\.");
         String table = columnStrings[0];
-        String baseTableName = column.getTable().getName();
+        String baseTableName = aliasMap.getBaseTable(table);
         String attribute = columnStrings[1];
         TableStatsInfo tableInfo = tableStatsMap.get(baseTableName);
         List<ColumnStatsInfo> columnInfos = tableInfo.getColumnStatsInfoList();
@@ -328,24 +337,26 @@ public class JoinOrder {
      * columns in an
      * equalsTo expression.
      * 
-     * @param joinExpression - the expression from join operator
+     * @param whereExpression - the where clause from the select body
      * @return a list of lists of columns
      */
-    private static List<List<Column>> equalityConditions(Expression joinExpression) {
+    private static List<List<Column>> equalityConditions(Expression whereExpression) {
         // use a hash set to eliminate duplicate join conditions which might affect
         // table size calculation
         HashSet<HashSet<Column>> conditions = new HashSet<>();
         Stack<Expression> stackExpression = new Stack<>();
-        if (joinExpression != null)
-            stackExpression.push(joinExpression);
+        if (whereExpression != null)
+            stackExpression.push(whereExpression);
         while (stackExpression.size() > 0) {
             Expression exp = stackExpression.pop();
-            if (exp instanceof EqualsTo) {
+            // check if expression is part of join conditions
+            if (exp instanceof EqualsTo && ((EqualsTo) exp).getLeftExpression() instanceof Column
+                    && ((EqualsTo) exp).getRightExpression() instanceof Column) {
                 Column leftColumn = (Column) ((EqualsTo) exp).getLeftExpression();
                 Column rightColumn = (Column) ((EqualsTo) exp).getRightExpression();
                 HashSet<Column> columns = new HashSet<>(Arrays.asList(leftColumn, rightColumn));
                 conditions.add(columns);
-            } else {
+            } else if (exp instanceof AndExpression) {
                 AndExpression andExp = (AndExpression) exp;
                 stackExpression.add(andExp.getRightExpression());
                 stackExpression.add(andExp.getLeftExpression());
@@ -396,7 +407,8 @@ public class JoinOrder {
      * @return a list of subsets
      */
     private static List<HashSet<Integer>> generateSubsets(int n) {
-        List<HashSet<Integer>> subsets = new ArrayList<>(new HashSet<>());
+        List<HashSet<Integer>> subsets = new ArrayList<>();
+        subsets.add(new HashSet<>());
         // after the i'th iteration, all subsets of the set {0, 1, ..., i} are generated
         for (int i = 0; i < n; i++) {
             List<HashSet<Integer>> updatedSubsets = new ArrayList<>();

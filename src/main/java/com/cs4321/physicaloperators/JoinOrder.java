@@ -53,15 +53,13 @@ public class JoinOrder {
      * Returns an optimal order of LogicalOperators for a join
      * 
      * @param joinChildren    - the children of the logical join operator
-     * @param tables          - a list containing all the tables present in the
-     *                        query
      * @param joinExpression  - the expression associated with the logical join
      *                        operator
      * @param whereExpression - the where clause from the select body
      * @param aliasMap        - map from alias names to table names
      * @return a list of logical operators in the order which they should be joined
      */
-    public static List<LogicalOperator> getJoinOrder(List<LogicalOperator> joinChildren, List<Table> tables,
+    public static List<LogicalOperator> getJoinOrder(List<LogicalOperator> joinChildren,
             Expression joinExpression,
             Expression whereExpression, AliasMap aliasMap) {
         // each subset stores the indexes of the children in joinChildren
@@ -80,6 +78,12 @@ public class JoinOrder {
         selectionVisitor = new DSUExpressionVisitor();
         selectionVisitor.processExpression(selectionExpression, aliasMap);
         valuesMap = new HashMap<>();
+
+        List<Table> tables = new ArrayList<>();
+        for(LogicalOperator operator : joinChildren) {
+            LogicalScanOperator scan = getLogicalScanOperator(operator);
+            tables.add(scan.getTable());
+        }
 
         // initialize V-Values for every table column while factoring in selections
         for (Table t : tables) {

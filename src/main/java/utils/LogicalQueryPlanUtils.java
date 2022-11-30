@@ -271,7 +271,7 @@ public class LogicalQueryPlanUtils {
             if (logicalJoinChildren.size() == 1) {
                 currentParent
                         .setLeftChild(getJoinChildOperator((Stack) leftChildExpressions,
-                                ((LogicalJoinChild) logicalJoin.getChildren().get(0)).getTable(), aliasMap));
+                                ((LogicalJoinChild) logicalJoinChildren.get(0)).getTable(), aliasMap));
             } else {
                 leftOperator = new OldLogicalJoinOperator();
                 currentParent.setLeftChild(leftOperator);

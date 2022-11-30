@@ -1,7 +1,5 @@
 package com.cs4321.physicaloperators;
 
-import com.cs4321.app.AliasMap;
-import com.cs4321.app.DatabaseCatalog;
 import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.arithmetic.*;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
@@ -10,7 +8,9 @@ import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SubSelect;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
 
 /**
  * Visitor for determining which parts of an expression can be accessed via index
@@ -19,8 +19,8 @@ import java.util.*;
  */
 public class IndexSelectionVisitor implements ExpressionVisitor {
 
-    // Database Catalogue
-    private DatabaseCatalog dbc;
+    // The name of the column that can utilize an index
+    private String indexColumnName;
 
     // The column that can utilize an index
     private Column indexColumn;
@@ -30,9 +30,6 @@ public class IndexSelectionVisitor implements ExpressionVisitor {
 
     // List of expressions that can't be evaluated with index
     private List<Expression> noIndexExpressionList;
-
-    // Mapping from table name to base table name
-    private AliasMap aliasMap;
 
     // Tracks whether the last seen column can be indexed
     private boolean canIndex;
@@ -83,16 +80,14 @@ public class IndexSelectionVisitor implements ExpressionVisitor {
      * (both inclusive). Expressions that can't be indexed can be retrieved by `getNoIndexExpression` after calling
      * this function.
      *
-     * @param exp      The expression to split up into two parts.
-     * @param aliasMap The aliasMap that keeps track of base table names.
-     * @param dbc      The DatabaseCatalog that holds general information about the database.
+     * @param exp             The expression to split up into two parts..
+     * @param indexColumnName The name of the column that can utilize an index
      */
-    public void splitExpression(Expression exp, AliasMap aliasMap, DatabaseCatalog dbc) {
+    public void splitExpression(Expression exp, String indexColumnName) {
         this.indexColumn = null;
         this.lowHigh = new ArrayList<>();
         this.noIndexExpressionList = new ArrayList<>();
-        this.aliasMap = aliasMap;
-        this.dbc = dbc;
+        this.indexColumnName = indexColumnName;
 
         // Move columns to the left side of each binary expression (if possible)
         Stack<Expression> stack = new Stack<>();
@@ -127,12 +122,8 @@ public class IndexSelectionVisitor implements ExpressionVisitor {
     @Override
     public void visit(Column exp) {
         String[] wholeColumnName = exp.getWholeColumnName().split("\\.");
-        String baseTableName = aliasMap.getBaseTable(wholeColumnName[0]);
         String columnName = wholeColumnName[1];
-        HashMap<String, HashSet<String>> indexMap = dbc.getIndexColumns();
-        boolean left = indexMap.containsKey(baseTableName);
-        boolean right = (indexMap.get(baseTableName).contains(columnName));
-        canIndex = left && right;
+        canIndex = indexColumnName != null && indexColumnName.equals(columnName);
     }
 
     @Override

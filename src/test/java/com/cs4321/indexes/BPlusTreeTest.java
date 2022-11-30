@@ -1,8 +1,9 @@
 package com.cs4321.indexes;
 
-import com.cs4321.app.*;
+import com.cs4321.app.DatabaseCatalog;
+import com.cs4321.app.IndexInfo;
+import com.cs4321.app.Interpreter;
 import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -11,9 +12,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BPlusTreeTest {
     private static String sep = File.separator;
@@ -25,7 +30,7 @@ class BPlusTreeTest {
 
     private int compareFiles(File a, File b) {
         int alen = a.getName().length(), blen = b.getName().length();
-        if(alen != blen) return alen - blen;
+        if (alen != blen) return alen - blen;
         return a.getName().charAt(0) - b.getName().charAt(0);
     }
 
@@ -52,7 +57,7 @@ class BPlusTreeTest {
             List<IndexInfo> indexInfos = Interpreter.buildIndexInfos();
             List<BPlusTree> trees = new ArrayList<>();
             String indexesPath = inputdir + sep + "db" + sep + "indexes";
-            for(IndexInfo indexinfo : indexInfos) {
+            for (IndexInfo indexinfo : indexInfos) {
                 trees.add(new BPlusTree(indexesPath + sep + indexinfo.getRelationName() + "." + indexinfo.getAttributeName(), indexinfo));
             }
             // trees.get(0).printTree();
@@ -60,7 +65,7 @@ class BPlusTreeTest {
             File[] outputQueries = new File(indexesPath).listFiles();
             Arrays.sort(correctQueries, (a, b) -> compareFiles(a, b));
             Arrays.sort(outputQueries, (a, b) -> compareFiles(a, b));
-            for(int i=0; i<outputQueries.length; i++) {
+            for (int i = 0; i < outputQueries.length; i++) {
                 System.out.println("correct query: " + correctQueries[i].getName());
                 System.out.println("output query: " + outputQueries[i].getName());
                 assertTrue(FileUtils.contentEquals(correctQueries[i], outputQueries[i]));

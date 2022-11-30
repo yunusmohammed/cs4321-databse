@@ -31,6 +31,7 @@ public class PhysicalPlanBuilder {
     private static PhysicalPlanBuilder instance;
     private static boolean humanReadable;
     private static Map<String, Integer> tableOrder;
+    private static Map<String, Integer> pagePerIndex;
 
     private static int BUFFER_SIZE = 10;
 
@@ -42,18 +43,24 @@ public class PhysicalPlanBuilder {
 
     /**
      * Reads the config file to determine how to construct physical tree.
-     *
-     * @param fileName The name of the config file
      */
     public static void setConfigs(String fileName) {
         String filePath = DatabaseCatalog.getInputdir() + File.separator + fileName;
         config = new BuilderConfig(filePath);
-        if (config.shouldUseIndexForSelection()) {
-            // TODO Lenhard, Yunus
-            IndexInfoConfig indexInfoConfig = new IndexInfoConfig(DatabaseCatalog.getInputdir()
-                    + File.separator + "db" + File.separator + "index_info.txt");
-            indexInfoConfigMap = indexInfoConfig.getIndexInfoMap();
-        }
+        IndexInfoConfig indexInfoConfig = new IndexInfoConfig(DatabaseCatalog.getInputdir()
+                + File.separator + "db" + File.separator + "index_info.txt");
+        indexInfoConfigMap = indexInfoConfig.getIndexInfoMap();
+    }
+
+    /**
+     * Sets the page per index map to `map`. This should be mapping the name of a
+     * column
+     * using the base table and mapping to the number of leaf pages.
+     *
+     * @param map The mapping from column name to number of leaf pages.
+     */
+    public static void setPagePerIndex(Map<String, Integer> map) {
+        pagePerIndex = map;
     }
 
     /**
@@ -150,6 +157,48 @@ public class PhysicalPlanBuilder {
         return null;
     }
 
+    public String chooseIndex(LogicalSelectionOperator operator) {
+        String baseTableName = operator.getBaseTableName();
+        TableStatsInfo stats = DatabaseCatalog.getInstance().getTableStatsMap().get(baseTableName);
+        String index = null;
+        double tupSize = 4 * (DatabaseCatalog.getInstance().tableSchema(baseTableName).length - 1);
+        double numBytes = 4096;
+        double cost = (long) stats.getNumberOfTuples() * tupSize / numBytes;
+        Set<String> possibleIndexes = DatabaseCatalog.getInstance().getIndexColumns().get(baseTableName);
+        if (possibleIndexes == null)
+            return index;
+        for (String candidate : possibleIndexes) {
+            IndexSelectionVisitor visitor = operator.getIndexVisitor();
+            visitor.splitExpression(operator.getSelectCondition(), candidate);
+            ColumnStatsInfo info = stats.getColumnStatsInfoMap().get(candidate);
+            double tableVals = info.getMaxValue() - info.getMinValue() + 1;
+            double numVals = 0;
+            if (!visitor.getLowHigh().isEmpty()) {
+                int low = Math.max(visitor.getLowHigh().get(1), info.getMinValue());
+                int high = Math.max(visitor.getLowHigh().get(0), info.getMaxValue());
+                numVals = high - low + 1;
+            }
+            double reduction_factor = numVals / tableVals;
+            String baseColumnName = baseTableName + "." + candidate;
+            boolean isClustered = indexInfoConfigMap.get(baseColumnName).isClustered();
+            if (isClustered) {
+                double new_cost = 3 + reduction_factor * (stats.getNumberOfTuples() * tupSize / numBytes);
+                if (new_cost < cost) {
+                    index = candidate;
+                    cost = new_cost;
+                }
+            } else {
+                int l = pagePerIndex.get(baseColumnName);
+                double new_cost = 3 + l * reduction_factor + stats.getNumberOfTuples() * reduction_factor;
+                if (new_cost < cost) {
+                    index = candidate;
+                    cost = new_cost;
+                }
+            }
+        }
+        return index;
+    }
+
     /**
      * Creates a physical selection operator from the logical selection operator.
      *
@@ -158,10 +207,10 @@ public class PhysicalPlanBuilder {
      *         selection operator.
      */
     public Operator visit(LogicalSelectionOperator operator) {
-        if (config.shouldUseIndexForSelection()) {
+        String indexColumnName = chooseIndex(operator);
+        if (indexColumnName != null) {
             IndexSelectionVisitor visitor = operator.getIndexVisitor();
-            visitor.splitExpression(operator.getSelectCondition(), operator.getAliasMap(),
-                    DatabaseCatalog.getInstance());
+            visitor.splitExpression(operator.getSelectCondition(), indexColumnName);
             Column indexColumn = visitor.getIndexColumn();
             List<Integer> lowHigh = visitor.getLowHigh();
             Expression noIndexExpression = visitor.getNoIndexExpression();
@@ -199,6 +248,28 @@ public class PhysicalPlanBuilder {
     public Operator visit(LogicalProjectionOperator operator) {
         Operator child = constructPhysical(operator.getChild());
         return new ProjectionOperator(operator.getAliasMap(), operator.getSelectItems(), child);
+    }
+
+    /**
+     * Returns a new list without duplicates in the list of order by elements.
+     *
+     * @param lst      List of order by elements.
+     * @param aliasMap An AliasMap for handling aliases.
+     * @return A copy of lst but with duplicates removed.
+     */
+    private List<OrderByElement> deduplicate(List<OrderByElement> lst, AliasMap aliasMap) {
+        List<OrderByElement> dedup = new ArrayList<>();
+        HashSet<String> seen = new HashSet<>();
+        for (OrderByElement orderByElement : lst) {
+            Column c = (Column) orderByElement.getExpression();
+            String baseTableName = c.getWholeColumnName().split("\\.")[0];
+            String wholeName = baseTableName + "." + c.getColumnName();
+            if (!seen.contains(wholeName)) {
+                seen.add(wholeName);
+                dedup.add(orderByElement);
+            }
+        }
+        return dedup;
     }
 
     /**
@@ -277,7 +348,9 @@ public class PhysicalPlanBuilder {
     public List<List<OrderByElement>> getOrders(Expression joinCondition) {
         ArrayList<List<OrderByElement>> list = new ArrayList<>();
         List<OrderByElement> leftList = new ArrayList<>();
+        Set<String> leftSet = new HashSet<>();
         List<OrderByElement> rightList = new ArrayList<>();
+        Set<String> rightSet = new HashSet<>();
         list.add(leftList);
         list.add(rightList);
         Stack<Expression> stackExpression = new Stack<>();

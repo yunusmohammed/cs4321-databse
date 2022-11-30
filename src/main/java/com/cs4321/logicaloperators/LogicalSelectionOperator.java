@@ -34,8 +34,8 @@ public class LogicalSelectionOperator extends LogicalOperator implements Logical
      * @param aliasMap        A AliasMap instance for alias resolution
      */
     public LogicalSelectionOperator(Expression selectCondition, LogicalOperator child,
-            SelectExpressionVisitor visitor, IndexSelectionVisitor indexVisitor,
-            AliasMap aliasMap) {
+                                    SelectExpressionVisitor visitor, IndexSelectionVisitor indexVisitor,
+                                    AliasMap aliasMap) {
         this.selectCondition = selectCondition;
         this.child = child;
         this.visitor = visitor;
@@ -87,6 +87,16 @@ public class LogicalSelectionOperator extends LogicalOperator implements Logical
      */
     public IndexSelectionVisitor getIndexVisitor() {
         return this.indexVisitor;
+    }
+
+    /**
+     * Gets the base table name of the logical selection operator.
+     *
+     * @return The base table name of the logical selection operator.
+     */
+    public String getBaseTableName() {
+        Table t = ((LogicalScanOperator) this.child).getTable();
+        return aliasMap.getBaseTable(t.getName());
     }
 
     /**

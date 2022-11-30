@@ -106,6 +106,15 @@ public class JoinExpressionVisitor implements ExpressionVisitor {
     }
 
     /**
+     * Return the Alias Map for this visitor
+     *
+     * @return the alias map for this visitor
+     */
+    public AliasMap getAliasMap() {
+        return aliasMap;
+    }
+
+    /**
      * *
      *
      * @param exp The expression to be evaluated, a boolean expression

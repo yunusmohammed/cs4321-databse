@@ -115,6 +115,8 @@ public class LogicalSelectionOperator extends LogicalOperator implements Logical
         for (int i = 0; i < level; i++) {
             builder.append("-");
         }
+        String selectItems = "";
+        if(this.getSelectCondition() != null) selectItems = this.getSelectCondition().toString();
         builder.append("Select[" + this.getSelectCondition().toString() + "]");
         builder.append("\n");
         builder.append(this.getChild().toString(level + 1));

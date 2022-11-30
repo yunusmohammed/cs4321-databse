@@ -152,6 +152,9 @@ public class SMJOperator extends JoinOperator {
                 Tuple nextLeftTuple = leftSort.getNextTuple();
                 // Reset the inner row to the S-partition if next outer tuple matches current
                 // outer tuple
+                if(nextLeftTuple.equals(new Tuple("687,1329,1164"))) {
+                    int w = 1;
+                };
                 if (nextLeftTuple != null
                         && compare(leftTuple, nextLeftTuple, leftSort, leftSort, leftSortOrder, leftSortOrder) == 0) {
                     rightSort.reset(rightIndex);

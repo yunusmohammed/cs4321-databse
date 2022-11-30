@@ -12,7 +12,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -24,21 +27,35 @@ class InterpreterTest {
     private String tempdir;
     private static final Logger logger = Logger.getInstance();
 
+
+
     void testQueries(String inputdir, String correctOutputPath) {
         Interpreter.setInputdir(inputdir);
         Interpreter.parseQueries();
         File[] correctQueries = new File(correctOutputPath).listFiles();
+        Stream<File> correctStream = Arrays.stream(correctQueries);
+        List<File> listCorrectQueries = correctStream.filter(file -> file.toString().indexOf("plan") == -1).collect(Collectors.toList());
+        correctQueries = new File[listCorrectQueries.size()];
+        for(int i=0; i<correctQueries.length; i++) {
+            correctQueries[i] = listCorrectQueries.get(i);
+        }
         Arrays.sort(correctQueries,
                 (File a, File b) -> Integer.parseInt(a.toString().substring(a.toString().lastIndexOf("y") + 1))
                         - Integer.parseInt(b.toString().substring(b.toString().lastIndexOf("y") + 1)));
         File[] outputQueries = new File(outputdir).listFiles();
+        Stream<File> outputStream = Arrays.stream(outputQueries);
+        List<File> listOutputQueries = outputStream.filter(file -> file.toString().indexOf("plan") == -1).collect(Collectors.toList());
+        outputQueries = new File[listOutputQueries.size()];
+        for(int i=0; i<outputQueries.length; i++) {
+            outputQueries[i] = listOutputQueries.get(i);
+        }
         Arrays.sort(outputQueries,
                 (File a, File b) -> Integer.parseInt(a.toString().substring(a.toString().lastIndexOf("y") + 1))
                         - Integer.parseInt(b.toString().substring(b.toString().lastIndexOf("y") + 1)));
         List<Statement> statements = Interpreter.getStatements();
         if (correctQueries.length != outputQueries.length)
             logger.log("At least one query has not been output");
-        for (int i = 0; i < correctQueries.length; i++) {
+        for (int i = 0; i < outputQueries.length; i++) {
             try {
                 boolean equal;
                 Select select = (Select) statements.get(i);
@@ -64,7 +81,7 @@ class InterpreterTest {
     void setUp() {
 
         try {
-            outputdir = "/Users/ymm26/Desktop/Senior Fall/CS 4321/cs4321-databse/src/test/resources/output";// Files.createTempDirectory("output").toString();
+            outputdir = "C:\\Users\\Yohanes\\eclipse-workspace\\cs4321-databse\\src\\test\\resources\\outputChecking";// Files.createTempDirectory("output").toString();
             tempdir = Files.createTempDirectory("temp").toString();
             Interpreter.setOutputdir(outputdir);
             Interpreter.setTempdir(tempdir);
@@ -75,8 +92,7 @@ class InterpreterTest {
 
     @Test
     void queryOutput() {
-        String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep
-                + "input_binary";
+        String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_binary";
         String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep
                 + "correctOutput_binary";
         DatabaseCatalog.setInputDir(inputdir);

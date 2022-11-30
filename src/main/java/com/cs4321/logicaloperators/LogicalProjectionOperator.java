@@ -101,7 +101,9 @@ public class LogicalProjectionOperator extends LogicalOperator {
         for (int i = 0; i < level; i++) {
             builder.append("-");
         }
-        builder.append("Project" + this.getSelectItems().toString());
+        String selectItems = "[]";
+        if(this.getSelectItems() != null) selectItems = this.getSelectItems().toString();
+        builder.append("Project" + selectItems);
         builder.append("\n");
         builder.append(this.getChild().toString(level + 1));
         return builder.toString();

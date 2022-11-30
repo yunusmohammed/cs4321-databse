@@ -113,7 +113,9 @@ public class SortOperator extends Operator {
         for (int i = 0; i < level; i++) {
             builder.append("-");
         }
-        builder.append("InMemorySort" + this.orderByElementList.toString());
+        String sortOrder = "[]";
+        if(this.orderByElementList != null) sortOrder = this.orderByElementList.toString();
+        builder.append("InMemorySort" + sortOrder);
         builder.append("\n");
         builder.append(this.getChild().toString(level + 1));
         return builder.toString();

@@ -201,7 +201,9 @@ public class ExternalSortOperator extends Operator {
         for (int i = 0; i < level; i++) {
             builder.append("-");
         }
-        builder.append("ExternalSort" + this.orderByElementList.toString());
+        String orderBy = "[]";
+        if(this.orderByElementList != null) orderBy = this.orderByElementList.toString();
+        builder.append("ExternalSort" + orderBy);
         builder.append("\n");
         builder.append(this.getChild().toString(level + 1));
         return builder.toString();

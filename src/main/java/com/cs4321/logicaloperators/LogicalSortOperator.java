@@ -80,7 +80,9 @@ public class LogicalSortOperator extends LogicalOperator {
         for (int i = 0; i < level; i++) {
             builder.append("-");
         }
-        builder.append("Sort" + this.orderByElementList.toString());
+        String sortOrder = "[]";
+        if(this.orderByElementList != null) sortOrder = this.orderByElementList.toString();
+        builder.append("Sort" + sortOrder);
         builder.append("\n");
         builder.append(this.getChild().toString(level + 1));
         return builder.toString();

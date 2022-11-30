@@ -84,6 +84,22 @@ public class ProjectionOperator extends Operator {
     }
 
     /**
+     * Returns the child of this operator
+     */
+    public Operator getChild() {
+        return this.child;
+    }
+
+    /**
+     * Returns the select items of this projection operator
+     * 
+     * @return the select items of this projection operator
+     */
+    public List<SelectItem> getSelectItems() {
+        return this.selectItems;
+    }
+
+    /**
      * Resets the Project Operator such that it starts projecting from the first
      * row.
      */
@@ -101,6 +117,18 @@ public class ProjectionOperator extends Operator {
     @Override
     public String toString() {
         return "ProjectionOperator{" + this.child.toString() + ", " + this.selectItems.toString() + "}";
+    }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < level; i++) {
+            builder.append("-");
+        }
+        builder.append("Project" + this.getSelectItems().toString());
+        builder.append("\n");
+        builder.append(this.getChild().toString(level + 1));
+        return builder.toString();
     }
 
     /**

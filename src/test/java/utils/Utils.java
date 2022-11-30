@@ -25,12 +25,21 @@ public class Utils {
    * @throws ParseException
    */
   public static Expression getExpression(String tableNames, String s) throws ParseException {
+    return getSelectBody(tableNames, s).getWhere();
+  }
+
+  /**
+   * Gets the select body from the query specified
+   * @param tableNames comma separated string of the names of the tables to query
+   * @param s          the where condition of the query
+   * @return the select body of the query
+   * @throws ParseException
+   */
+  public static PlainSelect getSelectBody(String tableNames, String s) throws ParseException {
     String query = "SELECT * FROM " + tableNames + " WHERE " + s + ";";
     StringReader reader = new StringReader(query);
     Statement statement = new CCJSqlParser(reader).Statement();
     Select select = (Select) statement;
-    PlainSelect selectBody = (PlainSelect) select.getSelectBody();
-    return selectBody.getWhere();
-
+    return (PlainSelect) select.getSelectBody();
   }
 }

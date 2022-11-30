@@ -1,7 +1,10 @@
 package com.cs4321.logicaloperators;
 
 import com.cs4321.app.AliasMap;
+import com.cs4321.app.PhysicalPlanBuilder;
 import com.cs4321.app.UnionFind;
+import com.cs4321.physicaloperators.Operator;
+
 import net.sf.jsqlparser.expression.Expression;
 
 import java.util.List;
@@ -74,6 +77,17 @@ public class LogicalJoinOperator extends LogicalOperator {
         return aliasMap;
     }
 
+    /**
+     * Accepts the builder to traverse this operator.
+     *
+     * @param builder The builder that will traverse this operator.
+     * @return The phyiscal tree that this logical operator represents.
+     */
+    @Override
+    public Operator accept(PhysicalPlanBuilder builder) {
+        return builder.visit(this);
+    }
+
     @Override
     public String toString(int level) {
         StringBuilder builder = new StringBuilder();
@@ -86,7 +100,6 @@ public class LogicalJoinOperator extends LogicalOperator {
         builder.append("Join[" + joinConditionString + "]");
         builder.append("\n");
         builder.append(this.getUnionFind().toString());
-        builder.append("\n");
         for (LogicalOperator child : this.getChildren()) {
             builder.append(child.toString(level + 1));
         }

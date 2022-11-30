@@ -36,7 +36,8 @@ class InterpreterTest {
                 (File a, File b) -> Integer.parseInt(a.toString().substring(a.toString().lastIndexOf("y") + 1))
                         - Integer.parseInt(b.toString().substring(b.toString().lastIndexOf("y") + 1)));
         List<Statement> statements = Interpreter.getStatements();
-        if (correctQueries.length != outputQueries.length) logger.log("At least one query has not been output");
+        if (correctQueries.length != outputQueries.length)
+            logger.log("At least one query has not been output");
         for (int i = 0; i < correctQueries.length; i++) {
             try {
                 boolean equal;
@@ -47,8 +48,10 @@ class InterpreterTest {
                     File sortedCorrect = new File(SortingUtilities.sortFile(correctQueries[i].toString(), null, null));
                     File sortedOutput = new File(SortingUtilities.sortFile(outputQueries[i].toString(), null, null));
                     equal = FileUtils.contentEquals(sortedCorrect, sortedOutput);
-                } else equal = FileUtils.contentEquals(correctQueries[i], outputQueries[i]);
-                if (!equal) logger.log(correctQueries[i].getName() + " is incorrect");
+                } else
+                    equal = FileUtils.contentEquals(correctQueries[i], outputQueries[i]);
+                if (!equal)
+                    logger.log(correctQueries[i].getName() + " is incorrect");
                 assertTrue(equal);
             } catch (Exception e) {
                 logger.log("Issue reading output from " + correctQueries[i].getName());
@@ -61,7 +64,7 @@ class InterpreterTest {
     void setUp() {
 
         try {
-            outputdir = Files.createTempDirectory("output").toString();
+            outputdir = "/Users/ymm26/Desktop/Senior Fall/CS 4321/cs4321-databse/src/test/resources/output";// Files.createTempDirectory("output").toString();
             tempdir = Files.createTempDirectory("temp").toString();
             Interpreter.setOutputdir(outputdir);
             Interpreter.setTempdir(tempdir);
@@ -70,11 +73,12 @@ class InterpreterTest {
         }
     }
 
-
     @Test
     void queryOutput() {
-        String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_binary";
-        String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "correctOutput_binary";
+        String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep
+                + "input_binary";
+        String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep
+                + "correctOutput_binary";
         DatabaseCatalog.setInputDir(inputdir);
         PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
         testQueries(inputdir, correctOutputPath);
@@ -82,13 +86,14 @@ class InterpreterTest {
 
     @Test
     void SMJQueryOutput() {
-        String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_SMJ";
-        String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "expected_SMJ";
+        String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep
+                + "input_SMJ";
+        String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep
+                + "expected_SMJ";
         DatabaseCatalog.setInputDir(inputdir);
         PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
         testQueries(inputdir, correctOutputPath);
     }
-
 
     @Test
     void outputdir() {
@@ -98,14 +103,16 @@ class InterpreterTest {
 
     @Test
     void inputdir() {
-        String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_binary";
+        String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep
+                + "input_binary";
         Interpreter.setInputdir(inputdir);
         assertEquals(inputdir, Interpreter.getInputdir());
     }
 
     @Test
     void queriesPath() {
-        String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_binary";
+        String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep
+                + "input_binary";
         Interpreter.setInputdir(inputdir);
         assertEquals(inputdir + sep + "queries.sql", Interpreter.queriesPath());
     }

@@ -248,12 +248,12 @@ public class PhysicalPlanBuilder {
         Operator leftChild = constructPhysical(oldLogicalJoinOperator.getLeftChild());
         Operator rightChild = constructPhysical(oldLogicalJoinOperator.getRightChild());
         if (canUseSMJ(oldLogicalJoinOperator.getJoinCondition())) {
-            List<List<OrderByElement>> orders = getOrders(operator.getJoinCondition());
+            List<List<OrderByElement>> orders = getOrders(oldLogicalJoinOperator.getJoinCondition());
             List<OrderByElement> leftOrder = orders.get(0);
             List<OrderByElement> rightOrder = orders.get(1);
             leftChild = generateSort(leftChild, leftOrder);
             rightChild = generateSort(rightChild, rightOrder);
-            SMJOperator smjOperator = new SMJOperator(leftChild, rightChild, operator.getJoinCondition(),
+            SMJOperator smjOperator = new SMJOperator(leftChild, rightChild, oldLogicalJoinOperator.getJoinCondition(),
                     oldLogicalJoinOperator.getJoinExpressionVisitor(), oldLogicalJoinOperator.getOriginalJoinOrder());
             smjOperator.setLeftSortOrder(leftOrder);
             smjOperator.setRightSortOrder(rightOrder);

@@ -242,7 +242,7 @@ public abstract class JoinOperator extends Operator {
      */
     public String getJoinConditionString() {
         String joinConditionString = "";
-        if (this.getJoinCondition().toString() != null)
+        if (this.getJoinCondition() != null)
             joinConditionString = this.getJoinCondition().toString();
         return joinConditionString;
     }

@@ -105,7 +105,6 @@ public class UnionFind {
         for (int i = 0; i < collections.size(); i++) {
             builder.append(collections.get(i).toString());
             builder.append("\n");
-
         }
         return builder.toString();
     }

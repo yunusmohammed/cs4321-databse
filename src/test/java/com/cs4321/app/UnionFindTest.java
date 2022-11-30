@@ -159,7 +159,7 @@ class UnionFindTest {
         String firstElement = "[[R.A, R.B, R.C], equals null, min null, max null]";
         String secondElement = "[[R.D, S.C], equals null, min null, max null]";
         String thirdElement = "[[T.X], equals null, min null, max null]";
-        String expected = firstElement + "\n" + secondElement + "\n" + thirdElement;
+        String expected = firstElement + "\n" + secondElement + "\n" + thirdElement + "\n";
         assertEquals(expected, unionFind.toString());
     }
 
@@ -184,7 +184,7 @@ class UnionFindTest {
         String firstElement = "[[R.A, R.B, R.C], equals 57, min 57, max 57]";
         String secondElement = "[[R.D, S.C], equals null, min 194, max null]";
         String thirdElement = "[[T.X], equals null, min null, max -50]";
-        String expected = firstElement + "\n" + secondElement + "\n" + thirdElement;
+        String expected = firstElement + "\n" + secondElement + "\n" + thirdElement + "\n";
         assertEquals(expected, unionFind.toString());
     }
 

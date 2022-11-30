@@ -36,7 +36,7 @@ public class LogicalJoinOperatorTest {
 
     unionFind = Mockito.mock(UnionFind.class);
     Mockito.when(unionFind.toString())
-        .thenReturn("[[S.B, R.G], equals null, min null, max null]\n[[S.A, B.D], equals null, min null, max null]");
+        .thenReturn("[[S.B, R.G], equals null, min null, max null]\n[[S.A, B.D], equals null, min null, max null]\n");
 
     joinCondition = Mockito.mock(Expression.class);
     Mockito.when(joinCondition.toString()).thenReturn("R.H <> B.D");

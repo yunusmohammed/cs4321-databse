@@ -27,16 +27,15 @@ class InterpreterTest {
     private String tempdir;
     private static final Logger logger = Logger.getInstance();
 
-
-
     void testQueries(String inputdir, String correctOutputPath) {
         Interpreter.setInputdir(inputdir);
         Interpreter.parseQueries();
         File[] correctQueries = new File(correctOutputPath).listFiles();
         Stream<File> correctStream = Arrays.stream(correctQueries);
-        List<File> listCorrectQueries = correctStream.filter(file -> file.toString().indexOf("plan") == -1).collect(Collectors.toList());
+        List<File> listCorrectQueries = correctStream.filter(file -> file.toString().indexOf("plan") == -1)
+                .collect(Collectors.toList());
         correctQueries = new File[listCorrectQueries.size()];
-        for(int i=0; i<correctQueries.length; i++) {
+        for (int i = 0; i < correctQueries.length; i++) {
             correctQueries[i] = listCorrectQueries.get(i);
         }
         Arrays.sort(correctQueries,
@@ -44,9 +43,10 @@ class InterpreterTest {
                         - Integer.parseInt(b.toString().substring(b.toString().lastIndexOf("y") + 1)));
         File[] outputQueries = new File(outputdir).listFiles();
         Stream<File> outputStream = Arrays.stream(outputQueries);
-        List<File> listOutputQueries = outputStream.filter(file -> file.toString().indexOf("plan") == -1).collect(Collectors.toList());
+        List<File> listOutputQueries = outputStream.filter(file -> file.toString().indexOf("plan") == -1)
+                .collect(Collectors.toList());
         outputQueries = new File[listOutputQueries.size()];
-        for(int i=0; i<outputQueries.length; i++) {
+        for (int i = 0; i < outputQueries.length; i++) {
             outputQueries[i] = listOutputQueries.get(i);
         }
         Arrays.sort(outputQueries,
@@ -92,9 +92,9 @@ class InterpreterTest {
 
     @Test
     void queryOutput() {
-        String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_binary";
-        String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep
-                + "correctOutput_binary";
+        String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep
+                + "input_binary";
+        String correctOutputPath = "/Users/ymm26/Desktop/Senior Fall/CS 4321/cs4321-databse/src/test/resources/output";
         DatabaseCatalog.setInputDir(inputdir);
         PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
         testQueries(inputdir, correctOutputPath);

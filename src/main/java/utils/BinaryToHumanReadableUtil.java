@@ -5,6 +5,7 @@ import com.cs4321.app.Tuple;
 import com.cs4321.app.TupleReader;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 
@@ -20,24 +21,24 @@ public class BinaryToHumanReadableUtil {
     private static String outputFilePath;
     private static Logger logger = Logger.getInstance();
 
-//    public static void main(String[] args) {
-//        if (args.length < 2) {
-//            System.out.println("Incorrect input format");
-//            return;
-//        }
-//        setInputFilePath(args[0]);
-//        setOutputFilePath(args[1]);
-//        try {
-//            tupleReader = new TupleReader(inputFilePath);
-//        } catch (IOException e) {
-//            logger.log(e.getMessage());
-//        }
-//        try {
-//            dump(new PrintStream(outputFilePath));
-//        } catch (FileNotFoundException e) {
-//            logger.log(e.getMessage());
-//        }
-//    }
+    public static void main(String[] args) {
+        if (args.length < 2) {
+            System.out.println("Incorrect input format");
+            return;
+        }
+        setInputFilePath(args[0]);
+        setOutputFilePath(args[1]);
+        try {
+            tupleReader = new TupleReader(inputFilePath);
+        } catch (IOException e) {
+            logger.log(e.getMessage());
+        }
+        try {
+            dump(new PrintStream(outputFilePath));
+        } catch (FileNotFoundException e) {
+            logger.log(e.getMessage());
+        }
+    }
 
     /**
      * Gets the next tuple to be read from the input file
@@ -54,7 +55,8 @@ public class BinaryToHumanReadableUtil {
     }
 
     /**
-     * Converts the input file from binary to human-readable and stores it at the output file path
+     * Converts the input file from binary to human-readable and stores it at the
+     * output file path
      *
      * @param inputFile  - the path to the input file
      * @param outputFile - the path to the output file

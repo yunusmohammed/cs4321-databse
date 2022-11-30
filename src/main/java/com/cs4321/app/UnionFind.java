@@ -64,15 +64,15 @@ public class UnionFind {
             for (Column attribute : element1.getAttributes()) {
                 element2.addAttribute(attribute);
             }
-            element2.setLowerBound(element1.getLowerBound());
-            element2.setUpperBound(element1.getUpperBound());
+            if(element1.getLowerBound() != null) element2.setLowerBound(element1.getLowerBound());
+            if(element1.getUpperBound() != null) element2.setUpperBound(element1.getUpperBound());
         } else {
             element2.setParent(attribute1);
             for (Column attribute : element2.getAttributes()) {
                 element1.addAttribute(attribute);
             }
-            element1.setLowerBound(element2.getLowerBound());
-            element1.setUpperBound(element2.getUpperBound());
+            if(element2.getLowerBound() != null) element1.setLowerBound(element2.getLowerBound());
+            if(element2.getUpperBound() != null) element1.setUpperBound(element2.getUpperBound());
         }
     }
 

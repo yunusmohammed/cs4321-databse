@@ -75,7 +75,7 @@ public class TNLJoinOperator extends JoinOperator {
         for (int i = 0; i < level; i++) {
             builder.append("-");
         }
-        builder.append("TNLJ[" + this.getJoinCondition().toString() + "]");
+        builder.append("TNLJ[" + this.getJoinConditionString() + "]");
         builder.append("\n");
         builder.append(this.getLeftChild().toString(level + 1));
         builder.append(this.getRightChild().toString(level + 1));

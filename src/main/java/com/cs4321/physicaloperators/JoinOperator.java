@@ -235,4 +235,16 @@ public abstract class JoinOperator extends Operator {
         return getVisitor().getAliasMap();
     }
 
+    /**
+     * Returns the string version of the join condition
+     * 
+     * @return the string version of the join condition
+     */
+    public String getJoinConditionString() {
+        String joinConditionString = "";
+        if (this.getJoinCondition().toString() != null)
+            joinConditionString = this.getJoinCondition().toString();
+        return joinConditionString;
+    }
+
 }

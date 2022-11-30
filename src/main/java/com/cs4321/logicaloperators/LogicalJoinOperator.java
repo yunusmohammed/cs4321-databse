@@ -80,7 +80,10 @@ public class LogicalJoinOperator extends LogicalOperator {
         for (int i = 0; i < level; i++) {
             builder.append("-");
         }
-        builder.append("Join[" + this.getJoinCondition().toString() + "]");
+        String joinConditionString = "";
+        if (this.getJoinCondition().toString() != null)
+            joinConditionString = this.getJoinCondition().toString();
+        builder.append("Join[" + joinConditionString + "]");
         builder.append("\n");
         builder.append(this.getUnionFind().toString());
         builder.append("\n");

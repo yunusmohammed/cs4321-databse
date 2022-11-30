@@ -151,7 +151,7 @@ public class BNLJoinOperator extends JoinOperator {
     for (int i = 0; i < level; i++) {
       builder.append("-");
     }
-    builder.append("BNLJ[" + this.getJoinCondition().toString() + "]");
+    builder.append("BNLJ[" + this.getJoinConditionString() + "]");
     builder.append("\n");
     builder.append(this.getLeftChild().toString(level + 1));
     builder.append(this.getRightChild().toString(level + 1));

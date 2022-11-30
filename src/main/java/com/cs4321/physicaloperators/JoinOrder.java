@@ -77,6 +77,7 @@ public class JoinOrder {
         Expression selectionExpression = getSelectionExpression(whereExpression);
         selectionVisitor = new DSUExpressionVisitor();
         selectionVisitor.processExpression(selectionExpression);
+        UnionFind uf = selectionVisitor.getUnionFind();
         valuesMap = new HashMap<>();
 
         List<Table> tables = new ArrayList<>();
@@ -281,6 +282,7 @@ public class JoinOrder {
         HashMap<String, Double> tableValues = valuesMap.getOrDefault(table, new HashMap<>());
         // adjust V-Values if the column is associated with a selection
         UnionFindElement element = selectionVisitor.getUnionFind().find(column);
+        UnionFind uf = selectionVisitor.getUnionFind();
         Integer lowerbound = element.getLowerBound(), upperbound = element.getUpperBound();
         if (lowerbound == null)
             lowerbound = colInfo.getMinValue();
@@ -379,7 +381,7 @@ public class JoinOrder {
      */
     private static LogicalScanOperator getLogicalScanOperator(LogicalOperator operator) {
         if (operator instanceof LogicalSelectionOperator) {
-            return ((LogicalSelectionOperator) operator).getChild();
+            return (LogicalScanOperator) ((LogicalSelectionOperator) operator).getChild();
         } else if (operator instanceof LogicalScanOperator) {
             return (LogicalScanOperator) operator;
         } else {

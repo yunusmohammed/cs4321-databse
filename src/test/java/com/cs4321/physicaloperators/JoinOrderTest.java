@@ -183,6 +183,14 @@ class JoinOrderTest {
                     "S.A > 2 AND R.G = S.A AND S.C > R.H");
             assertEquals(correctOrder, JoinOrder.getJoinOrder(joinChildren, whereExpression2, aliasMap));
             assertEquals(correctOrder, JoinOrder.getJoinOrder(joinChildren2, whereExpression2, aliasMap));
+
+            Expression whereExpression3 = Utils.getExpression("Sailors S, Boats B, Reserves R", 
+            "B.E = R.G AND 4 > R.G AND 399 >= S.C AND B.D < 105 AND 105 <> B.F AND B.F = S.A AND B.D = R.H");
+            
+            List<LogicalOperator> correctOrder3 = Arrays.asList(boatsScan, reservesSelection, sailorsSelection);
+            assertEquals(correctOrder3, JoinOrder.getJoinOrder(joinChildren, whereExpression3, aliasMap));
+            assertEquals(correctOrder3, JoinOrder.getJoinOrder(joinChildren2, whereExpression3, aliasMap));
+
         }
 
     }

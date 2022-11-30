@@ -11,6 +11,7 @@ import com.cs4321.logicaloperators.OldLogicalJoinOperator;
 import com.cs4321.physicaloperators.IndexSelectionVisitor;
 import com.cs4321.physicaloperators.JoinExpressionVisitor;
 import com.cs4321.physicaloperators.JoinExpressions;
+import com.cs4321.physicaloperators.JoinOrder;
 import com.cs4321.physicaloperators.SelectExpressionVisitor;
 
 import net.sf.jsqlparser.expression.BinaryExpression;
@@ -232,7 +233,8 @@ public class LogicalQueryPlanUtils {
                 .map(elt -> ((LogicalJoinChild) elt).getTable()).collect(Collectors.toList());
         root.setOriginalJoinOrder(originalJoinOrder);
         OldLogicalJoinOperator currentParent = root;
-        List<LogicalOperator> logicalJoinChildren = logicalJoin.getChildren();
+        List<LogicalOperator> logicalJoinChildren = JoinOrder.getJoinOrder(logicalJoin.getChildren(),
+                logicalJoin.getWhereExpression(), aliasMap);
         Map<String, Integer> tableOffset = LogicalQueryPlanUtils.generateJoinTableOffsets(logicalJoinChildren,
                 aliasMap);
         Stack<BinaryExpression> expressions = LogicalQueryPlanUtils.getExpressions(logicalJoin.getWhereExpression());

@@ -131,6 +131,8 @@ class JoinOrderTest {
             Table boatsTable = Mockito.mock(Table.class);
             Table reservesTable = Mockito.mock(Table.class);
 
+            sailorsTable.setName("Sailors");
+
             Mockito.when(sailorsTable.getName()).thenReturn("Sailors");
             Mockito.when(boatsTable.getName()).thenReturn("Boats");
             Mockito.when(reservesTable.getName()).thenReturn("Reserves");

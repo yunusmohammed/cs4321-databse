@@ -12,9 +12,9 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
- * The SQL interpreter reads from the db directory and from the queries.sql file,
+ * The SQL interpreter reads from the db directory and from the queries.sql
+ * file,
  * and writes output to a suitable output directory.
  *
  * @author Jessica Tweneboah
@@ -33,10 +33,12 @@ public class Interpreter {
     /**
      * Main function that is executed to run the project
      *
-     * @param args The command-line arguments that are passed to the interpreter to run sql queries <br>
+     * @param args The command-line arguments that are passed to the interpreter to
+     *             run sql queries <br>
      *             args[0]: Specifies an absolute path to the input directory. <br>
      *             args[1]: Specifies an absolute path to the output directory. <br>
-     *             args[2]: Specifies is the temporary directory where your external <br>
+     *             args[2]: Specifies is the temporary directory where your external
+     *             <br>
      *             sort operators should write their “scratch” files. <br>
      *             args[3]: optional -h parameter to specify human-readable files
      */
@@ -81,7 +83,8 @@ public class Interpreter {
         indexes = new ArrayList<>();
         String indexesPath = DatabaseCatalog.getInputdir() + sep + "db" + sep + "indexes";
         for (IndexInfo indexinfo : indexInfos) {
-            indexes.add(new BPlusTree(indexesPath + sep + indexinfo.getRelationName() + "." + indexinfo.getAttributeName(), indexinfo));
+            indexes.add(new BPlusTree(
+                    indexesPath + sep + indexinfo.getRelationName() + "." + indexinfo.getAttributeName(), indexinfo));
         }
         return indexInfos;
 
@@ -102,7 +105,8 @@ public class Interpreter {
         while (true) {
             try {
                 assert parser != null;
-                if ((statement = parser.Statement()) == null) break;
+                if ((statement = parser.Statement()) == null)
+                    break;
             } catch (ParseException e) {
                 System.err.println(e.getLocalizedMessage());
                 try {
@@ -124,7 +128,6 @@ public class Interpreter {
         }
     }
 
-
     /**
      * Returns the query output directory
      *
@@ -137,7 +140,8 @@ public class Interpreter {
     /**
      * Sets the query output directory
      *
-     * @param outputdir The empty Output Directory that contains the results of the queries
+     * @param outputdir The empty Output Directory that contains the results of the
+     *                  queries
      */
     public static void setOutputdir(String outputdir) {
         Interpreter.outputdir = outputdir;
@@ -146,9 +150,12 @@ public class Interpreter {
     /**
      * Sets the query input directory
      *
-     * @return The input directory, which contains a queries.sql file containing the sql queries.
-     * a db subdirectory, which contains a schema.txt file specifying the schema for your
-     * database as well as a data subdirectory, where the data itself is stored.
+     * @return The input directory, which contains a queries.sql file containing the
+     *         sql queries.
+     *         a db subdirectory, which contains a schema.txt file specifying the
+     *         schema for your
+     *         database as well as a data subdirectory, where the data itself is
+     *         stored.
      */
     public static String getInputdir() {
         return inputdir;
@@ -157,9 +164,12 @@ public class Interpreter {
     /**
      * Returns the query input directory
      *
-     * @param inputdir The input directory, which contains a queries.sql file containing the sql queries.
-     *                 a db subdirectory, which contains a schema.txt file specifying the schema for your
-     *                 database as well as a data subdirectory, where the data itself is stored.
+     * @param inputdir The input directory, which contains a queries.sql file
+     *                 containing the sql queries.
+     *                 a db subdirectory, which contains a schema.txt file
+     *                 specifying the schema for your
+     *                 database as well as a data subdirectory, where the data
+     *                 itself is stored.
      */
     public static void setInputdir(String inputdir) {
         Interpreter.inputdir = inputdir;
@@ -179,7 +189,7 @@ public class Interpreter {
      * should write their “scratch” files.
      *
      * @return the temporary directory where your external sort operators
-     * should write their “scratch” files.
+     *         should write their “scratch” files.
      */
     public static String getTempdir() {
         return tempdir;
@@ -207,7 +217,8 @@ public class Interpreter {
     /**
      * Sets the value of humanReadable
      *
-     * @param humanReadable true if the project is set to read/write human readable files
+     * @param humanReadable true if the project is set to read/write human readable
+     *                      files
      */
     public static void setHumanReadable(boolean humanReadable) {
         Interpreter.humanReadable = humanReadable;
@@ -216,7 +227,8 @@ public class Interpreter {
     /**
      * Returns all the statements from the queries.sql file that have been evaluated
      *
-     * @return- all the statements from the queries.sql file that have been evaluated
+     * @return- all the statements from the queries.sql file that have been
+     *          evaluated
      */
     public static List<Statement> getStatements() {
         return statements;

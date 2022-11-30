@@ -41,7 +41,6 @@ public class QueryPlan {
         this.queryNumber = queryNumber;
         if (statement != null) {
             LogicalQueryPlan logicalPlan = new LogicalQueryPlan(statement);
-            System.out.println("jhiifia");
             // File called queryi_logicalplan
             createQueryPrintFile(String.format("query%d_logicalplan", queryNumber), logicalPlan.toString());
             LogicalOperator logicalRoot = logicalPlan.getRoot();

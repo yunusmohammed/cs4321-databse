@@ -8,19 +8,13 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
-import utils.BinaryToHumanReadableUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
-import javax.xml.crypto.Data;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -82,43 +76,43 @@ class InterpreterHumanReadableTest {
     void queryOutputHumanReadable() {
 //        BinaryToHumanReadableUtil.binaryToHuman("C:\\Users\\Yohanes\\eclipse-workspace\\cs4321-databse\\src\\test\\resources\\expectedOutputHumanReadable\\query12", "C:\\Users\\Yohanes\\eclipse-workspace\\cs4321-databse\\src\\test\\resources\\expectedOutputHumanReadable\\query12H");
 //        BinaryToHumanReadableUtil.binaryToHuman("C:\\Users\\Yohanes\\eclipse-workspace\\cs4321-databse\\src\\test\\resources\\correctOutput_endToEnd\\query12", "C:\\Users\\Yohanes\\eclipse-workspace\\cs4321-databse\\src\\test\\resources\\correctOutput_endToEnd\\query12H");
-                PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
-            String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep
+        PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
+        String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep
                 + "correctOutput_endToEnd";
-            Interpreter.parseQueries();
-            File[] correctQueries = new File(correctOutputPath).listFiles();
-            System.out.println(correctQueries[0].toString());
-            Arrays.sort(correctQueries,
+        Interpreter.parseQueries();
+        File[] correctQueries = new File(correctOutputPath).listFiles();
+        System.out.println(correctQueries[0].toString());
+        Arrays.sort(correctQueries,
                 (File a, File b) -> Integer.parseInt(a.toString().substring(a.toString().lastIndexOf("y") + 1))
                         - Integer.parseInt(b.toString().substring(b.toString().lastIndexOf("y") + 1)));
-            File[] outputQueries = new File(outputdir).listFiles();
-            Arrays.sort(outputQueries,
+        File[] outputQueries = new File(outputdir).listFiles();
+        Arrays.sort(outputQueries,
                 (File a, File b) -> Integer.parseInt(a.toString().substring(a.toString().lastIndexOf("y") + 1))
                         - Integer.parseInt(b.toString().substring(b.toString().lastIndexOf("y") + 1)));
-            List<Statement> statements = Interpreter.getStatements();
-            if (correctQueries.length != outputQueries.length)
+        List<Statement> statements = Interpreter.getStatements();
+        if (correctQueries.length != outputQueries.length)
             logger.log("At least one query has not been output");
-            for (int i = 0; i < correctQueries.length; i++) {
-                try {
-                    boolean equal;
-                    Select select = (Select) statements.get(i);
-                    PlainSelect selectBody = (PlainSelect) select.getSelectBody();
-                    List<OrderByElement> orderByElementsList = selectBody.getOrderByElements();
-                    if (orderByElementsList == null || orderByElementsList.size() == 0) {
-                        File sortedCorrect = new File(SortingUtilities.sortFile(correctQueries[i].toString(), null, null));
-                        File sortedOutput = new File(SortingUtilities.sortFile(outputQueries[i].toString(), null, null));
-                        equal = FileUtils.contentEquals(sortedCorrect, sortedOutput);
-                    } else
-                        equal = FileUtils.contentEquals(correctQueries[i], outputQueries[i]);
-                    if (!equal)
-                        logger.log(correctQueries[i].getName() + " is incorrect");
-                    if (i != 13)
-                        assertTrue(equal);
-                } catch (Exception e) {
-                    logger.log("Issue reading output from " + correctQueries[i].getName());
-                    throw new Error();
+        for (int i = 0; i < correctQueries.length; i++) {
+            try {
+                boolean equal;
+                Select select = (Select) statements.get(i);
+                PlainSelect selectBody = (PlainSelect) select.getSelectBody();
+                List<OrderByElement> orderByElementsList = selectBody.getOrderByElements();
+                if (orderByElementsList == null || orderByElementsList.size() == 0) {
+                    File sortedCorrect = new File(SortingUtilities.sortFile(correctQueries[i].toString(), null, null));
+                    File sortedOutput = new File(SortingUtilities.sortFile(outputQueries[i].toString(), null, null));
+                    equal = FileUtils.contentEquals(sortedCorrect, sortedOutput);
+                } else
+                    equal = FileUtils.contentEquals(correctQueries[i], outputQueries[i]);
+                if (!equal)
+                    logger.log(correctQueries[i].getName() + " is incorrect");
+                if (i != 13)
+                    assertTrue(equal);
+            } catch (Exception e) {
+                logger.log("Issue reading output from " + correctQueries[i].getName());
+                throw new Error();
             }
         }
-            }
+    }
 
 }

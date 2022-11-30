@@ -1,15 +1,10 @@
 package com.cs4321.indexes;
 
 import com.cs4321.app.*;
-import net.sf.jsqlparser.statement.create.table.Index;
 
-import javax.swing.plaf.IconUIResource;
-import javax.xml.crypto.Data;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
-import java.util.Comparator;
 
 /**
  * This is the B+ Tree for building indexes in the database. It is implemented
@@ -29,7 +24,8 @@ public class BPlusTree {
 
     /**
      * Initialises a new B+ Tree object
-     * @param filename - path to the index
+     *
+     * @param filename  - path to the index
      * @param indexInfo - information on the index for the B+ Tree we are creating
      */
     public BPlusTree(String filename, IndexInfo indexInfo) {
@@ -37,7 +33,7 @@ public class BPlusTree {
         this.relationName = indexInfo.getRelationName();
         this.attributeName = indexInfo.getAttributeName();
         this.isClustered = indexInfo.isClustered();
-        if(isClustered) sortRelation(indexInfo);
+        if (isClustered) sortRelation(indexInfo);
         try {
             this.bPlusTreeSerializer = new BPlusTreeSerializer(filename);
         } catch (FileNotFoundException e) {
@@ -61,8 +57,8 @@ public class BPlusTree {
             // map from keys to DataEntry objects for that key
             HashMap<Integer, DataEntry> entriesMap = new HashMap<>();
             // build data entries by adding the current tuple to the data entry which has the correct key
-            while(cur != null) {
-                if(tupleSize * 4 * (tupleId + 1) + 8 > PAGE_SIZE) {
+            while (cur != null) {
+                if (tupleSize * 4 * (tupleId + 1) + 8 > PAGE_SIZE) {
                     pageId++;
                     tupleId = 0;
                 }
@@ -77,14 +73,14 @@ public class BPlusTree {
             PriorityQueue<DataEntry> entries = new PriorityQueue<>((a, b) -> a.getKey() - b.getKey());
             entries.addAll(entriesMap.values());
             // sort rids for each data entry
-            for(DataEntry entry : entries) {
+            for (DataEntry entry : entries) {
                 Collections.sort(entry.rids, (a, b) -> compareRids(a, b));
             }
             int numberOfLeaves = (int) Math.ceil(entries.size() / (2.0 * order));
             // count number of index nodes
             int numberOfIndexNodes = 0;
             int lowerlevel = numberOfLeaves;
-            while(lowerlevel > 0) {
+            while (lowerlevel > 0) {
                 int nodesAtCurLevel = (int) Math.ceil(lowerlevel / (2.0 * order + 1));
                 numberOfIndexNodes += nodesAtCurLevel;
                 lowerlevel = nodesAtCurLevel == 1 ? 0 : nodesAtCurLevel;
@@ -101,13 +97,14 @@ public class BPlusTree {
 
     /**
      * Comparator used to sort the data entries for a given key. The entries are sorted first by pageid then by tupleid.
+     *
      * @param a - data entry being compared to b
      * @param b - data entry being compared to a
      * @return - a negative number if a should be first in sorted order, 0 if a and b have the same pageid and
      * tupleid, and a positive number otherwise.
      */
     private int compareRids(Rid a, Rid b) {
-        if(a.getPageId() == b.getPageId()) return a.getTupleId() - b.getTupleId();
+        if (a.getPageId() == b.getPageId()) return a.getTupleId() - b.getTupleId();
         return a.getPageId() - b.getPageId();
     }
 
@@ -118,6 +115,7 @@ public class BPlusTree {
 
     /**
      * Builds and serializes the leaf layer
+     *
      * @param entries - a queue containing all data entries in sorted order
      * @return - a queue of all leaf nodes added from left to right
      */
@@ -125,24 +123,23 @@ public class BPlusTree {
         try {
             Queue<Node> leaves = new ArrayDeque<>();
             int address = 1;
-            while(entries.size() > 0) {
+            while (entries.size() > 0) {
                 int size = entries.size();
-                if(size >= 3 * order) {
+                if (size >= 3 * order) {
                     LeafNode leaf = new LeafNode(address++);
-                    for(int i=0; i<2 * order; i++) {
+                    for (int i = 0; i < 2 * order; i++) {
                         leaf.addDataEntry(entries.poll());
                     }
                     bPlusTreeSerializer.writeLeafNodeToPage(leaf);
                     leaves.add(leaf);
                     leafCount++;
-                }
-                else if(size > 2 * order && size < 3 * order) {
+                } else if (size > 2 * order && size < 3 * order) {
                     LeafNode secondLast = new LeafNode(address++);
                     LeafNode last = new LeafNode(address++);
-                    for(int i=0; i<size / 2; i++) {
+                    for (int i = 0; i < size / 2; i++) {
                         secondLast.addDataEntry(entries.poll());
                     }
-                    while(entries.size() > 0) {
+                    while (entries.size() > 0) {
                         last.addDataEntry(entries.poll());
                     }
                     bPlusTreeSerializer.writeLeafNodeToPage(secondLast);
@@ -150,10 +147,9 @@ public class BPlusTree {
                     leaves.add(secondLast);
                     leaves.add(last);
                     leafCount += 2;
-                }
-                else {
+                } else {
                     LeafNode last = new LeafNode(address++);
-                    while(entries.size() > 0) {
+                    while (entries.size() > 0) {
                         last.addDataEntry(entries.poll());
                     }
                     bPlusTreeSerializer.writeLeafNodeToPage(last);
@@ -170,29 +166,30 @@ public class BPlusTree {
 
     /**
      * Returns a key for an index node by using the smallest search key found in the leftmost leaf of the given subtree.
+     *
      * @param node - the subtree for which we are finding the leftmost leaf
      * @return an integer for the key of the index node
      */
     private Integer findKey(Node node) {
-        if(node instanceof LeafNode) {
+        if (node instanceof LeafNode) {
             return ((LeafNode) node).getDataEntries().get(0).getKey();
-        }
-        else {
+        } else {
             return findKey(((IndexNode) node).getChildren().get(0));
         }
     }
 
     /**
      * Builds and serializes an index node
+     *
      * @param children - the children of the index node
-     * @param address - the address of the index node
+     * @param address  - the address of the index node
      * @return - the index node
      * @throws IOException if there is an error serializing index node
      */
     private IndexNode buildIndexNode(List<Node> children, int address) throws IOException {
         IndexNode node = new IndexNode(address);
         node.addChildren(children);
-        for(int i=1; i<children.size(); i++) {
+        for (int i = 1; i < children.size(); i++) {
             node.addKey(findKey(children.get(i)));
         }
         bPlusTreeSerializer.writeIndexNodeToPage(node);
@@ -201,48 +198,47 @@ public class BPlusTree {
 
     /**
      * Builds and serializes the index layers of the B+ tree and sets the root.
+     *
      * @param leaves - a queue of the leaves for the tree
      */
     private void buildIndexLayer(Queue<Node> leaves) {
         try {
             // check if tree has only one leaf node
-            if(leaves.size() == 1) {
+            if (leaves.size() == 1) {
                 root = new IndexNode(2);
                 root.addChild(leaves.poll());
                 return;
             }
             Queue<Node> curLayer = new ArrayDeque<>();
             Queue<Node> prevLayer = leaves;
-            int address = leaves.size()+1;
+            int address = leaves.size() + 1;
             // iterating over each layer - will terminate after building the root
-            while(prevLayer.size() > 1) {
+            while (prevLayer.size() > 1) {
                 // iterating over every node in the previous layer to build current layer
-                while(prevLayer.size() > 0) {
+                while (prevLayer.size() > 0) {
                     int size = prevLayer.size();
-                    if(size >= 3 * order + 2) {
+                    if (size >= 3 * order + 2) {
                         List<Node> children = new ArrayList<>();
-                        for(int i=0; i<2 * order + 1; i++) {
+                        for (int i = 0; i < 2 * order + 1; i++) {
                             children.add(prevLayer.poll());
                         }
                         IndexNode idxNode = buildIndexNode(children, address++);
                         curLayer.add(idxNode);
-                    }
-                    else if(size > 2 * order + 1 && size < 3 * order + 2) {
+                    } else if (size > 2 * order + 1 && size < 3 * order + 2) {
                         List<Node> secondLastChildren = new ArrayList<>(), lastChildren = new ArrayList<>();
-                        for(int i=0; i< size / 2; i++) {
+                        for (int i = 0; i < size / 2; i++) {
                             secondLastChildren.add(prevLayer.poll());
                         }
-                        while(prevLayer.size() > 0) {
+                        while (prevLayer.size() > 0) {
                             lastChildren.add(prevLayer.poll());
                         }
                         IndexNode secondLast = buildIndexNode(secondLastChildren, address++);
                         IndexNode last = buildIndexNode(lastChildren, address++);
                         curLayer.add(secondLast);
                         curLayer.add(last);
-                    }
-                    else {
+                    } else {
                         List<Node> children = new ArrayList<>();
-                        while(prevLayer.size() > 0) {
+                        while (prevLayer.size() > 0) {
                             children.add(prevLayer.poll());
                         }
                         IndexNode last = buildIndexNode(children, address++);
@@ -281,29 +277,45 @@ public class BPlusTree {
         System.out.println("---------Next layer is index nodes---------");
         Node n = root;
         Queue<Node> bfs = new ArrayDeque<>();
-        for(Node child : ((IndexNode) n).getChildren()) {
+        for (Node child : ((IndexNode) n).getChildren()) {
             bfs.add(child);
         }
         Queue<Node> leaves = new ArrayDeque<>();
-        while(bfs.size() > 0) {
+        while (bfs.size() > 0) {
             Node cur = bfs.poll();
-            if(cur.getNodeFlag() == 1) {
+            if (cur.getNodeFlag() == 1) {
                 System.out.println(cur + "\n");
-                for(Node child : ((IndexNode) cur).getChildren()) {
+                for (Node child : ((IndexNode) cur).getChildren()) {
                     bfs.add(child);
                 }
-            }
-            else {
+            } else {
                 leaves.add(cur);
             }
         }
         System.out.println("---------Next layer is leaf nodes---------");
-        for(Node leaf : leaves) {
+        for (Node leaf : leaves) {
             System.out.println(leaf + "\n");
         }
 
 
+    }
 
+    /**
+     * Gets the name of the column in the form of [BASE TABLE].[COLUMN]
+     *
+     * @return The name of the column in the form of [BASE TABLE].[COLUMN]
+     */
+    public String getWholeColumnName() {
+        return relationName + "." + attributeName;
+    }
+
+    /**
+     * Gets the number of leaves in the tree.
+     *
+     * @return the number of leaves in the tree.
+     */
+    public int getLeafCount() {
+        return leafCount;
     }
 
     @Override

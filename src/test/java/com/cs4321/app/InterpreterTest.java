@@ -80,14 +80,14 @@ class InterpreterTest {
         testQueries(inputdir, correctOutputPath);
     }
 
-    @Test
-    void SMJQueryOutput() {
-        String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_SMJ";
-        String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "expected_SMJ";
-        DatabaseCatalog.setInputDir(inputdir);
-        PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
-        testQueries(inputdir, correctOutputPath);
-    }
+//    @Test
+//    void SMJQueryOutput() {
+//        String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "input_SMJ";
+//        String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep + "expected_SMJ";
+//        DatabaseCatalog.setInputDir(inputdir);
+//        PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
+//        testQueries(inputdir, correctOutputPath);
+//    }
 
 
     @Test

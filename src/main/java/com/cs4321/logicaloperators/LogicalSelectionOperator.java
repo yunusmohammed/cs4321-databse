@@ -6,6 +6,7 @@ import com.cs4321.physicaloperators.IndexSelectionVisitor;
 import com.cs4321.physicaloperators.Operator;
 import com.cs4321.physicaloperators.SelectExpressionVisitor;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.schema.Table;
 
 /**
  * A Logical Selection Operator
@@ -33,8 +34,8 @@ public class LogicalSelectionOperator extends LogicalOperator {
      * @param aliasMap        A AliasMap instance for alias resolution
      */
     public LogicalSelectionOperator(Expression selectCondition, LogicalOperator child,
-            SelectExpressionVisitor visitor, IndexSelectionVisitor indexVisitor,
-            AliasMap aliasMap) {
+                                    SelectExpressionVisitor visitor, IndexSelectionVisitor indexVisitor,
+                                    AliasMap aliasMap) {
         this.selectCondition = selectCondition;
         this.child = child;
         this.visitor = visitor;
@@ -76,6 +77,16 @@ public class LogicalSelectionOperator extends LogicalOperator {
      */
     public IndexSelectionVisitor getIndexVisitor() {
         return this.indexVisitor;
+    }
+
+    /**
+     * Gets the base table name of the logical selection operator.
+     *
+     * @return The base table name of the logical selection operator.
+     */
+    public String getBaseTableName() {
+        Table t = ((LogicalScanOperator) this.child).getTable();
+        return aliasMap.getBaseTable(t.getName());
     }
 
     /**

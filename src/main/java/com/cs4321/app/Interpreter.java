@@ -10,7 +10,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -51,12 +53,15 @@ public class Interpreter {
             Logger.getInstance().log(e.getMessage());
             return;
         }
+        Map<String, Integer> pagePerIndex = new HashMap<>();
+        for (BPlusTree tree : indexes) {
+            pagePerIndex.put(tree.getWholeColumnName(), tree.getLeafCount());
+        }
         setInputdir(interpreterConfig.getInputdir());
         setOutputdir(interpreterConfig.getOutputdir());
         setTempdir(interpreterConfig.getTempdir());
         setHumanReadable(interpreterConfig.isHumanReadable());
         DatabaseCatalog.setInputDir(getInputdir());
-        PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
         PhysicalPlanBuilder.setHumanReadable(humanReadable);
         buildIndexInfos();
         parseQueries();

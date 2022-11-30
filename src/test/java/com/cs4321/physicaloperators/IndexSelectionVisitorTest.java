@@ -1,7 +1,6 @@
 package com.cs4321.physicaloperators;
 
 import com.cs4321.app.AliasMap;
-import com.cs4321.app.DatabaseCatalog;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.ParseException;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,8 +9,6 @@ import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
 import utils.Utils;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,25 +20,20 @@ class IndexSelectionVisitorTest {
     Expression exp;
     IndexSelectionVisitor visitor;
     AliasMap aliasMap;
-    DatabaseCatalog dbc;
+    String indexColumnName;
 
     @BeforeEach
     void setUp() {
         visitor = new IndexSelectionVisitor();
         aliasMap = Mockito.mock(AliasMap.class);
         Mockito.when(aliasMap.getBaseTable(anyString())).then(AdditionalAnswers.returnsFirstArg());
-        dbc = Mockito.mock(DatabaseCatalog.class);
-        HashMap<String, HashSet<String>> indexColumns = new HashMap<>();
-        HashSet<String> r_set = new HashSet<>();
-        r_set.add("A");
-        indexColumns.put("R", r_set);
-        Mockito.when(dbc.getIndexColumns()).thenReturn(indexColumns);
+        indexColumnName = "A";
     }
 
     @Test
     void testEqualsLeftColumnRightValue() throws ParseException {
         exp = Utils.getExpression("Sailors", "R.A = 1");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is correct
         assertEquals("R.A", visitor.getIndexColumn().getWholeColumnName());
@@ -58,7 +50,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testEqualsLeftValueRightColumn() throws ParseException {
         exp = Utils.getExpression("Sailors", "1 = R.A");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is correct
         assertEquals("R.A", visitor.getIndexColumn().getWholeColumnName());
@@ -75,7 +67,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testEqualsLeftColumnRightColumn() throws ParseException {
         exp = Utils.getExpression("Sailors", "R.A = R.B");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is null
         assertNull(visitor.getIndexColumn());
@@ -90,7 +82,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testEqualsLeftValueRightValue() throws ParseException {
         exp = Utils.getExpression("Sailors", "1 = 2");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is null
         assertNull(visitor.getIndexColumn());
@@ -105,7 +97,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testMinorThanLeftColumnRightValue() throws ParseException {
         exp = Utils.getExpression("Sailors", "R.A < 1");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is correct
         assertEquals("R.A", visitor.getIndexColumn().getWholeColumnName());
@@ -122,7 +114,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testMinorThanLeftValueRightColumn() throws ParseException {
         exp = Utils.getExpression("Sailors", "1 < R.A");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is correct
         assertEquals("R.A", visitor.getIndexColumn().getWholeColumnName());
@@ -139,7 +131,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testMinorThanLeftColumnRightColumn() throws ParseException {
         exp = Utils.getExpression("Sailors", "R.A < R.B");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is null
         assertNull(visitor.getIndexColumn());
@@ -154,7 +146,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testMinorThanLeftValueRightValue() throws ParseException {
         exp = Utils.getExpression("Sailors", "1 < 2");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is null
         assertNull(visitor.getIndexColumn());
@@ -169,7 +161,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testMinorThanEqualsLeftColumnRightValue() throws ParseException {
         exp = Utils.getExpression("Sailors", "R.A <= 1");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is correct
         assertEquals("R.A", visitor.getIndexColumn().getWholeColumnName());
@@ -186,7 +178,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testMinorThanEqualsLeftValueRightColumn() throws ParseException {
         exp = Utils.getExpression("Sailors", "1 <= R.A");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is correct
         assertEquals("R.A", visitor.getIndexColumn().getWholeColumnName());
@@ -203,7 +195,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testMinorThanEqualsLeftColumnRightColumn() throws ParseException {
         exp = Utils.getExpression("Sailors", "R.A <= R.B");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is null
         assertNull(visitor.getIndexColumn());
@@ -218,7 +210,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testMinorThanEqualsLeftValueRightValue() throws ParseException {
         exp = Utils.getExpression("Sailors", "1 <= 2");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is null
         assertNull(visitor.getIndexColumn());
@@ -233,7 +225,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testGreaterThanLeftColumnRightValue() throws ParseException {
         exp = Utils.getExpression("Sailors", "R.A > 1");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is correct
         assertEquals("R.A", visitor.getIndexColumn().getWholeColumnName());
@@ -250,7 +242,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testGreaterThanLeftValueRightColumn() throws ParseException {
         exp = Utils.getExpression("Sailors", "1 > R.A");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is correct
         assertEquals("R.A", visitor.getIndexColumn().getWholeColumnName());
@@ -267,7 +259,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testGreaterThanLeftColumnRightColumn() throws ParseException {
         exp = Utils.getExpression("Sailors", "R.A > R.B");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is null
         assertNull(visitor.getIndexColumn());
@@ -282,7 +274,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testGreaterThanLeftValueRightValue() throws ParseException {
         exp = Utils.getExpression("Sailors", "1 > 2");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is null
         assertNull(visitor.getIndexColumn());
@@ -297,7 +289,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testGreaterThanEqualsLeftColumnRightValue() throws ParseException {
         exp = Utils.getExpression("Sailors", "R.A >= 1");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is correct
         assertEquals("R.A", visitor.getIndexColumn().getWholeColumnName());
@@ -314,7 +306,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testGreaterThanEqualsLeftValueRightColumn() throws ParseException {
         exp = Utils.getExpression("Sailors", "1 >= R.A");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is correct
         assertEquals("R.A", visitor.getIndexColumn().getWholeColumnName());
@@ -331,7 +323,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testGreaterThanEqualsLeftColumnRightColumn() throws ParseException {
         exp = Utils.getExpression("Sailors", "R.A >= R.B");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is null
         assertNull(visitor.getIndexColumn());
@@ -346,7 +338,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testGreaterThanEqualsLeftValueRightValue() throws ParseException {
         exp = Utils.getExpression("Sailors", "1 >= 2");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is null
         assertNull(visitor.getIndexColumn());
@@ -361,7 +353,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testNotEqualsLeftColumnRightValue() throws ParseException {
         exp = Utils.getExpression("Sailors", "R.A != 1");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is null
         assertNull(visitor.getIndexColumn());
@@ -376,7 +368,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testNotEqualsLeftValueRightColumn() throws ParseException {
         exp = Utils.getExpression("Sailors", "1 != R.A");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is null
         assertNull(visitor.getIndexColumn());
@@ -391,7 +383,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testNotEqualsLeftColumnRightColumn() throws ParseException {
         exp = Utils.getExpression("Sailors", "R.A != R.B");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is null
         assertNull(visitor.getIndexColumn());
@@ -406,7 +398,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testNotEqualsLeftValueRightValue() throws ParseException {
         exp = Utils.getExpression("Sailors", "1 != 2");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is null
         assertNull(visitor.getIndexColumn());
@@ -421,7 +413,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testAndWithoutUpdates() throws ParseException {
         exp = Utils.getExpression("Sailors", "R.A > 10 AND R.B < 5 AND R.C < 76");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is correct
         assertEquals("R.A", visitor.getIndexColumn().getWholeColumnName());
@@ -438,7 +430,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testAndWithOneUpdates() throws ParseException {
         exp = Utils.getExpression("Sailors", "R.A > 10 AND R.A <= 20");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is correct
         assertEquals("R.A", visitor.getIndexColumn().getWholeColumnName());
@@ -455,7 +447,7 @@ class IndexSelectionVisitorTest {
     @Test
     void testAndWithMultipleUpdates() throws ParseException {
         exp = Utils.getExpression("Sailors", "R.A < 500 AND R.A < 700 AND R.A >= 30 AND R.A <= 50 AND R.A > 34 AND R.A >= 0 AND R.A < 36");
-        visitor.splitExpression(exp, aliasMap, dbc);
+        visitor.splitExpression(exp, indexColumnName);
 
         // Ensure that the column is correct
         assertEquals("R.A", visitor.getIndexColumn().getWholeColumnName());

@@ -1,6 +1,8 @@
 package com.cs4321.app;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Data class to represent the meta data of a relation
@@ -9,6 +11,7 @@ public class TableStatsInfo {
     private final List<ColumnStatsInfo> columnStatsInfoList;
     private int numberOfTuples = 0;
     private final String tableName;
+    private final Map<String, ColumnStatsInfo> columnStatsInfoMap;
 
 
     /**
@@ -20,6 +23,10 @@ public class TableStatsInfo {
     public TableStatsInfo(List<ColumnStatsInfo> columnStatsInfoList, String tableName) {
         this.columnStatsInfoList = columnStatsInfoList;
         this.tableName = tableName;
+        this.columnStatsInfoMap = new HashMap<>();
+        for (ColumnStatsInfo columnStatsInfo : columnStatsInfoList) {
+            columnStatsInfoMap.put(columnStatsInfo.getColumnName(), columnStatsInfo);
+        }
     }
 
 
@@ -58,6 +65,15 @@ public class TableStatsInfo {
      */
     public String getTableName() {
         return tableName;
+    }
+
+    /**
+     * Returns the table map
+     *
+     * @return the table map
+     */
+    public Map<String, ColumnStatsInfo> getColumnStatsInfoMap() {
+        return columnStatsInfoMap;
     }
 
     @Override

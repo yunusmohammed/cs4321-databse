@@ -15,7 +15,7 @@ import net.sf.jsqlparser.schema.Table;
  */
 public class LogicalSelectionOperator extends LogicalOperator implements LogicalJoinChild {
     private final Expression selectCondition;
-    private final LogicalScanOperator child;
+    private final LogicalOperator child;
     private final SelectExpressionVisitor visitor;
     private final IndexSelectionVisitor indexVisitor;
     private final AliasMap aliasMap;
@@ -33,7 +33,7 @@ public class LogicalSelectionOperator extends LogicalOperator implements Logical
      *                        that can and cannot be indexed
      * @param aliasMap        A AliasMap instance for alias resolution
      */
-    public LogicalSelectionOperator(Expression selectCondition, LogicalScanOperator child,
+    public LogicalSelectionOperator(Expression selectCondition, LogicalOperator child,
             SelectExpressionVisitor visitor, IndexSelectionVisitor indexVisitor,
             AliasMap aliasMap) {
         this.selectCondition = selectCondition;
@@ -48,7 +48,7 @@ public class LogicalSelectionOperator extends LogicalOperator implements Logical
      *
      * @return The child logical scan operator of the logical select
      */
-    public LogicalScanOperator getChild() {
+    public LogicalOperator getChild() {
         return this.child;
     }
 
@@ -59,7 +59,7 @@ public class LogicalSelectionOperator extends LogicalOperator implements Logical
      *         scanning
      */
     public Table getTable() {
-        return this.getChild().getTable();
+        return ((LogicalScanOperator) this.getChild()).getTable();
     }
 
     /**
@@ -107,5 +107,17 @@ public class LogicalSelectionOperator extends LogicalOperator implements Logical
     @Override
     public Operator accept(PhysicalPlanBuilder builder) {
         return builder.visit(this);
+    }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < level; i++) {
+            builder.append("-");
+        }
+        builder.append("Select[" + this.getSelectCondition().toString() + "]");
+        builder.append("\n");
+        builder.append(this.getChild().toString(level + 1));
+        return builder.toString();
     }
 }

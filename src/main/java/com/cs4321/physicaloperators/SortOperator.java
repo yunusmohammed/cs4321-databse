@@ -8,6 +8,7 @@ import java.util.*;
 
 /**
  * Operator for handling in-memory sorting for order by clauses
+ * 
  * @author Yohanes
  */
 public class SortOperator extends Operator {
@@ -55,8 +56,16 @@ public class SortOperator extends Operator {
             Collections.sort(tuples, (a, b) -> SortingUtilities.compare(a, b, orderByElementList, columnMap, null));
             index = 0;
         }
-        if(index < tuples.size()) return tuples.get(index++);
+        if (index < tuples.size())
+            return tuples.get(index++);
         return null;
+    }
+
+    /**
+     * Returns the child of this operator
+     */
+    public Operator getChild() {
+        return this.child;
     }
 
     /**
@@ -69,15 +78,19 @@ public class SortOperator extends Operator {
     }
 
     /**
-     * Resets the operator so that the [index]'th tuple (0 based) is returned from the next call to getNextTuple
-     * @param index - the index of the next tuple we want to read (the first tuple would be 0)
+     * Resets the operator so that the [index]'th tuple (0 based) is returned from
+     * the next call to getNextTuple
+     * 
+     * @param index - the index of the next tuple we want to read (the first tuple
+     *              would be 0)
      */
     public void reset(int index) {
         this.index = index;
     }
 
     /**
-     * Returns a string representation of the sort operator and its children. The orderBy elements are also printed.
+     * Returns a string representation of the sort operator and its children. The
+     * orderBy elements are also printed.
      *
      * @return - a string representation of the sort operator
      */
@@ -87,10 +100,23 @@ public class SortOperator extends Operator {
         orderBy.append("Order By : ");
         for (int i = 0; i < orderByElementList.size(); i++) {
             orderBy.append(orderByElementList.get(i).toString());
-            if (i < orderByElementList.size() - 1) orderBy.append(", ");
+            if (i < orderByElementList.size() - 1)
+                orderBy.append(", ");
         }
         return "SortOperator{" + child.toString() + ", " + orderBy + "}";
 
+    }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < level; i++) {
+            builder.append("-");
+        }
+        builder.append("InMemorySort" + this.orderByElementList.toString());
+        builder.append("\n");
+        builder.append(this.getChild().toString(level + 1));
+        return builder.toString();
     }
 
     /**

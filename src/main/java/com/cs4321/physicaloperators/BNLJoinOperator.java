@@ -144,4 +144,17 @@ public class BNLJoinOperator extends JoinOperator {
     return "BNLJoinOperator{" + this.getLeftChild().toString() + ", " + this.getRightChild().toString() + ", "
         + joinConditionString + "}";
   }
+
+  @Override
+  public String toString(int level) {
+    StringBuilder builder = new StringBuilder();
+    for (int i = 0; i < level; i++) {
+      builder.append("-");
+    }
+    builder.append("BNLJ[" + this.getJoinCondition().toString() + "]");
+    builder.append("\n");
+    builder.append(this.getLeftChild().toString(level + 1));
+    builder.append(this.getRightChild().toString(level + 1));
+    return builder.toString();
+  }
 }

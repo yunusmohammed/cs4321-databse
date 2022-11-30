@@ -189,7 +189,7 @@ public class LogicalQueryPlan {
     private LogicalJoinOperator generateLogicalJoin(PlainSelect selectBody) {
         Expression whereExpression = selectBody.getWhere();
         DSUExpressionVisitor visitor = new DSUExpressionVisitor();
-        visitor.processExpression(selectBody.getWhere(), aliasMap);
+        visitor.processExpression(selectBody.getWhere());
         Map<String, Expression> tableSelections = visitor.getExpressions();
         List<LogicalOperator> children = new ArrayList<>();
         List<Join> joins = selectBody.getJoins();
@@ -284,5 +284,13 @@ public class LogicalQueryPlan {
             operator = generateLogicalSelection(selectBody);
         }
         return operator;
+    }
+
+    /**
+     * Returns a formated string of the logical query plan as specified by project 4
+     * handout. the string ends with a new line character
+     */
+    public String toString() {
+        return this.getRoot().toString(0);
     }
 }

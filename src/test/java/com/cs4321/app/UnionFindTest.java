@@ -5,11 +5,9 @@ import net.sf.jsqlparser.schema.Table;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.any;
 
 class UnionFindTest {
 
@@ -41,10 +39,7 @@ class UnionFindTest {
 
     @BeforeEach
     void setUp() {
-        AliasMap aliasMap = Mockito.mock(AliasMap.class);
-        Mockito.when(aliasMap.columnWithBaseTable(any())).then(
-                invocation -> invocation.getArgument(0, Column.class).getWholeColumnName());
-        unionFind = new UnionFind(aliasMap);
+        unionFind = new UnionFind();
     }
 
     @Test

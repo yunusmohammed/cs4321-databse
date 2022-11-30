@@ -17,7 +17,7 @@ import static org.mockito.Mockito.doNothing;
 
 class SelectionOperatorTest {
 
-    FullScanOperator mockScan;
+    Operator mockScan;
     SelectExpressionVisitor mockVisitor;
     AliasMap mockAliasMap;
     SelectionOperator selectOperator;
@@ -25,7 +25,7 @@ class SelectionOperatorTest {
     @BeforeEach
     void setUp() throws Exception {
         Expression mockExpression = Mockito.mock(Expression.class);
-        mockScan = Mockito.mock(FullScanOperator.class);
+        mockScan = Mockito.mock(Operator.class);
         mockVisitor = Mockito.mock(SelectExpressionVisitor.class);
         mockAliasMap = Mockito.mock(AliasMap.class);
         selectOperator = new SelectionOperator(mockVisitor, mockAliasMap, mockExpression, mockScan);
@@ -74,7 +74,8 @@ class SelectionOperatorTest {
         exp = Utils.getExpression("Sailors", "1 < 2 AND R.A = R.B AND R.C > R.A");
         Mockito.when(mockScan.toString()).thenReturn("ScanOperator{}");
         selectionOperator = new SelectionOperator(mockVisitor, mockAliasMap, exp, mockScan);
-        assertEquals("SelectionOperator{ScanOperator{}, 1 < 2 AND R.A = R.B AND R.C > R.A}", selectionOperator.toString());
+        assertEquals("SelectionOperator{ScanOperator{}, 1 < 2 AND R.A = R.B AND R.C > R.A}",
+                selectionOperator.toString());
     }
 
     @Test
@@ -86,6 +87,21 @@ class SelectionOperatorTest {
         doNothing().when(mockScan).reset();
         assertEquals(firstExpectedResult, mockScan.getNextTuple());
         assertEquals(secondExpectedResult, mockScan.getNextTuple());
+    }
+
+    @Test
+    void testToStringForPrinting() throws ParseException {
+        Expression exp = Utils.getExpression("Sailors", "1 < 2 AND R.A = R.B AND R.C > R.A");
+        Mockito.when(mockScan.toString()).thenCallRealMethod();
+        Mockito.when(mockScan.toString(Mockito.anyInt())).thenCallRealMethod();
+        SelectionOperator selectionOperator = new SelectionOperator(mockVisitor, mockAliasMap, exp, mockScan);
+
+        // Selection at depth 0 of physical query plan tree
+        assertEquals("Select[1 < 2 AND R.A = R.B AND R.C > R.A]\n-PhysicalOperator\n", selectionOperator.toString(0));
+
+        // Projection at depth 3 of physical query plan tree
+        assertEquals("---Select[1 < 2 AND R.A = R.B AND R.C > R.A]\n----PhysicalOperator\n",
+                selectionOperator.toString(3));
     }
 
 }

@@ -73,4 +73,20 @@ public class LogicalJoinOperator extends LogicalOperator {
     public AliasMap getAliasMap() {
         return aliasMap;
     }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < level; i++) {
+            builder.append("-");
+        }
+        builder.append("Join[" + this.getJoinCondition().toString() + "]");
+        builder.append("\n");
+        builder.append(this.getUnionFind().toString());
+        builder.append("\n");
+        for (LogicalOperator child : this.getChildren()) {
+            builder.append(child.toString(level + 1));
+        }
+        return builder.toString();
+    }
 }

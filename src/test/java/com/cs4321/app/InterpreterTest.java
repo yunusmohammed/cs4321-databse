@@ -81,7 +81,7 @@ class InterpreterTest {
     void setUp() {
 
         try {
-            outputdir = "C:\\Users\\Yohanes\\eclipse-workspace\\cs4321-databse\\src\\test\\resources\\outputChecking";// Files.createTempDirectory("output").toString();
+            outputdir = "/Users/ymm26/Desktop/Senior Fall/CS 4321/cs4321-databse/src/test/resources/output";// Files.createTempDirectory("output").toString();
             tempdir = Files.createTempDirectory("temp").toString();
             Interpreter.setOutputdir(outputdir);
             Interpreter.setTempdir(tempdir);

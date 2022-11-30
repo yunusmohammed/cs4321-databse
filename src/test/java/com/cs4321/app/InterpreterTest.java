@@ -55,7 +55,7 @@ class InterpreterTest {
         List<Statement> statements = Interpreter.getStatements();
         if (correctQueries.length != outputQueries.length)
             logger.log("At least one query has not been output");
-        for (int i = 0; i < outputQueries.length; i++) {
+        for (int i = 0; i < correctQueries.length; i++) {
             try {
                 boolean equal;
                 Select select = (Select) statements.get(i);

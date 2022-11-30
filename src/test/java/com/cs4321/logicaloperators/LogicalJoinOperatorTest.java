@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import com.cs4321.app.AliasMap;
 import com.cs4321.app.UnionFind;
 
 import net.sf.jsqlparser.expression.Expression;
@@ -19,6 +20,7 @@ public class LogicalJoinOperatorTest {
   LogicalJoinOperator logicalJoinOperator;
   UnionFind unionFind;
   Expression joinCondition;
+  AliasMap aliasMap;
 
   @BeforeEach
   public void setup() {
@@ -39,7 +41,9 @@ public class LogicalJoinOperatorTest {
     joinCondition = Mockito.mock(Expression.class);
     Mockito.when(joinCondition.toString()).thenReturn("R.H <> B.D");
 
-    logicalJoinOperator = new LogicalJoinOperator(joinCondition, children, unionFind);
+    aliasMap = Mockito.mock(AliasMap.class);
+
+    logicalJoinOperator = new LogicalJoinOperator(joinCondition, children, unionFind, null, aliasMap);
   }
 
   @Test

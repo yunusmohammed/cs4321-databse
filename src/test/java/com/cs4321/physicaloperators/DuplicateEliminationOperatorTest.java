@@ -1,8 +1,6 @@
 package com.cs4321.physicaloperators;
 
 import com.cs4321.app.Tuple;
-import com.cs4321.physicaloperators.DuplicateEliminationOperator;
-import com.cs4321.physicaloperators.Operator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -28,7 +26,8 @@ class DuplicateEliminationOperatorTest {
     @Test
     void testGetNextTuple() {
         // secondTuple and fifth Tuple should get skipped
-        Mockito.when(child.getNextTuple()).thenReturn(firstTuple, secondTuple, thirdTuple, fourthTuple, fifthTuple, null);
+        Mockito.when(child.getNextTuple()).thenReturn(firstTuple, secondTuple, thirdTuple, fourthTuple, fifthTuple,
+                null);
         assertEquals(firstTuple, dupElimOperator.getNextTuple());
         assertEquals(thirdTuple, dupElimOperator.getNextTuple());
         assertEquals(fourthTuple, dupElimOperator.getNextTuple());
@@ -37,9 +36,11 @@ class DuplicateEliminationOperatorTest {
 
     @Test
     void testReset() {
-        Mockito.when(child.getNextTuple()).thenReturn(firstTuple, secondTuple, thirdTuple, fourthTuple, fifthTuple, null);
+        Mockito.when(child.getNextTuple()).thenReturn(firstTuple, secondTuple, thirdTuple, fourthTuple, fifthTuple,
+                null);
         assertEquals(firstTuple, dupElimOperator.getNextTuple());
-        // when dupElimOperator is reset, the prevTuple gets set to null so secondTuple, which is equivalent to firstTuple,
+        // when dupElimOperator is reset, the prevTuple gets set to null so secondTuple,
+        // which is equivalent to firstTuple,
         // is returned by getNextTuple
         dupElimOperator.reset();
         assertEquals(firstTuple, dupElimOperator.getNextTuple());
@@ -50,5 +51,16 @@ class DuplicateEliminationOperatorTest {
     void testToString() {
         Mockito.when(child.toString()).thenReturn("Operator{}");
         assertEquals("DuplicateEliminationOperator{Operator{}}", dupElimOperator.toString());
+    }
+
+    @Test
+    void testToStringForPrinting() {
+        Mockito.when(child.toString(Mockito.anyInt())).thenCallRealMethod();
+
+        // Dup Elim at depth 0 of physical query plan tree
+        assertEquals("DupElim\n-PhysicalOperator\n", dupElimOperator.toString(0));
+
+        // Dup Elim at depth 3 of physical query plan tree
+        assertEquals("---DupElim\n----PhysicalOperator\n", dupElimOperator.toString(3));
     }
 }

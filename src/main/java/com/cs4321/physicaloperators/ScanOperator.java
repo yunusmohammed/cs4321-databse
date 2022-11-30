@@ -47,6 +47,15 @@ public abstract class ScanOperator extends Operator {
   }
 
   /**
+   * Returns the base table name
+   * 
+   * @return the base table name
+   */
+  public String getBaseTableName() {
+    return this.baseTableName;
+  }
+
+  /**
    * Returns the baseTablePath
    *
    * @return The path to table in the database the ScanOperator is scanning

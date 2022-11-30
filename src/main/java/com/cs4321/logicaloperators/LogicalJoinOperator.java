@@ -23,7 +23,8 @@ public class LogicalJoinOperator extends LogicalOperator {
     }
 
     /**
-     * The remaining join condition that couldn't fit somewhere into the union find data structure.
+     * The remaining join condition that couldn't fit somewhere into the union find
+     * data structure.
      *
      * @return The portion of the join condition that couldn't fit in
      */
@@ -47,5 +48,21 @@ public class LogicalJoinOperator extends LogicalOperator {
      */
     public UnionFind getUnionFind() {
         return unionFind;
+    }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < level; i++) {
+            builder.append("-");
+        }
+        builder.append("Join[" + this.getJoinCondition().toString() + "]");
+        builder.append("\n");
+        builder.append(this.getUnionFind().toString());
+        builder.append("\n");
+        for (LogicalOperator child : this.getChildren()) {
+            builder.append(child.toString(level + 1));
+        }
+        return builder.toString();
     }
 }

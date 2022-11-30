@@ -116,4 +116,15 @@ public class FullScanOperator extends ScanOperator {
                 "baseTablePath='" + baseTablePath + '\'' +
                 '}';
     }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < level; i++) {
+            builder.append("-");
+        }
+        builder.append("TableScan[" + this.getBaseTableName() + "]");
+        builder.append("\n");
+        return builder.toString();
+    }
 }

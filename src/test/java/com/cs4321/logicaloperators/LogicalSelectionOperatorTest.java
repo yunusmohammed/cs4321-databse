@@ -9,6 +9,8 @@ import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.BeforeEach;
+
 /**
  * Tests for LogicalSelectOperator
  *
@@ -16,19 +18,47 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class LogicalSelectionOperatorTest {
 
+    LogicalOperator expectedChildOperator;
+    Expression expectedExpression;
+    SelectExpressionVisitor expectedSelectExpressionVisitor;
+    IndexSelectionVisitor expectedIndexSelectionVisitor;
+    AliasMap expectedAliasMap;
+    LogicalSelectionOperator logicalSelectOperator;
+
+    @BeforeEach
+    public void setup() {
+        expectedChildOperator = Mockito.mock(LogicalOperator.class);
+        Mockito.when(expectedChildOperator.toString(Mockito.anyInt())).thenCallRealMethod();
+
+        expectedExpression = Mockito.mock(Expression.class);
+        Mockito.when(expectedExpression.toString()).thenReturn("R.H <= 99");
+
+        expectedSelectExpressionVisitor = Mockito.mock(SelectExpressionVisitor.class);
+        expectedIndexSelectionVisitor = Mockito.mock(IndexSelectionVisitor.class);
+
+        expectedAliasMap = Mockito.mock(AliasMap.class);
+        logicalSelectOperator = new LogicalSelectionOperator(expectedExpression,
+                expectedChildOperator, expectedSelectExpressionVisitor, expectedIndexSelectionVisitor,
+                expectedAliasMap);
+    }
+
     @Test
     public void logicalSelectionOperatorCorrectlyInitializedTest() {
-        LogicalScanOperator expectedChildOperator = Mockito.mock(LogicalScanOperator.class);
-        Expression expectedExpression = Mockito.mock(Expression.class);
-        SelectExpressionVisitor expectedSelectExpressionVisitor = Mockito.mock(SelectExpressionVisitor.class);
-        IndexSelectionVisitor expectedIndexSelectionVisitor = Mockito.mock(IndexSelectionVisitor.class);
-        AliasMap expectedAliasMap = Mockito.mock(AliasMap.class);
-        LogicalSelectionOperator logicalSelectOperator = new LogicalSelectionOperator(expectedExpression,
-                expectedChildOperator, expectedSelectExpressionVisitor, expectedIndexSelectionVisitor, expectedAliasMap);
         assertEquals(expectedChildOperator, logicalSelectOperator.getChild());
         assertEquals(expectedExpression, logicalSelectOperator.getSelectCondition());
         assertEquals(expectedSelectExpressionVisitor, logicalSelectOperator.getSelectExpressionVisitor());
         assertEquals(expectedAliasMap, logicalSelectOperator.getAliasMap());
         assertEquals(expectedIndexSelectionVisitor, logicalSelectOperator.getIndexVisitor());
+    }
+
+    @Test
+    public void testToString() {
+        // Selection operator is at level 0
+        String expecStringL0 = "Select[R.H <= 99]\n-LogicalOperator\n";
+        assertEquals(expecStringL0, logicalSelectOperator.toString(0));
+
+        // Selection operator is at level > 0, eg 3
+        String expecStringL3 = "---Select[R.H <= 99]\n----LogicalOperator\n";
+        assertEquals(expecStringL3, logicalSelectOperator.toString(3));
     }
 }

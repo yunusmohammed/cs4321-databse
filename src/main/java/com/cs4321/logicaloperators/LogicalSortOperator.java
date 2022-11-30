@@ -28,7 +28,7 @@ public class LogicalSortOperator extends LogicalOperator {
      *                        will sort
      */
     public LogicalSortOperator(LogicalOperator child, Map<String, Integer> sortColumnMap,
-                               List<OrderByElement> orderByElements) {
+            List<OrderByElement> orderByElements) {
         this.child = child;
         this.orderByElementList = orderByElements;
         this.sortColumnMap = sortColumnMap;
@@ -48,7 +48,7 @@ public class LogicalSortOperator extends LogicalOperator {
      * will sort
      *
      * @return The list of elements for which our order by clause
-     * will sort
+     *         will sort
      */
     public List<OrderByElement> getOrderByElements() {
         return this.orderByElementList;
@@ -72,5 +72,17 @@ public class LogicalSortOperator extends LogicalOperator {
     @Override
     public Operator accept(PhysicalPlanBuilder builder) {
         return builder.visit(this);
+    }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < level; i++) {
+            builder.append("-");
+        }
+        builder.append("Sort" + this.orderByElementList.toString());
+        builder.append("\n");
+        builder.append(this.getChild().toString(level + 1));
+        return builder.toString();
     }
 }

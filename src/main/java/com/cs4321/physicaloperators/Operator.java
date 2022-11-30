@@ -53,7 +53,8 @@ public abstract class Operator {
      * Tells the operator to reset its state and start returning its output again
      * from a specific index.
      */
-    public void reset(int index) {}
+    public void reset(int index) {
+    }
 
     /**
      * For binary files, calls getNextTuple() until the next tuple is null (no more
@@ -105,7 +106,23 @@ public abstract class Operator {
         return "Operator{}";
     }
 
-    ;
+    /**
+     * Returns a formatted string of this physical operator with a new line
+     * character at the end
+     * 
+     * @param level the depth of the logical operator in the logical query plan tree
+     * @return a formatted string of this logical operator with a new line character
+     *         at the end
+     */
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < level; i++) {
+            builder.append("-");
+        }
+        builder.append("PhysicalOperator");
+        builder.append("\n");
+        return builder.toString();
+    }
 
     /**
      * Cleanups any resources that need to be cleaned up such as BufferedReader,

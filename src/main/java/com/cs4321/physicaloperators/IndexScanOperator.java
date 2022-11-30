@@ -163,14 +163,14 @@ public class IndexScanOperator extends ScanOperator {
    * Returns the string representation of the Index Scan Operator
    *
    * @return The string representation of the Index Scan Operator
-   * Eg:
-   * IndexScanOperator{baseTablePath='../src/test/resources/input_binary/db/data/Boats'}
+   *         Eg:
+   *         IndexScanOperator{baseTablePath='../src/test/resources/input_binary/db/data/Boats'}
    */
   @Override
   public String toString() {
     return "IndexScanOperator{" +
-            "baseTablePath='" + baseTablePath + '\'' +
-            '}';
+        "baseTablePath='" + baseTablePath + '\'' +
+        '}';
   }
 
   /**
@@ -409,5 +409,51 @@ public class IndexScanOperator extends ScanOperator {
   private void readIntoBuffer() throws IOException {
     fc.read(buffer);
     buffer.clear();
+  }
+
+  /**
+   * Return the index attribute name of this Index Scan
+   * 
+   * @return the index attribute name of this Index Scan
+   */
+  public String getIndexAttributeName() {
+    return this.indexAttributeName;
+  }
+
+  /**
+   * Return the low key of this Index Scan
+   * 
+   * @return the low key of this Index Scan
+   */
+  public int getLowKey() {
+    return this.lowKey;
+  }
+
+  /**
+   * Return the high key of this Index Scan
+   * 
+   * @return the high key of this Index Scan
+   */
+  public int getHighKey() {
+    return this.highKey;
+  }
+
+  @Override
+  public String toString(int level) {
+    StringBuilder builder = new StringBuilder();
+    for (int i = 0; i < level; i++) {
+      builder.append("-");
+    }
+    builder.append("IndexScan[");
+    builder.append(this.getBaseTableName());
+    builder.append(",");
+    builder.append(this.getIndexAttributeName());
+    builder.append(",");
+    builder.append(Integer.toString(this.getLowKey()));
+    builder.append(",");
+    builder.append(Integer.toString(this.getHighKey()));
+    builder.append("]");
+    builder.append("\n");
+    return builder.toString();
   }
 }

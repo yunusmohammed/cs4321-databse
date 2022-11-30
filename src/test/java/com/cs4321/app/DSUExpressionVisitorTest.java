@@ -139,4 +139,64 @@ class DSUExpressionVisitorTest {
         assertNull(e2.getEqualityConstraint());
         assertEquals("[S.C, T.D, T.X]", e2.getAttributes().toString());
     }
+
+    @Test
+    public void columnRightGreaterThan() throws ParseException {
+        exp = Utils.getExpression("Sailors", "3 > R.A AND R.A = R.B");
+        visitor.processExpression(exp);
+
+        List<UnionFindElement> elements = visitor.getUnionFind().getCollections();
+        assertNull(visitor.getUnusable());
+        assertEquals(1, elements.size());
+
+        UnionFindElement e = elements.get(0);
+        assertNull(e.getLowerBound());
+        assertEquals(2, e.getUpperBound());
+        assertNull(e.getEqualityConstraint());
+    }
+
+    @Test
+    public void columnRightGreaterThanEquals() throws ParseException {
+        exp = Utils.getExpression("Sailors", "3 >= R.A AND R.A = R.B");
+        visitor.processExpression(exp);
+
+        List<UnionFindElement> elements = visitor.getUnionFind().getCollections();
+        assertNull(visitor.getUnusable());
+        assertEquals(1, elements.size());
+
+        UnionFindElement e = elements.get(0);
+        assertNull(e.getLowerBound());
+        assertEquals(3, e.getUpperBound());
+        assertNull(e.getEqualityConstraint());
+    }
+
+    @Test
+    public void columnRightMinorThan() throws ParseException {
+        exp = Utils.getExpression("Sailors", "3 < R.A AND R.A = R.B");
+        visitor.processExpression(exp);
+
+        List<UnionFindElement> elements = visitor.getUnionFind().getCollections();
+        assertNull(visitor.getUnusable());
+        assertEquals(1, elements.size());
+
+        UnionFindElement e = elements.get(0);
+        assertEquals(4, e.getLowerBound());
+        assertNull(e.getUpperBound());
+        assertNull(e.getEqualityConstraint());
+    }
+
+    @Test
+    public void columnRightMinorThanEquals() throws ParseException {
+        exp = Utils.getExpression("Sailors", "3 <= R.A AND R.A = R.B");
+        visitor.processExpression(exp);
+
+        List<UnionFindElement> elements = visitor.getUnionFind().getCollections();
+        assertNull(visitor.getUnusable());
+        assertEquals(1, elements.size());
+
+        UnionFindElement e = elements.get(0);
+        assertEquals(3, e.getLowerBound());
+        assertNull(e.getUpperBound());
+        assertNull(e.getEqualityConstraint());
+    }
 }

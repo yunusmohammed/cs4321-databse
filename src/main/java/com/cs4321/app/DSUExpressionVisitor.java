@@ -184,6 +184,8 @@ public class DSUExpressionVisitor implements ExpressionVisitor {
             UnionFindElement e = unionFind.find((Column) right);
             int value = (int) ((LongValue) left).getValue();
             e.setUpperBound(value - 1);
+        } else {
+            unusable.add(exp);
         }
     }
 
@@ -199,6 +201,8 @@ public class DSUExpressionVisitor implements ExpressionVisitor {
             UnionFindElement e = unionFind.find((Column) right);
             int value = (int) ((LongValue) left).getValue();
             e.setUpperBound(value);
+        } else {
+            unusable.add(exp);
         }
     }
 
@@ -214,6 +218,8 @@ public class DSUExpressionVisitor implements ExpressionVisitor {
             UnionFindElement e = unionFind.find((Column) right);
             int value = (int) ((LongValue) left).getValue();
             e.setLowerBound(value + 1);
+        } else {
+            unusable.add(exp);
         }
     }
 
@@ -229,6 +235,8 @@ public class DSUExpressionVisitor implements ExpressionVisitor {
             UnionFindElement e = unionFind.find((Column) right);
             int value = (int) ((LongValue) left).getValue();
             e.setLowerBound(value);
+        } else {
+            unusable.add(exp);
         }
     }
 

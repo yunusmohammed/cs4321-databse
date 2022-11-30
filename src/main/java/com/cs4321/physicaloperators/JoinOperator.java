@@ -2,8 +2,14 @@ package com.cs4321.physicaloperators;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.schema.Table;
 
+import java.util.List;
 import java.util.Map;
+
+import com.cs4321.app.AliasMap;
+import com.cs4321.app.DatabaseCatalog;
+import com.cs4321.app.Tuple;
 
 /**
  * Base class for join operators
@@ -32,6 +38,8 @@ public abstract class JoinOperator extends Operator {
      */
     private JoinExpressionVisitor visitor;
 
+    private List<Table> originalJoinOrder;
+
     /**
      * Base constructor of the JoinOperator
      */
@@ -48,11 +56,12 @@ public abstract class JoinOperator extends Operator {
      * @param visitor       the expression visitor of this join operator
      */
     public JoinOperator(Operator leftChild, Operator rightChild, Expression joinCondition,
-                        JoinExpressionVisitor visitor) {
+            JoinExpressionVisitor visitor, List<Table> originalJoinOrder) {
         this.leftChild = leftChild;
         this.rightChild = rightChild;
         this.joinCondition = joinCondition;
         this.visitor = visitor;
+        this.originalJoinOrder = originalJoinOrder;
         Map<String, Integer> columnMap = leftChild.getColumnMap();
         Map<String, Integer> offset = getTableOffsets();
         addChildrenColumnMap(rightChild, offset, columnMap);
@@ -60,10 +69,12 @@ public abstract class JoinOperator extends Operator {
     }
 
     /**
-     * Creates half of the column mapping of this node using the mappings of its child as well as the offset
+     * Creates half of the column mapping of this node using the mappings of its
+     * child as well as the offset
      * applied to that particular child.
      *
-     * @param child  The child whose mapping is being used to reconstruct the new join column mapping.
+     * @param child  The child whose mapping is being used to reconstruct the new
+     *               join column mapping.
      * @param offset The mapping from alias/table name to index offset
      */
     private void addChildrenColumnMap(Operator child, Map<String, Integer> offset, Map<String, Integer> columnMap) {
@@ -84,7 +95,34 @@ public abstract class JoinOperator extends Operator {
         Map<String, Integer> tableOffset = this.visitor.getTableOffsets();
         String tableName = column.getTable().getAlias();
         tableName = (tableName != null) ? tableName : column.getTable().getName();
-        return tableOffset.get(tableName) + this.visitor.getColumnMap().get(column);
+        return tableOffset.get(tableName) + this.visitor.getAliasMap().get(column);
+    }
+
+    /**
+     * Get the original order of relations of this join operator
+     *
+     * @return the original order of relations of this join operator
+     */
+    public List<Table> getOriginalJoinOrder() {
+        return this.originalJoinOrder;
+    }
+
+    public Tuple getTupleInOriginalOrder(Tuple tuple) {
+        if (this.getOriginalJoinOrder() == null) {
+            return tuple;
+        }
+        Tuple originalOrderedTuple = new Tuple("");
+        List<Table> originalOrder = this.getOriginalJoinOrder();
+        Map<String, Integer> tableOffSets = this.getVisitor().getTableOffsets();
+        for (Table table : originalOrder) {
+            String curTable = table.getAlias();
+            curTable = (curTable != null) ? curTable : table.getName();
+            originalOrderedTuple = originalOrderedTuple
+                    .concat(tuple.get(tableOffSets.get(curTable), tableOffSets.get(curTable)
+                            + DatabaseCatalog.getInstance().columnMap(this.getAliasMap().getBaseTable(curTable))
+                                    .size()));
+        }
+        return originalOrderedTuple;
     }
 
     @Override
@@ -186,6 +224,15 @@ public abstract class JoinOperator extends Operator {
      */
     public Map<String, Integer> getTableOffsets() {
         return this.visitor.getTableOffsets();
+    }
+
+    /**
+     * Return the alias map of this join operator
+     * 
+     * @return the alias map of this join operator
+     */
+    public AliasMap getAliasMap() {
+        return getVisitor().getAliasMap();
     }
 
 }

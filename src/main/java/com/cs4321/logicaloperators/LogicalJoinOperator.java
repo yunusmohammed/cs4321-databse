@@ -1,5 +1,6 @@
 package com.cs4321.logicaloperators;
 
+import com.cs4321.app.AliasMap;
 import com.cs4321.app.UnionFind;
 import net.sf.jsqlparser.expression.Expression;
 
@@ -16,13 +17,15 @@ public class LogicalJoinOperator extends LogicalOperator {
     private final List<LogicalOperator> children;
     private final UnionFind unionFind;
     private final Expression whereExpression;
+    private final AliasMap aliasMap;
 
     public LogicalJoinOperator(Expression joinCondition, List<LogicalOperator> children, UnionFind unionFind,
-            Expression whereExpression) {
+            Expression whereExpression, AliasMap aliasMap) {
         this.joinCondition = joinCondition;
         this.children = children;
         this.unionFind = unionFind;
         this.whereExpression = whereExpression;
+        this.aliasMap = aliasMap;
     }
 
     /**
@@ -60,5 +63,14 @@ public class LogicalJoinOperator extends LogicalOperator {
      */
     public UnionFind getUnionFind() {
         return unionFind;
+    }
+
+    /**
+     * Gets the alias map of this logical join operator.
+     *
+     * @return The alias map of this logical join operator.
+     */
+    public AliasMap getAliasMap() {
+        return aliasMap;
     }
 }

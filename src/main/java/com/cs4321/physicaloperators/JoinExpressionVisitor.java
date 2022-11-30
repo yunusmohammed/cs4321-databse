@@ -101,7 +101,7 @@ public class JoinExpressionVisitor implements ExpressionVisitor {
      *
      * @return the column map of this visitor
      */
-    public AliasMap getColumnMap() {
+    public AliasMap getAliasMap() {
         return this.aliasMap;
     }
 

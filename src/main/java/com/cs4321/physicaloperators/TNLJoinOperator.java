@@ -1,7 +1,10 @@
 package com.cs4321.physicaloperators;
 
+import java.util.List;
+
 import com.cs4321.app.Tuple;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.schema.Table;
 
 /**
  * Operator for handling Joins using Tuple Nested Loop Join
@@ -31,8 +34,8 @@ public class TNLJoinOperator extends JoinOperator {
      * @param visitor       the expression visitor of this join operator
      */
     public TNLJoinOperator(Operator leftChild, Operator rightChild, Expression joinCondition,
-                           JoinExpressionVisitor visitor) {
-        super(leftChild, rightChild, joinCondition, visitor);
+            JoinExpressionVisitor visitor, List<Table> originalJoinOrder) {
+        super(leftChild, rightChild, joinCondition, visitor, originalJoinOrder);
     }
 
     @Override
@@ -46,7 +49,7 @@ public class TNLJoinOperator extends JoinOperator {
                 this.getRightChild().reset();
             } else if (this.getJoinCondition() == null
                     || this.getVisitor().evalExpression(this.getJoinCondition(), leftTuple, rightTuple)) {
-                return this.leftTuple.concat(rightTuple);
+                return this.getTupleInOriginalOrder(this.leftTuple.concat(rightTuple));
             }
         }
         System.out.println();

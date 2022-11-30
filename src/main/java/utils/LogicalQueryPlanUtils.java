@@ -69,7 +69,7 @@ public class LogicalQueryPlanUtils {
      *                   joined
      * @return a map of column index offsets for tables after a join operation
      */
-    public static Map<String, Integer> generateJoinTableOffsets(List<LogicalOperator> orderedJoinRelations,
+    private static Map<String, Integer> generateJoinTableOffsets(List<LogicalOperator> orderedJoinRelations,
             AliasMap aliasMap) {
         Map<String, Integer> tableOffset = new HashMap<>();
         int nextOffset = 0;
@@ -225,7 +225,8 @@ public class LogicalQueryPlanUtils {
      *                   null and not empty
      * @return the root of the logical join query plan
      */
-    private OldLogicalJoinOperator generateOldLogicalJoinTree(LogicalJoinOperator logicalJoin, AliasMap aliasMap) {
+    public static OldLogicalJoinOperator generateOldLogicalJoinTree(LogicalJoinOperator logicalJoin,
+            AliasMap aliasMap) {
         OldLogicalJoinOperator root = new OldLogicalJoinOperator();
         List<Table> originalJoinOrder = logicalJoin.getChildren().stream().filter(elt -> elt != null)
                 .map(elt -> ((LogicalJoinChild) elt).getTable()).collect(Collectors.toList());
@@ -253,6 +254,7 @@ public class LogicalQueryPlanUtils {
 
             // Set Right Child of current Parent
             currentParent.setRightChild(rightChildOperator);
+            currentParent.setAliasMap(aliasMap);
 
             // Set Join Condition of current parent
             currentParent.setJoinCondition(LogicalQueryPlanUtils.generateExpressionTree(parentExpressions));
@@ -285,7 +287,7 @@ public class LogicalQueryPlanUtils {
      * @param childTable       table corresponding to the child operator
      * @return the child operator
      */
-    private LogicalOperator getJoinChildOperator(Stack<Expression> childExpressions, FromItem childTable,
+    private static LogicalOperator getJoinChildOperator(Stack<Expression> childExpressions, FromItem childTable,
             AliasMap aliasMap) {
         LogicalOperator operator;
         PlainSelect selectBody = new PlainSelect();
@@ -306,7 +308,7 @@ public class LogicalQueryPlanUtils {
      * @param selectBody The body of the Select statement
      * @return The logical scan operator that was just created
      */
-    private LogicalScanOperator generateLogicalScan(PlainSelect selectBody, AliasMap aliasMap) {
+    private static LogicalScanOperator generateLogicalScan(PlainSelect selectBody, AliasMap aliasMap) {
         Table table = (Table) selectBody.getFromItem();
         return new LogicalScanOperator(table, aliasMap);
     }
@@ -317,7 +319,7 @@ public class LogicalQueryPlanUtils {
      * @param selectBody The body of the Select statement
      * @return The logical select operator that was just created
      */
-    private LogicalSelectionOperator generateLogicalSelection(PlainSelect selectBody, AliasMap aliasMap) {
+    private static LogicalSelectionOperator generateLogicalSelection(PlainSelect selectBody, AliasMap aliasMap) {
         Expression whereExpression = selectBody.getWhere();
         return new LogicalSelectionOperator(whereExpression, generateLogicalScan(selectBody, aliasMap),
                 new SelectExpressionVisitor(),

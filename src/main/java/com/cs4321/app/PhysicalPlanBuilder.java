@@ -197,6 +197,29 @@ public class PhysicalPlanBuilder {
     }
 
     /**
+     * Returns a new list without duplicates in the list of order by elements.
+     *
+     * @param lst      List of order by elements.
+     * @param aliasMap An AliasMap for handling aliases.
+     * @return A copy of lst but with duplicates removed.
+     */
+    private List<OrderByElement> deduplicate(List<OrderByElement> lst, AliasMap aliasMap) {
+        List<OrderByElement> dedup = new ArrayList<>();
+        HashSet<String> seen = new HashSet<>();
+        for (OrderByElement orderByElement : lst) {
+            Column c = (Column) orderByElement.getExpression();
+            String baseTableName = c.getWholeColumnName().split("\\.")[0];
+            String wholeName = baseTableName + "." + c.getColumnName();
+            if (!seen.contains(wholeName)) {
+                seen.add(wholeName);
+                dedup.add(orderByElement);
+            }
+        }
+        return dedup;
+    }
+
+
+    /**
      * Creates a physical join operator from the logical join operator. It also
      * utilizes the config file
      * to choose which kind of join operator to create.
@@ -217,13 +240,13 @@ public class PhysicalPlanBuilder {
                         operator.getJoinExpressionVisitor(), config.getJoinBufferSize());
             case SMJ:
                 List<List<OrderByElement>> orders = getOrders(operator.getJoinCondition());
-                List<OrderByElement> leftOrder = orders.get(0);
-                List<OrderByElement> rightOrder = orders.get(1);
+                List<OrderByElement> leftOrder = deduplicate(orders.get(0), operator.getJoinExpressionVisitor().getAliasMap());
+                List<OrderByElement> rightOrder = deduplicate(orders.get(1), operator.getJoinExpressionVisitor().getAliasMap());
                 leftChild = generateSort(leftChild, leftOrder);
                 rightChild = generateSort(rightChild, rightOrder);
                 SMJOperator smjOperator = new SMJOperator(leftChild, rightChild, operator.getJoinCondition(), operator.getJoinExpressionVisitor());
-                smjOperator.setLeftSortOrder(leftOrder);
-                smjOperator.setRightSortOrder(rightOrder);
+                smjOperator.setLeftSortOrder(orders.get(0));
+                smjOperator.setRightSortOrder(orders.get(1));
                 return smjOperator;
         }
         // This scenario should never happen
@@ -242,7 +265,9 @@ public class PhysicalPlanBuilder {
     public List<List<OrderByElement>> getOrders(Expression joinCondition) {
         ArrayList<List<OrderByElement>> list = new ArrayList<>();
         List<OrderByElement> leftList = new ArrayList<>();
+        Set<String> leftSet = new HashSet<>();
         List<OrderByElement> rightList = new ArrayList<>();
+        Set<String> rightSet = new HashSet<>();
         list.add(leftList);
         list.add(rightList);
         Stack<Expression> stackExpression = new Stack<>();

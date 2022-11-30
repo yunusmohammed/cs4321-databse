@@ -1,5 +1,3 @@
 src/test/resources/input_experiments
 src/test/resources/output_experiments
 src/test/resources/output_experiments
-1
-1

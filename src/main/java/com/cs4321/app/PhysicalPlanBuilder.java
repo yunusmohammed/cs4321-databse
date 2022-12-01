@@ -318,13 +318,13 @@ public class PhysicalPlanBuilder {
         Operator leftChild = constructPhysical(oldLogicalJoinOperator.getLeftChild());
         Operator rightChild = constructPhysical(oldLogicalJoinOperator.getRightChild());
         if (canUseSMJ(oldLogicalJoinOperator.getJoinCondition())) {
-            String leftTableName;
-            if (oldLogicalJoinOperator.getLeftChild() instanceof LogicalScanOperator) {
-                leftTableName = ((LogicalScanOperator) oldLogicalJoinOperator.getLeftChild()).getTableName();
+            String rightTableName;
+            if (oldLogicalJoinOperator.getRightChild() instanceof LogicalScanOperator) {
+                rightTableName = ((LogicalScanOperator) oldLogicalJoinOperator.getRightChild()).getTableName();
             } else {
-                leftTableName = ((LogicalSelectionOperator) oldLogicalJoinOperator.getLeftChild()).getTableName();
+                rightTableName = ((LogicalSelectionOperator) oldLogicalJoinOperator.getRightChild()).getTableName();
             }
-            List<List<OrderByElement>> orders = getOrders(oldLogicalJoinOperator.getJoinCondition(), leftTableName);
+            List<List<OrderByElement>> orders = getOrders(oldLogicalJoinOperator.getJoinCondition(), rightTableName);
             List<OrderByElement> leftOrder = orders.get(0);
             List<OrderByElement> rightOrder = orders.get(1);
             leftChild = generateSort(leftChild, leftOrder);
@@ -350,7 +350,7 @@ public class PhysicalPlanBuilder {
      * @param joinCondition The expression for the join node
      * @return The two element list containing the columns as stated above
      */
-    public List<List<OrderByElement>> getOrders(Expression joinCondition, String leftName) {
+    public List<List<OrderByElement>> getOrders(Expression joinCondition, String rightName) {
         ArrayList<List<OrderByElement>> list = new ArrayList<>();
         List<OrderByElement> leftList = new ArrayList<>();
         Set<String> leftSet = new HashSet<>();
@@ -365,9 +365,9 @@ public class PhysicalPlanBuilder {
             if (exp instanceof EqualsTo) {
                 Column leftColumn = (Column) ((EqualsTo) exp).getLeftExpression();
                 Column rightColumn = (Column) ((EqualsTo) exp).getRightExpression();
-                String leftTableName = leftColumn.getWholeColumnName().split("\\.")[0];
+                String rightTableName = rightColumn.getWholeColumnName().split("\\.")[0];
 
-                if (leftTableName.equals(leftName)) {
+                if (rightTableName.equals(rightName)) {
                     OrderByElement leftOrder = new OrderByElement();
                     leftOrder.setExpression(((EqualsTo) exp).getLeftExpression());
                     OrderByElement rightOrder = new OrderByElement();

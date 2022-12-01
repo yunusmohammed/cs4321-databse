@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -81,7 +80,7 @@ class InterpreterTest {
     void setUp() {
 
         try {
-            outputdir = "/Users/ymm26/Desktop/Senior Fall/CS 4321/cs4321-databse/src/test/resources/output";// Files.createTempDirectory("output").toString();
+            outputdir = Files.createTempDirectory("output").toString();
             tempdir = Files.createTempDirectory("temp").toString();
             Interpreter.setOutputdir(outputdir);
             Interpreter.setTempdir(tempdir);

@@ -195,14 +195,16 @@ public class LogicalQueryPlan {
         List<Join> joins = selectBody.getJoins();
 
         Table table = (Table) selectBody.getFromItem();
-        if (tableSelections.containsKey(table.getName())) {
+        String tableName = table.getAlias() == null ? table.getName() : table.getAlias();
+        if (tableSelections.containsKey(tableName)) {
             children.add(generateLogicalSelection(tableSelections.get(table.getName()), table));
         } else {
             children.add(generateLogicalScan(table));
         }
         for (Join join : joins) {
             table = (Table) join.getRightItem();
-            if (tableSelections.containsKey(table.getName())) {
+            tableName = table.getAlias() == null ? table.getName() : table.getAlias();
+            if (tableSelections.containsKey(tableName)) {
                 children.add(generateLogicalSelection(tableSelections.get(table.getName()), table));
             } else {
                 children.add(generateLogicalScan(table));

@@ -197,7 +197,7 @@ public class LogicalQueryPlan {
         Table table = (Table) selectBody.getFromItem();
         String tableName = table.getAlias() == null ? table.getName() : table.getAlias();
         if (tableSelections.containsKey(tableName)) {
-            children.add(generateLogicalSelection(tableSelections.get(table.getName()), table));
+            children.add(generateLogicalSelection(tableSelections.get(tableName), table));
         } else {
             children.add(generateLogicalScan(table));
         }
@@ -205,7 +205,7 @@ public class LogicalQueryPlan {
             table = (Table) join.getRightItem();
             tableName = table.getAlias() == null ? table.getName() : table.getAlias();
             if (tableSelections.containsKey(tableName)) {
-                children.add(generateLogicalSelection(tableSelections.get(table.getName()), table));
+                children.add(generateLogicalSelection(tableSelections.get(tableName), table));
             } else {
                 children.add(generateLogicalScan(table));
             }

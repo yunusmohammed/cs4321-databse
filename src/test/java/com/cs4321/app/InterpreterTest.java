@@ -6,12 +6,14 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -93,12 +95,14 @@ class InterpreterTest {
     void queryOutput() {
         String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep
                 + "input_binary";
-        String correctOutputPath = "/Users/ymm26/Desktop/Senior Fall/CS 4321/cs4321-databse/src/test/resources/output";
+        String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep
+                + "correctOutput_binary";
         DatabaseCatalog.setInputDir(inputdir);
-        PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
+        PhysicalPlanBuilder.setConfigs();
         testQueries(inputdir, correctOutputPath);
     }
 
+    @Disabled
     @Test
     void SMJQueryOutput() {
         String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep
@@ -106,7 +110,7 @@ class InterpreterTest {
         String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep
                 + "expected_SMJ";
         DatabaseCatalog.setInputDir(inputdir);
-        PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
+        PhysicalPlanBuilder.setConfigs();
         testQueries(inputdir, correctOutputPath);
     }
 

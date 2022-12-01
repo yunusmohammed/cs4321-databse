@@ -65,15 +65,15 @@ public class Interpreter {
         setHumanReadable(interpreterConfig.isHumanReadable());
         DatabaseCatalog.setInputDir(getInputdir());
         PhysicalPlanBuilder.setHumanReadable(humanReadable);
-        PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
+        PhysicalPlanBuilder.setConfigs();
         buildIndexInfos();
         parseQueries();
-//        if (interpreterConfig.shouldBuildIndexes()) {
-//            buildIndexInfos();
-//        }
-//        if (interpreterConfig.shouldEvaluateQueries()) {
-//            parseQueries();
-//        }
+        // if (interpreterConfig.shouldBuildIndexes()) {
+        // buildIndexInfos();
+        // }
+        // if (interpreterConfig.shouldEvaluateQueries()) {
+        // parseQueries();
+        // }
     }
 
     /**

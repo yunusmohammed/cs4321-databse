@@ -65,6 +65,7 @@ public class Interpreter {
         setHumanReadable(interpreterConfig.isHumanReadable());
         DatabaseCatalog.setInputDir(getInputdir());
         PhysicalPlanBuilder.setHumanReadable(humanReadable);
+        PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
         buildIndexInfos();
         parseQueries();
 //        if (interpreterConfig.shouldBuildIndexes()) {

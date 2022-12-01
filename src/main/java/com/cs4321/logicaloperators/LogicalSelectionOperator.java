@@ -54,9 +54,9 @@ public class LogicalSelectionOperator extends LogicalOperator implements Logical
 
     /**
      * Get the table in the database the child of this SelectOperator is scanning
-     * 
+     *
      * @return the table in the database the child of this SelectOperator is
-     *         scanning
+     * scanning
      */
     public Table getTable() {
         return ((LogicalScanOperator) this.getChild()).getTable();
@@ -100,6 +100,15 @@ public class LogicalSelectionOperator extends LogicalOperator implements Logical
     }
 
     /**
+     * Gets the base table name of the logical selection operator.
+     *
+     * @return The base table name of the logical selection operator.
+     */
+    public String getTableName() {
+        return ((LogicalScanOperator) this.child).getTableName();
+    }
+
+    /**
      * Get the AliasMap of the logical select operator
      *
      * @return The AliasMap of the logical select operator
@@ -126,7 +135,7 @@ public class LogicalSelectionOperator extends LogicalOperator implements Logical
             builder.append("-");
         }
         String selectItems = "";
-        if(this.getSelectCondition() != null) selectItems = this.getSelectCondition().toString();
+        if (this.getSelectCondition() != null) selectItems = this.getSelectCondition().toString();
         builder.append("Select[" + this.getSelectCondition().toString() + "]");
         builder.append("\n");
         builder.append(this.getChild().toString(level + 1));

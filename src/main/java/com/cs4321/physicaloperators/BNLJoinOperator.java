@@ -2,10 +2,12 @@ package com.cs4321.physicaloperators;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import com.cs4321.app.Tuple;
 
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.schema.Table;
 
 /**
  * Operator for handling Joins using Block Nested Loop Join
@@ -44,8 +46,8 @@ public class BNLJoinOperator extends JoinOperator {
    * @param bufferSize    the maximum size of buffer in units of pages
    */
   public BNLJoinOperator(Operator leftChild, Operator rightChild, Expression joinCondition,
-      JoinExpressionVisitor visitor, int bufferSize) {
-    super(leftChild, rightChild, joinCondition, visitor);
+      JoinExpressionVisitor visitor, int bufferSize, List<Table> originalJoinOrder) {
+    super(leftChild, rightChild, joinCondition, visitor, originalJoinOrder);
 
     Tuple leftTuple = leftChild.getNextTuple();
     int leftChildTupleAttributeCount = (leftTuple == null) ? 0 : leftTuple.size();
@@ -72,7 +74,7 @@ public class BNLJoinOperator extends JoinOperator {
           Tuple leftTuple = this.tupleBufferIterator.next();
           if (this.getJoinCondition() == null
               || this.getVisitor().evalExpression(this.getJoinCondition(), leftTuple, this.rightTuple)) {
-            return leftTuple.concat(this.rightTuple);
+            return this.getTupleInOriginalOrder(leftTuple.concat(this.rightTuple));
           }
         }
       }
@@ -149,7 +151,7 @@ public class BNLJoinOperator extends JoinOperator {
     for (int i = 0; i < level; i++) {
       builder.append("-");
     }
-    builder.append("BNLJ[" + this.getJoinCondition().toString() + "]");
+    builder.append("BNLJ[" + this.getJoinConditionString() + "]");
     builder.append("\n");
     builder.append(this.getLeftChild().toString(level + 1));
     builder.append(this.getRightChild().toString(level + 1));

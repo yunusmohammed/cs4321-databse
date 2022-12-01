@@ -87,7 +87,9 @@ public class SelectionOperator extends Operator {
         for (int i = 0; i < level; i++) {
             builder.append("-");
         }
-        builder.append("Select[" + this.getSelectCondition().toString() + "]");
+        String selectCondition = "";
+        if(this.getSelectCondition() != null) selectCondition = this.getSelectCondition().toString();
+        builder.append("Select[" + selectCondition + "]");
         builder.append("\n");
         builder.append(this.getChild().toString(level + 1));
         return builder.toString();

@@ -186,7 +186,8 @@ public class LogicalQueryPlan {
      * @param selectBody The body of the select statement.
      * @return A new logical join operator.
      */
-    private LogicalJoinOperator newGenerateLogicalJoin(PlainSelect selectBody) {
+    private LogicalJoinOperator generateLogicalJoin(PlainSelect selectBody) {
+        Expression whereExpression = selectBody.getWhere();
         DSUExpressionVisitor visitor = new DSUExpressionVisitor();
         visitor.processExpression(selectBody.getWhere());
         Map<String, Expression> tableSelections = visitor.getExpressions();
@@ -196,7 +197,7 @@ public class LogicalQueryPlan {
         Table table = (Table) selectBody.getFromItem();
         String tableName = table.getAlias() == null ? table.getName() : table.getAlias();
         if (tableSelections.containsKey(tableName)) {
-            children.add(generateLogicalSelection(tableSelections.get(table.getName()), table));
+            children.add(generateLogicalSelection(tableSelections.get(tableName), table));
         } else {
             children.add(generateLogicalScan(table));
         }
@@ -204,12 +205,13 @@ public class LogicalQueryPlan {
             table = (Table) join.getRightItem();
             tableName = table.getAlias() == null ? table.getName() : table.getAlias();
             if (tableSelections.containsKey(tableName)) {
-                children.add(generateLogicalSelection(tableSelections.get(table.getName()), table));
+                children.add(generateLogicalSelection(tableSelections.get(tableName), table));
             } else {
                 children.add(generateLogicalScan(table));
             }
         }
-        return new LogicalJoinOperator(visitor.getUnusable(), children, visitor.getUnionFind());
+        return new LogicalJoinOperator(visitor.getUnusable(), children, visitor.getUnionFind(), whereExpression,
+                aliasMap);
     }
 
     /**
@@ -219,11 +221,11 @@ public class LogicalQueryPlan {
      *                   null and not empty
      * @return the root of the logical join query plan
      */
-    private OldLogicalJoinOperator generateLogicalJoin(PlainSelect selectBody) {
+    private OldLogicalJoinOperator oldGenerateLogicalJoin(PlainSelect selectBody) {
         OldLogicalJoinOperator root = new OldLogicalJoinOperator();
         OldLogicalJoinOperator currentParent = root;
         List<Join> joins = new ArrayList<>(selectBody.getJoins());
-        Map<String, Integer> tableOffset = LogicalQueryPlanUtils.generateJoinTableOffsets(selectBody, this.aliasMap);
+        Map<String, Integer> tableOffset = LogicalQueryPlanUtils.generateOldJoinTableOffsets(selectBody, this.aliasMap);
         Stack<BinaryExpression> expressions = LogicalQueryPlanUtils.getExpressions(selectBody.getWhere());
         while (joins.size() > 0) {
             Table rightChildTable = (Table) joins.remove(joins.size() - 1).getRightItem();

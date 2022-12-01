@@ -10,7 +10,7 @@ import net.sf.jsqlparser.schema.Table;
  *
  * @author Yunus (ymm26@cornell.edu)
  */
-public class LogicalScanOperator extends LogicalOperator {
+public class LogicalScanOperator extends LogicalOperator implements LogicalJoinChild {
     private Table table;
     private String tableName;
     private AliasMap aliasMap;
@@ -24,8 +24,9 @@ public class LogicalScanOperator extends LogicalOperator {
     public LogicalScanOperator(Table table, AliasMap aliasMap) {
         this.table = table;
         this.aliasMap = aliasMap;
-        String tableName = table.getAlias();
-        if (tableName == null) tableName = table.getName();
+        tableName = table.getAlias();
+        if (tableName == null)
+            tableName = table.getName();
     }
 
     /**
@@ -39,6 +40,7 @@ public class LogicalScanOperator extends LogicalOperator {
 
     /**
      * Returns the alias or table name if no alias exists for the base table
+     * 
      * @return the alias or table name
      */
     public String getTableName() {
@@ -47,6 +49,7 @@ public class LogicalScanOperator extends LogicalOperator {
 
     /**
      * Returns the base table name
+     * 
      * @return the base table name
      */
     public String getBaseTableName() {

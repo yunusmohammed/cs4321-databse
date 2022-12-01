@@ -77,7 +77,6 @@ public class JoinOrder {
         Expression selectionExpression = getSelectionExpression(whereExpression);
         selectionVisitor = new DSUExpressionVisitor();
         selectionVisitor.processExpression(selectionExpression);
-        UnionFind uf = selectionVisitor.getUnionFind();
         valuesMap = new HashMap<>();
 
         List<Table> tables = new ArrayList<>();
@@ -94,8 +93,8 @@ public class JoinOrder {
             String baseTableName = t.getName();
             String[] tableSchema = dbc.tableSchema(baseTableName);
             for (int i = 1; i < tableSchema.length; i++) {
-                Column col = new Column(t, name + "." + tableSchema[i]);
-                setColumnValue(col);
+                Column col = new Column(t, tableSchema[i]);
+                setColumnValue(col, name, baseTableName, tableSchema[i]);
             }
         }
         // for every table, the V-Values of every column are set to the minimum V-Value
@@ -263,11 +262,7 @@ public class JoinOrder {
      * 
      * @param column - a column among the tables being joined
      */
-    private static void setColumnValue(Column column) {
-        String[] columnStrings = column.getWholeColumnName().split("\\.");
-        String table = columnStrings[0];
-        String baseTableName = aliasMap.getBaseTable(table);
-        String attribute = columnStrings[1];
+    private static void setColumnValue(Column column, String table, String baseTableName, String attribute) {
         TableStatsInfo tableInfo = tableStatsMap.get(baseTableName);
         List<ColumnStatsInfo> columnInfos = tableInfo.getColumnStatsInfoList();
         ColumnStatsInfo colInfo = null;
@@ -282,7 +277,6 @@ public class JoinOrder {
         HashMap<String, Double> tableValues = valuesMap.getOrDefault(table, new HashMap<>());
         // adjust V-Values if the column is associated with a selection
         UnionFindElement element = selectionVisitor.getUnionFind().find(column);
-        UnionFind uf = selectionVisitor.getUnionFind();
         Integer lowerbound = element.getLowerBound(), upperbound = element.getUpperBound();
         if (lowerbound == null)
             lowerbound = colInfo.getMinValue();
@@ -294,7 +288,6 @@ public class JoinOrder {
             v *= (upperbound - lowerbound + 1.0) / v;
         tableValues.put(attribute, v);
         valuesMap.put(table, tableValues);
-
     }
 
     /**

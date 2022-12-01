@@ -62,21 +62,19 @@ class InterpreterHumanReadableTest {
         shipsColumnMap.put("X", 0);
         shipsColumnMap.put("Y", 1);
 
-//        Mockito.when(dbc.tablePath(Mockito.any())).thenCallRealMethod();
-//        Mockito.when(dbc.columnMap("Sailors")).thenReturn(sailorsColumnMap);
-//        Mockito.when(dbc.columnMap("Sailors2")).thenReturn(sailorsColumnMap);
-//        Mockito.when(dbc.columnMap("Boats")).thenReturn(boatsColumnMap);
-//        Mockito.when(dbc.columnMap("Boats2")).thenReturn(boatsColumnMap);
-//        Mockito.when(dbc.columnMap("Reserves")).thenReturn(reservesColumnMap);
-//        Mockito.when(dbc.columnMap("Reserves2")).thenReturn(reservesColumnMap);
-//        Mockito.when(dbc.columnMap("Ships")).thenReturn(shipsColumnMap);
+        // Mockito.when(dbc.tablePath(Mockito.any())).thenCallRealMethod();
+        // Mockito.when(dbc.columnMap("Sailors")).thenReturn(sailorsColumnMap);
+        // Mockito.when(dbc.columnMap("Sailors2")).thenReturn(sailorsColumnMap);
+        // Mockito.when(dbc.columnMap("Boats")).thenReturn(boatsColumnMap);
+        // Mockito.when(dbc.columnMap("Boats2")).thenReturn(boatsColumnMap);
+        // Mockito.when(dbc.columnMap("Reserves")).thenReturn(reservesColumnMap);
+        // Mockito.when(dbc.columnMap("Reserves2")).thenReturn(reservesColumnMap);
+        // Mockito.when(dbc.columnMap("Ships")).thenReturn(shipsColumnMap);
     }
 
     @Test
     void queryOutputHumanReadable() {
-//        BinaryToHumanReadableUtil.binaryToHuman("C:\\Users\\Yohanes\\eclipse-workspace\\cs4321-databse\\src\\test\\resources\\expectedOutputHumanReadable\\query12", "C:\\Users\\Yohanes\\eclipse-workspace\\cs4321-databse\\src\\test\\resources\\expectedOutputHumanReadable\\query12H");
-//        BinaryToHumanReadableUtil.binaryToHuman("C:\\Users\\Yohanes\\eclipse-workspace\\cs4321-databse\\src\\test\\resources\\correctOutput_endToEnd\\query12", "C:\\Users\\Yohanes\\eclipse-workspace\\cs4321-databse\\src\\test\\resources\\correctOutput_endToEnd\\query12H");
-        PhysicalPlanBuilder.setConfigs("plan_builder_config.txt");
+        PhysicalPlanBuilder.setConfigs();
         String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep
                 + "correctOutput_endToEnd";
         Interpreter.parseQueries();

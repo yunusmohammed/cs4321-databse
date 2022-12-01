@@ -1,20 +1,15 @@
 package com.cs4321.physicaloperators;
 
-import com.cs4321.app.AliasMap;
-import com.cs4321.app.Interpreter;
-import com.cs4321.app.Logger;
-import com.cs4321.app.PhysicalPlanBuilder;
+import com.cs4321.app.*;
 import com.cs4321.logicaloperators.LogicalOperator;
 import com.cs4321.logicaloperators.LogicalQueryPlan;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
@@ -46,10 +41,32 @@ public class QueryPlan {
         this.queryNumber = queryNumber;
         if (statement != null) {
             LogicalQueryPlan logicalPlan = new LogicalQueryPlan(statement);
+            // File called queryi_logicalplan
+            createQueryPrintFile(String.format("query%d_logicalplan", queryNumber), logicalPlan.toString());
             LogicalOperator logicalRoot = logicalPlan.getRoot();
             PlainSelect plainSelect = (PlainSelect) ((Select) statement).getSelectBody();
             PhysicalPlanBuilder.setTableOrder(plainSelect.getFromItem(), plainSelect.getJoins());
             this.root = PhysicalPlanBuilder.getInstance().constructPhysical(logicalRoot);
+            // File called queryi_physicalplan
+            createQueryPrintFile(String.format("query%d_physicalplan", queryNumber), this.root.toString(0));
+        }
+    }
+
+    void createQueryPrintFile(String nameOfFile, String stringToWrite) {
+        String filePath = Interpreter.getOutputdir() + File.separator + nameOfFile;
+        try {
+            Files.deleteIfExists(Path.of(filePath));
+        } catch (IOException e) {
+            Logger.getInstance().log(e.getMessage());
+        }
+        File createdFile = new File(filePath);
+        try {
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(createdFile, true));
+            bufferedWriter.write(stringToWrite);
+            bufferedWriter.newLine();
+            bufferedWriter.flush();
+        } catch (IOException e) {
+            Logger.getInstance().log(e.getMessage());
         }
     }
 

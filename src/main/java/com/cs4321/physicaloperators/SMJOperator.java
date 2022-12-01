@@ -3,6 +3,7 @@ package com.cs4321.physicaloperators;
 import com.cs4321.app.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
 import java.util.List;
@@ -68,8 +69,8 @@ public class SMJOperator extends JoinOperator {
      * @param visitor       the expression visitor of this join operator
      */
     public SMJOperator(Operator leftSort, Operator rightSort, Expression joinCondition,
-            JoinExpressionVisitor visitor) {
-        super(leftSort, rightSort, joinCondition, visitor);
+            JoinExpressionVisitor visitor, List<Table> originalJoinOrder) {
+        super(leftSort, rightSort, joinCondition, visitor, originalJoinOrder);
         this.leftSort = this.getLeftChild();
         this.rightSort = this.getRightChild();
         this.started = false;
@@ -171,7 +172,7 @@ public class SMJOperator extends JoinOperator {
         if (leftTuple == null || rightTuple == null)
             return null;
 
-        return leftTuple.concat(rightTuple);
+        return this.getTupleInOriginalOrder(leftTuple.concat(rightTuple));
     }
 
     @Override
@@ -180,7 +181,7 @@ public class SMJOperator extends JoinOperator {
         for (int i = 0; i < level; i++) {
             builder.append("-");
         }
-        builder.append("SMJ[" + this.getJoinCondition().toString() + "]");
+        builder.append("SMJ[" + this.getJoinConditionString() + "]");
         builder.append("\n");
         builder.append(this.getLeftChild().toString(level + 1));
         builder.append(this.getRightChild().toString(level + 1));

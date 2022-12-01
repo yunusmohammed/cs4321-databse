@@ -13,7 +13,7 @@ import net.sf.jsqlparser.schema.Table;
  *
  * @author Yunus (ymm26@cornell.edu)
  */
-public class LogicalSelectionOperator extends LogicalOperator {
+public class LogicalSelectionOperator extends LogicalOperator implements LogicalJoinChild {
     private final Expression selectCondition;
     private final LogicalOperator child;
     private final SelectExpressionVisitor visitor;
@@ -50,6 +50,16 @@ public class LogicalSelectionOperator extends LogicalOperator {
      */
     public LogicalOperator getChild() {
         return this.child;
+    }
+
+    /**
+     * Get the table in the database the child of this SelectOperator is scanning
+     *
+     * @return the table in the database the child of this SelectOperator is
+     * scanning
+     */
+    public Table getTable() {
+        return ((LogicalScanOperator) this.getChild()).getTable();
     }
 
     /**
@@ -90,6 +100,15 @@ public class LogicalSelectionOperator extends LogicalOperator {
     }
 
     /**
+     * Gets the base table name of the logical selection operator.
+     *
+     * @return The base table name of the logical selection operator.
+     */
+    public String getTableName() {
+        return ((LogicalScanOperator) this.child).getTableName();
+    }
+
+    /**
      * Get the AliasMap of the logical select operator
      *
      * @return The AliasMap of the logical select operator
@@ -115,6 +134,8 @@ public class LogicalSelectionOperator extends LogicalOperator {
         for (int i = 0; i < level; i++) {
             builder.append("-");
         }
+        String selectItems = "";
+        if (this.getSelectCondition() != null) selectItems = this.getSelectCondition().toString();
         builder.append("Select[" + this.getSelectCondition().toString() + "]");
         builder.append("\n");
         builder.append(this.getChild().toString(level + 1));

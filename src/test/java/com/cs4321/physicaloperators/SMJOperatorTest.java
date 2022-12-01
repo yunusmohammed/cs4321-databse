@@ -32,7 +32,7 @@ public class SMJOperatorTest {
 
     visitor = Mockito.mock(JoinExpressionVisitor.class);
 
-    smj = new SMJOperator(leftChild, rightChild, joinCondition, visitor);
+    smj = new SMJOperator(leftChild, rightChild, joinCondition, visitor, null);
   }
 
   @Test

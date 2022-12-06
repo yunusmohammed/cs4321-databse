@@ -76,10 +76,16 @@ public class RandomDataGenerator {
                 }
                 tablePath = Files.createFile(Path.of(tableName)).toString();
                 TupleWriter writer = new TupleWriter(tablePath);
-                for (int i = 0; i < numTuples; i++) {
+                for (int i = 0; i < 499; i++) {
                     Tuple t = generateTuple(columnMaxMinArr);
                     writer.writeToFile(t, false);
                 }
+                for (int i = 0; i < 1500; i++) {
+                    Tuple t = new Tuple("1,2,3");
+                    writer.writeToFile(t, false);
+                }
+                Tuple t = new Tuple("0,1,2");
+                writer.writeToFile(t, false);
                 writer.writeToFile(null, true);
             }
         } catch (IOException e) {
@@ -101,10 +107,10 @@ public class RandomDataGenerator {
 //        System.out.println(Arrays.toString(randomDataGenerator.getColumnNames()));
 //    }
 
-//    public static void main(String[] args) {
-//        String filename = args[0];
-//        new RandomDataGenerator(filename);
-//    }
+    public static void main(String[] args) {
+        String filename = args[0];
+        new RandomDataGenerator(filename);
+    }
 
     /**
      * Generates a random tuple where each attribute value lies between this.minValue and this.maxValue.

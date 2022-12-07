@@ -2,6 +2,7 @@ package utils;
 
 import com.cs4321.app.AliasMap;
 import com.cs4321.app.DatabaseCatalog;
+import com.cs4321.app.Logger;
 import com.cs4321.logicaloperators.LogicalJoinChild;
 import com.cs4321.logicaloperators.LogicalJoinOperator;
 import com.cs4321.logicaloperators.LogicalOperator;
@@ -66,8 +67,7 @@ public class LogicalQueryPlanUtils {
      * Generates a map of offsets for column indices of tables in the results of
      * joins
      *
-     * @param selectBody a select body containing the order in which tables are
-     *                   joined
+     *
      * @return a map of column index offsets for tables after a join operation
      */
     private static Map<String, Integer> generateJoinTableOffsets(List<LogicalOperator> orderedJoinRelations,
@@ -222,8 +222,6 @@ public class LogicalQueryPlanUtils {
     /**
      * Generates a logical join query plan
      *
-     * @param selectBody The body of a select statement. The joins field must be non
-     *                   null and not empty
      * @return the root of the logical join query plan
      */
     public static OldLogicalJoinOperator generateOldLogicalJoinTree(LogicalJoinOperator logicalJoin,
@@ -233,8 +231,13 @@ public class LogicalQueryPlanUtils {
                 .map(elt -> ((LogicalJoinChild) elt).getTable()).collect(Collectors.toList());
         root.setOriginalJoinOrder(originalJoinOrder);
         OldLogicalJoinOperator currentParent = root;
+
+        long startTime = System.currentTimeMillis();
         List<LogicalOperator> logicalJoinChildren = JoinOrder.getJoinOrder(logicalJoin.getChildren(),
                 logicalJoin.getWhereExpression(), aliasMap);
+        long endTime = System.currentTimeMillis();
+        Logger.getInstance().log(String.valueOf(endTime - startTime));
+
         Map<String, Integer> tableOffset = LogicalQueryPlanUtils.generateJoinTableOffsets(logicalJoinChildren,
                 aliasMap);
         Stack<BinaryExpression> expressions = LogicalQueryPlanUtils.getExpressions(logicalJoin.getWhereExpression());

@@ -1,5 +1,6 @@
 package com.cs4321.app;
 
+import com.cs4321.indexes.BPlusTree;
 import com.cs4321.logicaloperators.*;
 import com.cs4321.physicaloperators.*;
 import net.sf.jsqlparser.expression.BinaryExpression;
@@ -49,13 +50,16 @@ public class PhysicalPlanBuilder {
     }
 
     /**
-     * Sets the page per index map to `map`. This should be mapping the name of a
-     * column
-     * using the base table and mapping to the number of leaf pages.
+     * Creates a mapping from name of a column, using the base table, to the number
+     * of leaf pages.
      *
-     * @param map The mapping from column name to number of leaf pages.
+     * @param indexes The list of indexes.
      */
-    public static void setPagePerIndex(Map<String, Integer> map) {
+    public static void createPagePerIndex(List<BPlusTree> indexes) {
+        Map<String, Integer> map = new HashMap<>();
+        for (BPlusTree tree : indexes) {
+            map.put(tree.getWholeColumnName(), tree.getLeafCount());
+        }
         pagePerIndex = map;
     }
 
@@ -120,7 +124,7 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical scan operator acting as a blueprint.
      * @return The physical scan operator corresponding to the logical scan
-     *         operator.
+     * operator.
      */
     public Operator visit(LogicalScanOperator operator) {
         return new FullScanOperator(operator.getTable(), operator.getAliasMap(), humanReadable);
@@ -135,10 +139,10 @@ public class PhysicalPlanBuilder {
      * @param indexColumn The column to create the index on
      * @param lowHigh     The low and high value for the index
      * @return A new index scan on `indexColumn` with the range from low to high as
-     *         specified by lowHigh.
+     * specified by lowHigh.
      */
     public IndexScanOperator generateIndexScan(LogicalSelectionOperator operator, Column indexColumn,
-            List<Integer> lowHigh) {
+                                               List<Integer> lowHigh) {
         String baseTableName = operator.getAliasMap().getBaseTable(indexColumn.getTable().getName());
         String wholeBaseColumnName = String.format("%s.%s", baseTableName, indexColumn.getColumnName());
         String dbPath = DatabaseCatalog.getInputdir() + File.separator + "db";
@@ -170,8 +174,8 @@ public class PhysicalPlanBuilder {
             double tableVals = info.getMaxValue() - info.getMinValue() + 1;
             double numVals = 0;
             if (!visitor.getLowHigh().isEmpty()) {
-                int low = Math.max(visitor.getLowHigh().get(1), info.getMinValue());
-                int high = Math.max(visitor.getLowHigh().get(0), info.getMaxValue());
+                int low = Math.max(visitor.getLowHigh().get(0), info.getMinValue());
+                int high = Math.min(visitor.getLowHigh().get(1), info.getMaxValue());
                 numVals = high - low + 1;
             }
             double reduction_factor = numVals / tableVals;
@@ -200,7 +204,7 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical selection operator acting as a blueprint.
      * @return The physical selection operator corresponding to the logical
-     *         selection operator.
+     * selection operator.
      */
     public Operator visit(LogicalSelectionOperator operator) {
         String indexColumnName = chooseIndex(operator);
@@ -239,7 +243,7 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical projection operator acting as a blueprint.
      * @return The physical projection operator corresponding to the logical
-     *         projection operator.
+     * projection operator.
      */
     public Operator visit(LogicalProjectionOperator operator) {
         Operator child = constructPhysical(operator.getChild());
@@ -275,7 +279,7 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical join operator acting as a blueprint.
      * @return The physical join operator corresponding to the logical join
-     *         operator.
+     * operator.
      */
     public Operator visit(OldLogicalJoinOperator operator) {
         Operator leftChild = constructPhysical(operator.getLeftChild());
@@ -312,7 +316,7 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical join operator acting as a blueprint.
      * @return The physical join operator corresponding to the logical join
-     *         operator.
+     * operator.
      */
     public Operator visit(LogicalJoinOperator operator) {
         OldLogicalJoinOperator oldLogicalJoinOperator = LogicalQueryPlanUtils.generateOldLogicalJoinTree(operator,
@@ -401,7 +405,7 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical sort operator acting as a blueprint.
      * @return The physical sort operator corresponding to the logical sort
-     *         operator.
+     * operator.
      */
     public Operator visit(LogicalSortOperator operator) {
         Operator child = constructPhysical(operator.getChild());
@@ -415,7 +419,7 @@ public class PhysicalPlanBuilder {
      * @param operator The logical DuplicateElimination operator acting as a
      *                 blueprint.
      * @return The physical DuplicateElimination operator corresponding to the
-     *         logical DuplicateElimination operator.
+     * logical DuplicateElimination operator.
      */
     public Operator visit(LogicalDuplicateEliminationOperator operator) {
         Operator child = constructPhysical(operator.getChild());
@@ -440,7 +444,7 @@ public class PhysicalPlanBuilder {
      *
      * @param joinCondition
      * @return true if and only if the join condition is not empty and has purely
-     *         equality comparisons
+     * equality comparisons
      */
     private boolean canUseSMJ(Expression joinCondition) {
         Stack<BinaryExpression> expressions = LogicalQueryPlanUtils.getExpressions(joinCondition);

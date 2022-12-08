@@ -1,1 +1,1 @@
-SELECT * FROM Ghana T1, Eritrea T2, Kenya T3 WHERE T1.A = T2.A AND T1.B = T3.B AND T2.C = T3.C;
+SELECT DISTINCT S.A, R.G FROM Reserves R, Sailors S, Boats B WHERE R.H<>B.D AND S.A=B.D AND R.G=S.B AND R.H<=99;

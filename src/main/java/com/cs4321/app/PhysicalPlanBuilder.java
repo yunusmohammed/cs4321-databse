@@ -342,7 +342,7 @@ public class PhysicalPlanBuilder {
             smjOperator.setRightSortOrder(rightOrder);
             return smjOperator;
         } else {
-            return new BNLJoinOperator(leftChild, rightChild, operator.getJoinCondition(),
+            return new BNLJoinOperator(leftChild, rightChild, oldLogicalJoinOperator.getJoinCondition(),
                     oldLogicalJoinOperator.getJoinExpressionVisitor(), BUFFER_SIZE,
                     oldLogicalJoinOperator.getOriginalJoinOrder());
         }

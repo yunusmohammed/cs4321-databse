@@ -10,9 +10,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * The SQL interpreter reads from the db directory and from the queries.sql
@@ -55,10 +53,6 @@ public class Interpreter {
             Logger.getInstance().log(e.getMessage());
             return;
         }
-        Map<String, Integer> pagePerIndex = new HashMap<>();
-        for (BPlusTree tree : indexes) {
-            pagePerIndex.put(tree.getWholeColumnName(), tree.getLeafCount());
-        }
         setInputdir(interpreterConfig.getInputdir());
         setOutputdir(interpreterConfig.getOutputdir());
         setTempdir(interpreterConfig.getTempdir());
@@ -67,6 +61,7 @@ public class Interpreter {
         PhysicalPlanBuilder.setHumanReadable(humanReadable);
         PhysicalPlanBuilder.setConfigs();
         buildIndexInfos();
+        PhysicalPlanBuilder.createPagePerIndex(indexes);
         parseQueries();
         // if (interpreterConfig.shouldBuildIndexes()) {
         // buildIndexInfos();
@@ -159,11 +154,11 @@ public class Interpreter {
      * Sets the query input directory
      *
      * @return The input directory, which contains a queries.sql file containing the
-     *         sql queries.
-     *         a db subdirectory, which contains a schema.txt file specifying the
-     *         schema for your
-     *         database as well as a data subdirectory, where the data itself is
-     *         stored.
+     * sql queries.
+     * a db subdirectory, which contains a schema.txt file specifying the
+     * schema for your
+     * database as well as a data subdirectory, where the data itself is
+     * stored.
      */
     public static String getInputdir() {
         return inputdir;
@@ -197,7 +192,7 @@ public class Interpreter {
      * should write their “scratch” files.
      *
      * @return the temporary directory where your external sort operators
-     *         should write their “scratch” files.
+     * should write their “scratch” files.
      */
     public static String getTempdir() {
         return tempdir;
@@ -236,7 +231,7 @@ public class Interpreter {
      * Returns all the statements from the queries.sql file that have been evaluated
      *
      * @return- all the statements from the queries.sql file that have been
-     *          evaluated
+     * evaluated
      */
     public static List<Statement> getStatements() {
         return statements;

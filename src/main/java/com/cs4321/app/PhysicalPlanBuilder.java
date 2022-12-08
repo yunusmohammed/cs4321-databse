@@ -1,5 +1,6 @@
 package com.cs4321.app;
 
+import com.cs4321.indexes.BPlusTree;
 import com.cs4321.logicaloperators.*;
 import com.cs4321.physicaloperators.*;
 import net.sf.jsqlparser.expression.BinaryExpression;
@@ -49,13 +50,16 @@ public class PhysicalPlanBuilder {
     }
 
     /**
-     * Sets the page per index map to `map`. This should be mapping the name of a
-     * column
-     * using the base table and mapping to the number of leaf pages.
+     * Creates a mapping from name of a column, using the base table, to the number
+     * of leaf pages.
      *
-     * @param map The mapping from column name to number of leaf pages.
+     * @param indexes The list of indexes.
      */
-    public static void setPagePerIndex(Map<String, Integer> map) {
+    public static void createPagePerIndex(List<BPlusTree> indexes) {
+        Map<String, Integer> map = new HashMap<>();
+        for (BPlusTree tree : indexes) {
+            map.put(tree.getWholeColumnName(), tree.getLeafCount());
+        }
         pagePerIndex = map;
     }
 
@@ -170,8 +174,8 @@ public class PhysicalPlanBuilder {
             double tableVals = info.getMaxValue() - info.getMinValue() + 1;
             double numVals = 0;
             if (!visitor.getLowHigh().isEmpty()) {
-                int low = Math.max(visitor.getLowHigh().get(1), info.getMinValue());
-                int high = Math.max(visitor.getLowHigh().get(0), info.getMaxValue());
+                int low = Math.max(visitor.getLowHigh().get(0), info.getMinValue());
+                int high = Math.min(visitor.getLowHigh().get(1), info.getMaxValue());
                 numVals = high - low + 1;
             }
             double reduction_factor = numVals / tableVals;

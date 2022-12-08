@@ -120,7 +120,7 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical scan operator acting as a blueprint.
      * @return The physical scan operator corresponding to the logical scan
-     * operator.
+     *         operator.
      */
     public Operator visit(LogicalScanOperator operator) {
         return new FullScanOperator(operator.getTable(), operator.getAliasMap(), humanReadable);
@@ -135,10 +135,10 @@ public class PhysicalPlanBuilder {
      * @param indexColumn The column to create the index on
      * @param lowHigh     The low and high value for the index
      * @return A new index scan on `indexColumn` with the range from low to high as
-     * specified by lowHigh.
+     *         specified by lowHigh.
      */
     public IndexScanOperator generateIndexScan(LogicalSelectionOperator operator, Column indexColumn,
-                                               List<Integer> lowHigh) {
+            List<Integer> lowHigh) {
         String baseTableName = operator.getAliasMap().getBaseTable(indexColumn.getTable().getName());
         String wholeBaseColumnName = String.format("%s.%s", baseTableName, indexColumn.getColumnName());
         String dbPath = DatabaseCatalog.getInputdir() + File.separator + "db";
@@ -200,7 +200,7 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical selection operator acting as a blueprint.
      * @return The physical selection operator corresponding to the logical
-     * selection operator.
+     *         selection operator.
      */
     public Operator visit(LogicalSelectionOperator operator) {
         String indexColumnName = chooseIndex(operator);
@@ -239,7 +239,7 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical projection operator acting as a blueprint.
      * @return The physical projection operator corresponding to the logical
-     * projection operator.
+     *         projection operator.
      */
     public Operator visit(LogicalProjectionOperator operator) {
         Operator child = constructPhysical(operator.getChild());
@@ -275,7 +275,7 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical join operator acting as a blueprint.
      * @return The physical join operator corresponding to the logical join
-     * operator.
+     *         operator.
      */
     public Operator visit(OldLogicalJoinOperator operator) {
         Operator leftChild = constructPhysical(operator.getLeftChild());
@@ -312,7 +312,7 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical join operator acting as a blueprint.
      * @return The physical join operator corresponding to the logical join
-     * operator.
+     *         operator.
      */
     public Operator visit(LogicalJoinOperator operator) {
         OldLogicalJoinOperator oldLogicalJoinOperator = LogicalQueryPlanUtils.generateOldLogicalJoinTree(operator,
@@ -338,7 +338,7 @@ public class PhysicalPlanBuilder {
             smjOperator.setRightSortOrder(rightOrder);
             return smjOperator;
         } else {
-            return new BNLJoinOperator(leftChild, rightChild, operator.getJoinCondition(),
+            return new BNLJoinOperator(leftChild, rightChild, oldLogicalJoinOperator.getJoinCondition(),
                     oldLogicalJoinOperator.getJoinExpressionVisitor(), BUFFER_SIZE,
                     oldLogicalJoinOperator.getOriginalJoinOrder());
         }
@@ -401,7 +401,7 @@ public class PhysicalPlanBuilder {
      *
      * @param operator The logical sort operator acting as a blueprint.
      * @return The physical sort operator corresponding to the logical sort
-     * operator.
+     *         operator.
      */
     public Operator visit(LogicalSortOperator operator) {
         Operator child = constructPhysical(operator.getChild());
@@ -415,7 +415,7 @@ public class PhysicalPlanBuilder {
      * @param operator The logical DuplicateElimination operator acting as a
      *                 blueprint.
      * @return The physical DuplicateElimination operator corresponding to the
-     * logical DuplicateElimination operator.
+     *         logical DuplicateElimination operator.
      */
     public Operator visit(LogicalDuplicateEliminationOperator operator) {
         Operator child = constructPhysical(operator.getChild());
@@ -440,7 +440,7 @@ public class PhysicalPlanBuilder {
      *
      * @param joinCondition
      * @return true if and only if the join condition is not empty and has purely
-     * equality comparisons
+     *         equality comparisons
      */
     private boolean canUseSMJ(Expression joinCondition) {
         Stack<BinaryExpression> expressions = LogicalQueryPlanUtils.getExpressions(joinCondition);

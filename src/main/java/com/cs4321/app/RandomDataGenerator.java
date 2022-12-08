@@ -7,7 +7,8 @@ import java.nio.file.Paths;
 import java.util.List;
 
 /**
- * Creates a temporary file with random data according to a set of specifications.
+ * Creates a temporary file with random data according to a set of
+ * specifications.
  *
  * @author Yohanes Kidane
  */
@@ -22,18 +23,27 @@ public class RandomDataGenerator {
     private int maxValue;
 
     /**
-     * Creates a new file and generates random data within the file. The number of columns and tuples, and the range of
+     * Creates a new file and generates random data within the file. The number of
+     * columns and tuples, and the range of
      * values in the data will fall within a given range.
      *
-     * @param tableName- the name of the newly created table. Requires: tableName is unique.
-     * @param minTuples  - the minimum number of tuples in our table. Requires: minTuples >= 0
-     * @param maxTuples  - the maximum Number of tuples in our table. Requires: maxTuples >= minTuples
-     * @param minColumns - the minimum number of columns in our table. Requires: minColumns >= 0
-     * @param maxColumns - the maximum number of columns in our table. Requires: maxColumns >= minColumns
-     * @param minValue   - the minimum value for an attribute in the table. Requires: minValue >= 0
-     * @param maxValue   - the maximum value for an attribute in the table. Requires: maxValue >= minValue
+     * @param tableName- the name of the newly created table. Requires: tableName is
+     *                   unique.
+     * @param minTuples  - the minimum number of tuples in our table. Requires:
+     *                   minTuples >= 0
+     * @param maxTuples  - the maximum Number of tuples in our table. Requires:
+     *                   maxTuples >= minTuples
+     * @param minColumns - the minimum number of columns in our table. Requires:
+     *                   minColumns >= 0
+     * @param maxColumns - the maximum number of columns in our table. Requires:
+     *                   maxColumns >= minColumns
+     * @param minValue   - the minimum value for an attribute in the table.
+     *                   Requires: minValue >= 0
+     * @param maxValue   - the maximum value for an attribute in the table.
+     *                   Requires: maxValue >= minValue
      */
-    public RandomDataGenerator(String tableName, int minTuples, int maxTuples, int minColumns, int maxColumns, int minValue, int maxValue) {
+    public RandomDataGenerator(String tableName, int minTuples, int maxTuples, int minColumns, int maxColumns,
+            int minValue, int maxValue) {
         try {
             tablePath = Files.createTempFile(tableName, null).toString();
             this.minValue = minValue;
@@ -76,16 +86,19 @@ public class RandomDataGenerator {
                 }
                 tablePath = Files.createFile(Path.of(tableName)).toString();
                 TupleWriter writer = new TupleWriter(tablePath);
-//                for (int i = 0; i < 2000; i++) {
-//                    Tuple t = generateTuple(columnMaxMinArr);
-//                    writer.writeToFile(t, false);
-//                }
-                for (int i = 0; i < 2002; i++) {
-                    Tuple t = new Tuple("1,3,2");
+                for (int i = 0; i < 4998; i++) {
+                    Tuple t = generateTuple(columnMaxMinArr);
                     writer.writeToFile(t, false);
                 }
-//                Tuple t = new Tuple("0,1,2");
-//                writer.writeToFile(t, false);
+                // for (int i = 0; i < 2002; i++) {
+                // Tuple t = new Tuple("1,3,2");
+                // writer.writeToFile(t, false);
+                // }
+                Tuple t = new Tuple("1,11");
+                writer.writeToFile(t, false);
+                t = new Tuple("4999,5000");
+                writer.writeToFile(t, false);
+
                 writer.writeToFile(null, true);
             }
         } catch (IOException e) {
@@ -94,18 +107,18 @@ public class RandomDataGenerator {
         }
     }
 
-
-//    public static void main(String[] args) {
-//        String tableName = args[0];
-//        int minTuples = Integer.parseInt(args[1]);
-//        int maxTuples = Integer.parseInt(args[2]);
-//        int minColumns = Integer.parseInt(args[3]);
-//        int maxColumns = Integer.parseInt(args[4]);
-//        int minValue = Integer.parseInt(args[5]);
-//        int maxValue = Integer.parseInt(args[6]);
-//        RandomDataGenerator randomDataGenerator = new RandomDataGenerator(tableName, minTuples, maxTuples, minColumns, maxColumns, minValue, maxValue);
-//        System.out.println(Arrays.toString(randomDataGenerator.getColumnNames()));
-//    }
+    // public static void main(String[] args) {
+    // String tableName = args[0];
+    // int minTuples = Integer.parseInt(args[1]);
+    // int maxTuples = Integer.parseInt(args[2]);
+    // int minColumns = Integer.parseInt(args[3]);
+    // int maxColumns = Integer.parseInt(args[4]);
+    // int minValue = Integer.parseInt(args[5]);
+    // int maxValue = Integer.parseInt(args[6]);
+    // RandomDataGenerator randomDataGenerator = new RandomDataGenerator(tableName,
+    // minTuples, maxTuples, minColumns, maxColumns, minValue, maxValue);
+    // System.out.println(Arrays.toString(randomDataGenerator.getColumnNames()));
+    // }
 
     public static void main(String[] args) {
         String filename = args[0];
@@ -113,7 +126,8 @@ public class RandomDataGenerator {
     }
 
     /**
-     * Generates a random tuple where each attribute value lies between this.minValue and this.maxValue.
+     * Generates a random tuple where each attribute value lies between
+     * this.minValue and this.maxValue.
      *
      * @return - a random tuple of length numColumns.
      */
@@ -122,13 +136,15 @@ public class RandomDataGenerator {
         for (int i = 0; i < numColumns; i++) {
             int value = randomIntWithinRange(minValue, maxValue);
             sb.append(value);
-            if (i != numColumns - 1) sb.append(",");
+            if (i != numColumns - 1)
+                sb.append(",");
         }
         return new Tuple(sb.toString());
     }
 
     /**
-     * Generates a random tuple where each attribute value lies between this.minValue and this.maxValue.
+     * Generates a random tuple where each attribute value lies between
+     * this.minValue and this.maxValue.
      *
      * @return - a random tuple of length numColumns.
      */
@@ -137,7 +153,8 @@ public class RandomDataGenerator {
         for (int i = 0; i < numColumns; i++) {
             int value = randomIntWithinRange(columnMaxMinArr[i][0], columnMaxMinArr[i][1]);
             sb.append(value);
-            if (i != numColumns - 1) sb.append(",");
+            if (i != numColumns - 1)
+                sb.append(",");
         }
         return new Tuple(sb.toString());
     }
@@ -146,7 +163,8 @@ public class RandomDataGenerator {
      * Returns a random integer in the range [lowerBound, upperBound] (inclusive)
      *
      * @param lowerBound - the lower bound for the range. Requires: lowerBound >= 0
-     * @param upperBound - the upper bound for the range. Requires: upperBound >= lowerBound
+     * @param upperBound - the upper bound for the range. Requires: upperBound >=
+     *                   lowerBound
      * @return - a random integer in the given range
      */
     private int randomIntWithinRange(int lowerBound, int upperBound) {

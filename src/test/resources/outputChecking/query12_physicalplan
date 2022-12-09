@@ -1,0 +1,11 @@
+Project[Reserves.H, Sailors.C]
+-SMJ[Reserves.G = Sailors.A]
+--ExternalSort[Sailors.A]
+---SMJ[Boats.E = Sailors.A]
+----ExternalSort[Boats.E]
+-----TableScan[Boats]
+----ExternalSort[Sailors.A]
+-----TableScan[Sailors]
+--ExternalSort[Reserves.G]
+---TableScan[Reserves]
+

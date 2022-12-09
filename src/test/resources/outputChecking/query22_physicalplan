@@ -1,0 +1,9 @@
+DupElim
+-ExternalSort[S2.C]
+--Project[S1.B, S2.C]
+---BNLJ[]
+----Select[S1.A < -1]
+-----TableScan[Sailors]
+----Select[S2.B >= 302]
+-----TableScan[Sailors]
+

@@ -1,0 +1,9 @@
+DupElim
+-Sort[R3.G, R2.H]
+--Project[R3.G, R1.H, R2.H]
+---Join[]
+[[R1.G, R2.G, R3.G], equals null, min null, max null]
+----Leaf[Reserves]
+----Leaf[Reserves]
+----Leaf[Reserves]
+

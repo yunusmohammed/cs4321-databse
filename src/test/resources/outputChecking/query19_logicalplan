@@ -1,0 +1,6 @@
+Sort[S.C, B.F]
+-Project[B.E, B.F, B.D, S.C]
+--Join[]
+---Leaf[Boats]
+---Leaf[Sailors]
+

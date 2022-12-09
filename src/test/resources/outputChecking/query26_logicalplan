@@ -1,0 +1,5 @@
+Project[Sailors.C]
+-Join[Sailors.A <> Reserves.G]
+--Leaf[Sailors]
+--Leaf[Reserves]
+

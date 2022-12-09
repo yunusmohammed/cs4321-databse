@@ -1,0 +1,5 @@
+Sort[R.H]
+-Project[R.G, R.H]
+--Select[R.G < 4]
+---Leaf[Reserves]
+

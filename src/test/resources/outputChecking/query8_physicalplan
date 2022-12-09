@@ -1,0 +1,3 @@
+ExternalSort[Sailors.B]
+-TableScan[Sailors]
+

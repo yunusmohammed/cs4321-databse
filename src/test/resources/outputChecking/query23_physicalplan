@@ -1,0 +1,3 @@
+Select[Boats.E > -1]
+-TableScan[Boats]
+

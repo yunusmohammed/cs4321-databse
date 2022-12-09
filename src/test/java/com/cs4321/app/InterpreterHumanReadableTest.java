@@ -15,6 +15,8 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -24,43 +26,57 @@ class InterpreterHumanReadableTest {
     private static final String sep = File.separator;
     private static final String inputdir = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep
             + "resources" + sep + "input_endToEnd";
-    private static String outputdir;
+    private static String outputdir = "C:\\Users\\Yohanes\\eclipse-workspace\\cs4321-databse\\src\\test\\resources\\outputChecking";
+    private static String tempdir = "C:\\Users\\Yohanes\\eclipse-workspace\\cs4321-databse\\src\\test\\resources\\tempDir";
     private static final Logger logger = Logger.getInstance();
-    private static DatabaseCatalog dbc = DatabaseCatalog.getInstance();
+    private static DatabaseCatalog dbc;
 
-    static {
-        try {
-            outputdir = Files.createTempDirectory("output_humanReadable").toString();
-        } catch (IOException e) {
-            logger.log(e.getMessage());
-        }
-    }
+    // static {
+    //     try {
+    //         outputdir = Files.createTempDirectory("output_humanReadable").toString();
+    //     } catch (IOException e) {
+    //         logger.log(e.getMessage());
+    //     }
+    // }
 
     @BeforeAll
     static void setup() {
-        // Interpreter.setHumanReadable(true);
-        DatabaseCatalog.setInputDir(inputdir);
-        Interpreter.setOutputdir(outputdir);
+        // DatabaseCatalog.setInputDir(inputdir);
+        // // Interpreter.setHumanReadable(true);
+        // Interpreter.setOutputdir(outputdir);
+        // Interpreter.setInputdir(inputdir);
+        // Interpreter.setTempdir("C:\\Users\\Yohanes\\eclipse-workspace\\cs4321-databse\\src\\test\\resources\\tempDir");
+        // // PhysicalPlanBuilder.setHumanReadable(true);
+        // dbc = DatabaseCatalog.getInstance();
+        // Interpreter.buildIndexInfos();
+
         Interpreter.setInputdir(inputdir);
+        Interpreter.setOutputdir(outputdir);
+        Interpreter.setTempdir(tempdir);
+        DatabaseCatalog.setInputDir(inputdir);
+        PhysicalPlanBuilder.setHumanReadable(false);
+        PhysicalPlanBuilder.setConfigs();
+        Interpreter.buildIndexInfos();
+        PhysicalPlanBuilder.createPagePerIndex(Interpreter.getIndexes());
 
-        // PhysicalPlanBuilder.setHumanReadable(true);
-        HashMap<String, Integer> sailorsColumnMap = new HashMap<>();
-        sailorsColumnMap.put("A", 0);
-        sailorsColumnMap.put("B", 1);
-        sailorsColumnMap.put("C", 2);
+        // // PhysicalPlanBuilder.setHumanReadable(true);
+        // HashMap<String, Integer> sailorsColumnMap = new HashMap<>();
+        // sailorsColumnMap.put("A", 0);
+        // sailorsColumnMap.put("B", 1);
+        // sailorsColumnMap.put("C", 2);
 
-        HashMap<String, Integer> boatsColumnMap = new HashMap<>();
-        boatsColumnMap.put("D", 0);
-        boatsColumnMap.put("E", 1);
-        boatsColumnMap.put("F", 2);
+        // HashMap<String, Integer> boatsColumnMap = new HashMap<>();
+        // boatsColumnMap.put("D", 0);
+        // boatsColumnMap.put("E", 1);
+        // boatsColumnMap.put("F", 2);
 
-        HashMap<String, Integer> reservesColumnMap = new HashMap<>();
-        reservesColumnMap.put("G", 0);
-        reservesColumnMap.put("H", 1);
+        // HashMap<String, Integer> reservesColumnMap = new HashMap<>();
+        // reservesColumnMap.put("G", 0);
+        // reservesColumnMap.put("H", 1);
 
-        HashMap<String, Integer> shipsColumnMap = new HashMap<>();
-        shipsColumnMap.put("X", 0);
-        shipsColumnMap.put("Y", 1);
+        // HashMap<String, Integer> shipsColumnMap = new HashMap<>();
+        // shipsColumnMap.put("X", 0);
+        // shipsColumnMap.put("Y", 1);
 
         // Mockito.when(dbc.tablePath(Mockito.any())).thenCallRealMethod();
         // Mockito.when(dbc.columnMap("Sailors")).thenReturn(sailorsColumnMap);
@@ -74,16 +90,32 @@ class InterpreterHumanReadableTest {
 
     @Test
     void queryOutputHumanReadable() {
-        PhysicalPlanBuilder.setConfigs();
+        // BinaryToHumanReadableUtil.binaryToHuman("C:\\Users\\Yohanes\\eclipse-workspace\\cs4321-databse\\src\\test\\resources\\expectedOutputHumanReadable\\query12",
+        // "C:\\Users\\Yohanes\\eclipse-workspace\\cs4321-databse\\src\\test\\resources\\expectedOutputHumanReadable\\query12H");
+        // BinaryToHumanReadableUtil.binaryToHuman("C:\\Users\\Yohanes\\eclipse-workspace\\cs4321-databse\\src\\test\\resources\\correctOutput_endToEnd\\query12",
+        // "C:\\Users\\Yohanes\\eclipse-workspace\\cs4321-databse\\src\\test\\resources\\correctOutput_endToEnd\\query12H");
         String correctOutputPath = System.getProperty("user.dir") + sep + "src" + sep + "test" + sep + "resources" + sep
                 + "correctOutput_endToEnd";
         Interpreter.parseQueries();
         File[] correctQueries = new File(correctOutputPath).listFiles();
-        System.out.println(correctQueries[0].toString());
+        Stream<File> correctStream = Arrays.stream(correctQueries);
+        List<File> listCorrectQueries = correctStream.filter(file -> file.toString().indexOf("plan") == -1)
+                .collect(Collectors.toList());
+        correctQueries = new File[listCorrectQueries.size()];
+        for (int i = 0; i < correctQueries.length; i++) {
+            correctQueries[i] = listCorrectQueries.get(i);
+        }
         Arrays.sort(correctQueries,
                 (File a, File b) -> Integer.parseInt(a.toString().substring(a.toString().lastIndexOf("y") + 1))
                         - Integer.parseInt(b.toString().substring(b.toString().lastIndexOf("y") + 1)));
         File[] outputQueries = new File(outputdir).listFiles();
+        Stream<File> outputStream = Arrays.stream(outputQueries);
+        List<File> listOutputQueries = outputStream.filter(file -> file.toString().indexOf("plan") == -1)
+                .collect(Collectors.toList());
+        outputQueries = new File[listOutputQueries.size()];
+        for (int i = 0; i < outputQueries.length; i++) {
+            outputQueries[i] = listOutputQueries.get(i);
+        }
         Arrays.sort(outputQueries,
                 (File a, File b) -> Integer.parseInt(a.toString().substring(a.toString().lastIndexOf("y") + 1))
                         - Integer.parseInt(b.toString().substring(b.toString().lastIndexOf("y") + 1)));

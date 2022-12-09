@@ -1,0 +1,4 @@
+Join[Boats.D >= Reserves.H AND Boats.D <= Reserves.H]
+-Leaf[Boats]
+-Leaf[Reserves]
+

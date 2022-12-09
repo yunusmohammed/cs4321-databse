@@ -1,0 +1,8 @@
+DupElim
+-Sort[]
+--Join[]
+[[S1.B, S2.B, S3.B], equals null, min null, max null]
+---Leaf[Sailors]
+---Leaf[Sailors]
+---Leaf[Sailors]
+

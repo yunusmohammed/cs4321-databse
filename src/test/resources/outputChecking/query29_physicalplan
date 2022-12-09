@@ -1,0 +1,4 @@
+ExternalSort[Reserves.G]
+-Project[Reserves.G]
+--TableScan[Reserves]
+

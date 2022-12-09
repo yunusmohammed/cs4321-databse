@@ -1,0 +1,4 @@
+Project[Sailors.B, Sailors.A]
+-Select[Sailors.B = 100]
+--Leaf[Sailors]
+

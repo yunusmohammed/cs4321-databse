@@ -1,0 +1,5 @@
+ExternalSort[R.H]
+-Project[R.G, R.H]
+--Select[R.G < 4]
+---TableScan[Reserves]
+

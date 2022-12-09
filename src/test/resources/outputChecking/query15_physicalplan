@@ -1,0 +1,12 @@
+DupElim
+-ExternalSort[]
+--SMJ[S1.B = S2.B]
+---ExternalSort[S2.B]
+----SMJ[S2.B = S3.B]
+-----ExternalSort[S3.B]
+------TableScan[Sailors]
+-----ExternalSort[S2.B]
+------TableScan[Sailors]
+---ExternalSort[S1.B]
+----TableScan[Sailors]
+

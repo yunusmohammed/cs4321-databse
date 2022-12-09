@@ -61,7 +61,7 @@ public class UnionFind {
     public void union(Column attribute1, Column attribute2) {
         UnionFindElement element1 = find(attribute1);
         UnionFindElement element2 = find(attribute2);
-
+        if(element1 == element2) return;
         if (element2.getAttributes().size() > element1.getAttributes().size()) {
             element1.setParent(attribute2);
             for (Column attribute : element1.getAttributes()) {

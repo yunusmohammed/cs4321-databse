@@ -1,0 +1,11 @@
+DupElim
+-Sort[S2.C]
+--Project[S1.B, S2.C]
+---Join[]
+[[S2.B], equals null, min 302, max null]
+[[S1.A], equals null, min null, max -2]
+----Select[S2.B >= 302]
+-----Leaf[Sailors]
+----Select[S1.A <= -2]
+-----Leaf[Sailors]
+

@@ -1,0 +1,5 @@
+DupElim
+-ExternalSort[]
+--Project[R.G]
+---TableScan[Reserves]
+

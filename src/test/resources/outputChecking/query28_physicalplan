@@ -1,0 +1,4 @@
+BNLJ[Boats.D >= Reserves.H AND Boats.D <= Reserves.H]
+-TableScan[Boats]
+-TableScan[Reserves]
+

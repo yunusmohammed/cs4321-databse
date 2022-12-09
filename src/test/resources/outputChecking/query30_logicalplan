@@ -1,0 +1,5 @@
+DupElim
+-Sort[R.H]
+--Select[R.G = R.G AND R.G < R.H]
+---Leaf[Reserves]
+

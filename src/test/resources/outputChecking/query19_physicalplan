@@ -1,0 +1,6 @@
+ExternalSort[S.C, B.F]
+-Project[B.E, B.F, B.D, S.C]
+--BNLJ[]
+---TableScan[Boats]
+---TableScan[Sailors]
+

@@ -29,7 +29,7 @@ public class DSUExpressionVisitor implements ExpressionVisitor {
         unionFind = new UnionFind();
         this.unusable = new ArrayList<>();
         this.loneExpressions = new HashMap<>();
-        exp.accept(this);
+        if(exp != null) exp.accept(this);
     }
 
     /**

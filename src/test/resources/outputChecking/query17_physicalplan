@@ -1,0 +1,6 @@
+DupElim
+-ExternalSort[B1.F]
+--BNLJ[]
+---TableScan[Boats]
+---TableScan[Boats]
+

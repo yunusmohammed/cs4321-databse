@@ -1,0 +1,13 @@
+DupElim
+-ExternalSort[R.H, S.C]
+--Project[R.H, S.C]
+---SMJ[R.G = S.A]
+----ExternalSort[S.A]
+-----SMJ[B.E = S.A]
+------ExternalSort[B.E]
+-------TableScan[Boats]
+------ExternalSort[S.A]
+-------TableScan[Sailors]
+----ExternalSort[R.G]
+-----TableScan[Reserves]
+

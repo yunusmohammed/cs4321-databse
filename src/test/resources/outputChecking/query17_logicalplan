@@ -1,0 +1,6 @@
+DupElim
+-Sort[B1.F]
+--Join[]
+---Leaf[Boats]
+---Leaf[Boats]
+

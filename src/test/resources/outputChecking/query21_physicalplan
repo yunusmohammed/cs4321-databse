@@ -1,0 +1,13 @@
+DupElim
+-ExternalSort[R3.G, R2.H]
+--Project[R3.G, R1.H, R2.H]
+---SMJ[R1.G = R2.G AND R3.G = R1.G]
+----ExternalSort[R2.G, R3.G]
+-----SMJ[R2.G = R3.G]
+------ExternalSort[R3.G]
+-------TableScan[Reserves]
+------ExternalSort[R2.G]
+-------TableScan[Reserves]
+----ExternalSort[R1.G, R1.G]
+-----TableScan[Reserves]
+

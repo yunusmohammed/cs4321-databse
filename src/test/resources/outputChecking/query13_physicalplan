@@ -1,0 +1,6 @@
+BNLJ[]
+-BNLJ[]
+--TableScan[Sailors2]
+--TableScan[Reserves2]
+-TableScan[Boats2]
+

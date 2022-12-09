@@ -1,0 +1,5 @@
+Project[Sailors.C]
+-BNLJ[Sailors.A <> Reserves.G]
+--TableScan[Reserves]
+--TableScan[Sailors]
+

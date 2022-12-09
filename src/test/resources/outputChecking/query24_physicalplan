@@ -1,0 +1,4 @@
+DupElim
+-ExternalSort[]
+--TableScan[Sailors]
+

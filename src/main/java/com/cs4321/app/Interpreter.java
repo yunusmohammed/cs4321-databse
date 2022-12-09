@@ -236,4 +236,8 @@ public class Interpreter {
     public static List<Statement> getStatements() {
         return statements;
     }
+
+    public static List<BPlusTree> getIndexes() {
+        return indexes;
+    }
 }

@@ -1,0 +1,6 @@
+Select[S.A < 3]
+-Leaf[Sailors]
+
+Select[S.A < 3]
+-Leaf[Sailors]
+

@@ -1,0 +1,9 @@
+DupElim
+-Sort[R.H, S.C]
+--Project[R.H, S.C]
+---Join[]
+[[R.G, S.A, B.E], equals null, min null, max null]
+----Leaf[Reserves]
+----Leaf[Sailors]
+----Leaf[Boats]
+

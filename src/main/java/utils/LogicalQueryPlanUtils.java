@@ -70,7 +70,7 @@ public class LogicalQueryPlanUtils {
      *
      * @return a map of column index offsets for tables after a join operation
      */
-    private static Map<String, Integer> generateJoinTableOffsets(List<LogicalOperator> orderedJoinRelations,
+    public static Map<String, Integer> generateJoinTableOffsets(List<LogicalOperator> orderedJoinRelations,
             AliasMap aliasMap) {
         Map<String, Integer> tableOffset = new HashMap<>();
         int nextOffset = 0;

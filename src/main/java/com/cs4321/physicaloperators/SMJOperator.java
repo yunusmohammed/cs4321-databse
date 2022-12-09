@@ -7,6 +7,7 @@ import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Operator for handling Joins using Sort-Merge-Join algorithm.
@@ -69,8 +70,8 @@ public class SMJOperator extends JoinOperator {
      * @param visitor       the expression visitor of this join operator
      */
     public SMJOperator(Operator leftSort, Operator rightSort, Expression joinCondition,
-            JoinExpressionVisitor visitor, List<Table> originalJoinOrder) {
-        super(leftSort, rightSort, joinCondition, visitor, originalJoinOrder);
+            JoinExpressionVisitor visitor, List<Table> originalJoinOrder, Map<String, Integer> oldTableOffsets) {
+        super(leftSort, rightSort, joinCondition, visitor, originalJoinOrder, oldTableOffsets);
         this.leftSort = this.getLeftChild();
         this.rightSort = this.getRightChild();
         this.started = false;

@@ -40,6 +40,8 @@ public abstract class JoinOperator extends Operator {
 
     private List<Table> originalJoinOrder;
 
+    private Map<String, Integer> oldTableOffsets;
+
     /**
      * Base constructor of the JoinOperator
      */
@@ -56,7 +58,7 @@ public abstract class JoinOperator extends Operator {
      * @param visitor       the expression visitor of this join operator
      */
     public JoinOperator(Operator leftChild, Operator rightChild, Expression joinCondition,
-            JoinExpressionVisitor visitor, List<Table> originalJoinOrder) {
+            JoinExpressionVisitor visitor, List<Table> originalJoinOrder, Map<String, Integer> oldTableOffsets) {
         this.leftChild = leftChild;
         this.rightChild = rightChild;
         this.joinCondition = joinCondition;
@@ -66,6 +68,7 @@ public abstract class JoinOperator extends Operator {
         Map<String, Integer> offset = getTableOffsets();
         addChildrenColumnMap(rightChild, offset, columnMap);
         this.setColumnMap(columnMap);
+        this.oldTableOffsets = oldTableOffsets;
     }
 
     /**
@@ -224,6 +227,10 @@ public abstract class JoinOperator extends Operator {
      */
     public Map<String, Integer> getTableOffsets() {
         return this.visitor.getTableOffsets();
+    }
+
+    public Map<String, Integer> getOldTableOffsets() {
+        return this.oldTableOffsets;
     }
 
     /**

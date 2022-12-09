@@ -3,6 +3,7 @@ package com.cs4321.physicaloperators;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.cs4321.app.Tuple;
 
@@ -46,8 +47,9 @@ public class BNLJoinOperator extends JoinOperator {
    * @param bufferSize    the maximum size of buffer in units of pages
    */
   public BNLJoinOperator(Operator leftChild, Operator rightChild, Expression joinCondition,
-      JoinExpressionVisitor visitor, int bufferSize, List<Table> originalJoinOrder) {
-    super(leftChild, rightChild, joinCondition, visitor, originalJoinOrder);
+      JoinExpressionVisitor visitor, int bufferSize, List<Table> originalJoinOrder,
+      Map<String, Integer> oldTableOffsets) {
+    super(leftChild, rightChild, joinCondition, visitor, originalJoinOrder, oldTableOffsets);
 
     Tuple leftTuple = leftChild.getNextTuple();
     int leftChildTupleAttributeCount = (leftTuple == null) ? 0 : leftTuple.size();

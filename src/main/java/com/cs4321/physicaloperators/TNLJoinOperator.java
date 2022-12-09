@@ -1,6 +1,7 @@
 package com.cs4321.physicaloperators;
 
 import java.util.List;
+import java.util.Map;
 
 import com.cs4321.app.Tuple;
 import net.sf.jsqlparser.expression.Expression;
@@ -34,8 +35,8 @@ public class TNLJoinOperator extends JoinOperator {
      * @param visitor       the expression visitor of this join operator
      */
     public TNLJoinOperator(Operator leftChild, Operator rightChild, Expression joinCondition,
-            JoinExpressionVisitor visitor, List<Table> originalJoinOrder) {
-        super(leftChild, rightChild, joinCondition, visitor, originalJoinOrder);
+            JoinExpressionVisitor visitor, List<Table> originalJoinOrder, Map<String, Integer> oldTableOffsets) {
+        super(leftChild, rightChild, joinCondition, visitor, originalJoinOrder, oldTableOffsets);
     }
 
     @Override

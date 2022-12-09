@@ -71,7 +71,7 @@ public class ProjectionOperator extends Operator {
                 if (this.child instanceof JoinOperator) {
                     String tableName = column.getTable().getAlias();
                     tableName = (tableName != null) ? tableName : column.getTable().getName();
-                    int offset = ((JoinOperator) this.child).getTableOffsets().get(tableName);
+                    int offset = ((JoinOperator) this.child).getOldTableOffsets().get(tableName);
                     index += offset;
                 }
                 builder.append(row.get(index));
@@ -126,7 +126,8 @@ public class ProjectionOperator extends Operator {
             builder.append("-");
         }
         String selectItems = "[]";
-        if(this.getSelectItems() != null) selectItems = this.getSelectItems().toString();
+        if (this.getSelectItems() != null)
+            selectItems = this.getSelectItems().toString();
         builder.append("Project" + selectItems);
         builder.append("\n");
         builder.append(this.getChild().toString(level + 1));
